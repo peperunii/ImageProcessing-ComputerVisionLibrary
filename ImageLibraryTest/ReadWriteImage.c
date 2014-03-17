@@ -3,6 +3,8 @@
 #include <setjmp.h>
 #include <math.h>
 #include "CV_Library.h"
+#include <string.h>
+#include <stdlib.h>
 
 static void put_scanline(unsigned char buffer[], int line, int width,
                          int height, unsigned char *rgbpix);
@@ -73,7 +75,7 @@ GLOBAL(void) WriteImage(char * filename, struct Image Img_src, int quality)//uin
   cinfo.err = jpeg_std_error(&jerr);
 
   jpeg_create_compress(&cinfo);
-
+  //filename = "C:\\Users\\Petar\\Downloads\\pic.jpg";
   if ((outfile = fopen(filename, "wb")) == NULL) {
     fprintf(stderr, "can't open %s\n", filename);
 	return;
@@ -447,7 +449,10 @@ struct Image NoiseCorrection(struct Image Img_src, double percentage, int Algoty
 	int i, j, z, l;
 	struct Image Img_dst;
 	int CurrentValue;
+	int ProbablityValue = 0;
 	Img_dst = CreateNewImage(Img_src);
+	memcpy(&Img_dst, &Img_src,sizeof(Image));
+
 	if (Img_dst.isLoaded != 1) return Img_dst;
 	/* if the current pixel is X % different from the pixels around -> it is noise*/
 
@@ -457,9 +462,18 @@ struct Image NoiseCorrection(struct Image Img_src, double percentage, int Algoty
 		{
 			for (z = 0; z < 3; z++)
 			{
+				ProbablityValue = 0;
 				CurrentValue = Img_src.rgbpix[i * 3 * Img_src.Width + 3 * j + z];
 				
-				//if (CurrentValue )
+				if (percentage * CurrentValue < Img_src.rgbpix[(i-1) * 3 * Img_src.Width + 3 * j + z] || CurrentValue > percentage *  Img_src.rgbpix[(i-1) * 3 * Img_src.Width + 3 * j + z]) ProbablityValue++;
+				if (percentage * CurrentValue < Img_src.rgbpix[(i+1) * 3 * Img_src.Width + 3 * j + z] || CurrentValue > percentage *  Img_src.rgbpix[(i+1) * 3 * Img_src.Width + 3 * j + z]) ProbablityValue++;
+				if (percentage * CurrentValue < Img_src.rgbpix[(i) * 3 * Img_src.Width + 3 * (j-1) + z] || CurrentValue > percentage *  Img_src.rgbpix[(i) * 3 * Img_src.Width + 3 * (j-1) + z]) ProbablityValue++;
+				if (percentage * CurrentValue < Img_src.rgbpix[(i) * 3 * Img_src.Width + 3 * (j+1) + z] || CurrentValue > percentage *  Img_src.rgbpix[(i) * 3 * Img_src.Width + 3 * (j+1) + z]) ProbablityValue++;
+				
+				if(ProbablityValue >= 3)
+				{
+					Img_dst.rgbpix[(i) * 3 * Img_src.Width + 3 * j + z] = ( Img_src.rgbpix[(i-1) * 3 * Img_src.Width + 3 * j + z] + Img_src.rgbpix[(i+1) * 3 * Img_src.Width + 3 * j + z] + Img_src.rgbpix[(i) * 3 * Img_src.Width + 3 * (j-1) + z] + Img_src.rgbpix[(i) * 3 * Img_src.Width + 3 * (j+1) + z])/4;
+				}
 				//	arr_image[i * 3 * Cropped_width + 3 * j + 0] = (arr_image[(i - 1) * 3 * Cropped_width + 3 * j + 0] + arr_image[(i + 1) * 3 * Cropped_width + 3 * j + 0] + arr_image[i * 3 * Cropped_width + 3 * (j + 1) + 0] + arr_image[(i - 1) * 3 * Cropped_width + 3 * (j - 1) + 0]) / 4;
 				//arr_image[i * 3 * Cropped_width + 3 * j + 1] = (arr_image[(i - 1) * 3 * Cropped_width + 3 * j + 1] + arr_image[(i + 1) * 3 * Cropped_width + 3 * j + 1] + arr_image[i * 3 * Cropped_width + 3 * (j + 1) + 1] + arr_image[(i - 1) * 3 * Cropped_width + 3 * (j - 1) + 1]) / 4;
 				//arr_image[i * 3 * Cropped_width + 3 * j + 2] = (arr_image[(i - 1) * 3 * Cropped_width + 3 * j + 2] + arr_image[(i + 1) * 3 * Cropped_width + 3 * j + 2] + arr_image[i * 3 * Cropped_width + 3 * (j + 1) + 2] + arr_image[(i - 1) * 3 * Cropped_width + 3 * (j - 1) + 2]) / 4;

@@ -9,23 +9,22 @@
 int main()
 {
 	/*OPEN*/
-	Image Img_src = ReadImage("C:\\Users\\petar.nikolov\\Downloads\\attachments\\2 et.JPG");
+	Image Img_src = ReadImage("C:\\Users\\Petar\\Downloads\\kostenurka.jpg");
 	Image Img_dst = CreateNewImage(Img_src);
 	struct point_xy CentralPoint;
-	CentralPoint.X = Img_dst.Width/2;
+	CentralPoint.X = Img_dst.Width / 2;
 	CentralPoint.Y = Img_dst.Height / 2;
 
-
-
 	/*BLUR*/
-	//Img_dst = BlurImage(Img_src, CentralPoint, 7, 6, 0, 50 );
+	//Img_dst = BlurImage(Img_src, CentralPoint, 15, 6, 1, 80 );
 	/*ROTATE*/
-	//Img_dst = RotateImage(Img_dst, 90, CentralPoint);
+	Img_dst = RotateImage(Img_src, 180, CentralPoint);
 	/*BRIGHTNESS*/
-	//Img_dst = BrightnessCorrection(Img_src, 25);
+	//Img_dst = BrightnessCorrection(Img_dst, 25);
 	/*CONRAST*/
-	//Img_dst = ContrastCorrection(Img_src, 50);
+	//Img_dst = ContrastCorrection(Img_dst, 15);
 	/*WRITE*/
-    WriteImage("D:\\output_brightness.jpg", Img_dst, 100);
+	Img_dst =  NoiseCorrection(Img_dst,60,1);
+    WriteImage("C:\\Users\\Petar\\Downloads\\pic.jpg", Img_dst, 100) ;
 	return 0;
 }
