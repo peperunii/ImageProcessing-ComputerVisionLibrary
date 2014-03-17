@@ -1,5 +1,5 @@
 This is my Computer Vision - image processing library
-for now the current functions are added:
+for now the following functions are added:
 
 WriteImage
 ReadImage - JPEG ONLY
