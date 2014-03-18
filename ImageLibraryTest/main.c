@@ -9,22 +9,58 @@
 int main()
 {
 	/*OPEN*/
-	Image Img_src = ReadImage("C:\\Users\\Petar\\Downloads\\kostenurka.jpg");
-	Image Img_dst = CreateNewImage(Img_src);
+	Image Img_src = ReadImage("summer.jpg");
+	Image Img_dst = CreateNewImage(&Img_src, &Img_dst, 1);
+	Image Img_dst2 = CreateNewImage(&Img_src, &Img_dst2, 1);
+
 	struct point_xy CentralPoint;
-	CentralPoint.X = Img_dst.Width / 2;
-	CentralPoint.Y = Img_dst.Height / 2;
+	CentralPoint.X = Img_dst.Width / 2 - 200;
+	CentralPoint.Y = Img_dst.Height / 2 + 200;
 
 	/*BLUR*/
-	//Img_dst = BlurImage(Img_src, CentralPoint, 15, 6, 1, 80 );
+	//BlurImageAroundPoint(&Img_src, &Img_dst, CentralPoint, 17, 3, 1, 100 );
+	
+	/*BLUR - gaussian*/
+	//BlurImageGussian(&Img_src, &Img_dst, 15, 0.6);
+
 	/*ROTATE*/
-	Img_dst = RotateImage(Img_src, 180, CentralPoint);
+	//RotateImage(&Img_src, &Img_dst, 180, CentralPoint);
+	
 	/*BRIGHTNESS*/
-	//Img_dst = BrightnessCorrection(Img_dst, 25);
+	//BrightnessCorrection(&Img_src, &Img_dst, 10);
+	
 	/*CONRAST*/
-	//Img_dst = ContrastCorrection(Img_dst, 15);
+	//ContrastCorrection(&Img_src,  &Img_dst,3);
+	
+	/*NOISE*/
+	//NoiseCorrection(&Img_src, &Img_dst, 60,1);
+	
+	/*WHITE Balance*/
+	//WhiteBalanceCorrection(&Img_src, &Img_dst, 2);
+	
+	/*GAMMA*/
+	//GammaCorrection(&Img_src, &Img_dst, 0.7, 0.7, 0.7);
+	
+	/*GrayScale - result in 3 channels*/
+	//ConvertToGrayscale_3Channels(&Img_src, &Img_dst);
+	ConvertToGrayscale_1Channel(&Img_src, &Img_dst);
+	
+	/*ZOOM - in_or_out +-Percentage (SCALE)*/
+	//ScaleImage(&Img_src, &Img_dst, 80);
+
+	/*TRANSLATION*/
+	//TranslateImage(&Img_src, &Img_dst, CentralPoint);
+	
+	/*EDGE - Contour*/
+	EdgeExtraction(&Img_dst, &Img_dst2, 1, 0, 0);
+	
 	/*WRITE*/
-	Img_dst =  NoiseCorrection(Img_dst,60,1);
-    WriteImage("C:\\Users\\Petar\\Downloads\\pic.jpg", Img_dst, 100) ;
+    WriteImage("Result.jpg", Img_dst, 100) ;
+	
+	/* DESTROY images*/
+	DestroyImage(&Img_src);
+	DestroyImage(&Img_dst);
+	DestroyImage(&Img_dst2);
+
 	return 0;
 }
