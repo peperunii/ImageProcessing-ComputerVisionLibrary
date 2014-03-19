@@ -8,8 +8,10 @@
 
 int main()
 {
+	/*http://rosettacode.org/wiki/Canny_edge_detector*/
+
 	/*OPEN*/
-	Image Img_src = ReadImage("summer.jpg");
+	Image Img_src = ReadImage("test.jpg");
 	Image Img_dst = CreateNewImage(&Img_src, &Img_dst, 1);
 	Image Img_dst2 = CreateNewImage(&Img_src, &Img_dst2, 1);
 
@@ -46,13 +48,13 @@ int main()
 	ConvertToGrayscale_1Channel(&Img_src, &Img_dst);
 	
 	/*ZOOM - in_or_out +-Percentage (SCALE)*/
-	//ScaleImage(&Img_src, &Img_dst, 80);
+	//ScaleImage(&Img_dst, &Img_dst2, 50);
 
 	/*TRANSLATION*/
 	//TranslateImage(&Img_src, &Img_dst, CentralPoint);
 	
 	/*EDGE - Contour*/
-	EdgeExtraction(&Img_dst, &Img_dst2, 1, 0, 0);
+	EdgeExtraction(&Img_dst2, &Img_dst, 1, 0.5, 50);
 	
 	/*WRITE*/
     WriteImage("Result.jpg", Img_dst, 100) ;

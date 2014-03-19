@@ -53,4 +53,4 @@ void			 FindDerrivative_XY(struct Image *Img_src, struct Image *DerrivativeX_ima
 void			 FindMagnitudeOfGradient(struct Image *DerrivativeX_image, struct Image *DerrivativeY_image, struct Image *Magnitude);
 void			 FindNonMaximumSupp(struct Image *Magnitude, struct Image *DerrivativeX, struct Image *DerrivativeY, struct Image *NMS);
 void			 FindHysteresis(struct Image *Magnitude, struct Image *NMS, struct Image *Img_dst, int Algo_param1, int Algo_param2);
-void			 Follow_edges(unsigned char *edgemapptr, short *edgemagptr, short lowval, int cols);
+void			 Follow_edges(unsigned char *edgemapptr, unsigned char *edgemagptr, unsigned char lowval, int cols);

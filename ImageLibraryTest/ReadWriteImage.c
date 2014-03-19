@@ -601,7 +601,7 @@ struct Image NoiseCorrection(struct Image *Img_src, struct Image *Img_dst, doubl
 		{
 			for (j = 1; j < Img_dst->Width - 1; j++)
 			{
-				for (z = 0; z < 3; z++)
+				for (z = 0; z < Img_dst->Num_channels; z++)
 				{
 					ProbablityValue = 0;
 					CurrentValue = Img_src->rgbpix[i * 3 * Img_src->Width + 3 * j + z];
@@ -638,7 +638,7 @@ struct Image GammaCorrection(struct Image *Img_src, struct Image *Img_dst, doubl
 	int greenGamma[256];
 	int blueGamma[256];
 
-	for (int i = 0; i < 256; ++i)
+	for (i = 0; i < 256; ++i)
 	{
 		redGamma[i] = MIN(255, (int)((255.0 * pow((double)i / 255.0, 1.0 / RedGamma)) + 0.5));
 		greenGamma[i] = MIN(255, (int)((255.0 * pow((double)i / 255.0, 1.0 / GreenGamma)) + 0.5));
@@ -724,7 +724,7 @@ A F F I N E  -  Transformation: Rotation
 struct Image RotateImage(struct Image *Img_src, struct Image *Img_dst, double RotationAngle, struct point_xy CentralPoint)
 {
 	float Sx, Matrix[2][2], Cos, Sin;
-	int i, j;
+	int i, j, z ;
 	int x_new = 0, y_new = 0;
 	int currentPixel_smallImage = 0;
 
@@ -747,9 +747,11 @@ struct Image RotateImage(struct Image *Img_src, struct Image *Img_dst, double Ro
 			if (x_new < 0) x_new = 0;
 			if (y_new > Img_dst->Height) y_new = Img_dst->Height;
 			if (y_new < 0) y_new = 0;
-			Img_dst->rgbpix[y_new * 3 * Img_dst->Width + 3 * x_new + 0] = Img_src->rgbpix[i * 3 * Img_dst->Width + 3 * j + 0];
-			Img_dst->rgbpix[y_new * 3 * Img_dst->Width + 3 * x_new + 1] = Img_src->rgbpix[i * 3 * Img_dst->Width + 3 * j + 1];
-			Img_dst->rgbpix[y_new * 3 * Img_dst->Width + 3 * x_new + 2] = Img_src->rgbpix[i * 3 * Img_dst->Width + 3 * j + 2];
+			
+			for(z = 0; z < Img_dst->Num_channels; z++)
+			{
+				Img_dst->rgbpix[y_new * Img_dst->Num_channels * Img_dst->Width + Img_dst->Num_channels * x_new + z] = Img_src->rgbpix[i * Img_dst->Num_channels * Img_dst->Width + Img_dst->Num_channels * j + z];
+			}
 		}
 	}
 
@@ -761,7 +763,7 @@ struct Image RotateImage(struct Image *Img_src, struct Image *Img_dst, double Ro
 */
 struct Image ScaleImage(struct Image *Img_src, struct Image *Img_dst, double ScalePercentage)
 {
-	int i, j;
+	int i, j, z;
 	int NewX = 0;
 	int NewY = 0;
 	Img_dst->Width = Img_src->Width * (1 + (ScalePercentage / 100.0));
@@ -782,9 +784,10 @@ struct Image ScaleImage(struct Image *Img_src, struct Image *Img_dst, double Sca
 				if (NewX >= Img_src->Width) NewX = Img_src->Width - 1;
 				if (NewY >= Img_src->Height) NewY = Img_src->Height - 1;
 
-				Img_dst->rgbpix[3 * (i*Img_dst->Width + j)    ] = Img_src->rgbpix[3 * ((NewY)*Img_src->Width + (NewX))    ];
-				Img_dst->rgbpix[3 * (i*Img_dst->Width + j) + 1] = Img_src->rgbpix[3 * ((NewY)*Img_src->Width + (NewX)) + 1];
-				Img_dst->rgbpix[3 * (i*Img_dst->Width + j) + 2] = Img_src->rgbpix[3 * ((NewY)*Img_src->Width + (NewX)) + 2];
+				for(z = 0; z < Img_dst->Num_channels; z++)
+				{
+					Img_dst->rgbpix[Img_dst->Num_channels * (i*Img_dst->Width + j) + z ] = Img_src->rgbpix[Img_dst->Num_channels * ((NewY)*Img_src->Width + (NewX)) + z ];
+				}
 			}
 		}
 	}
@@ -802,9 +805,10 @@ struct Image ScaleImage(struct Image *Img_src, struct Image *Img_dst, double Sca
 				if (NewX >= Img_src->Width) NewX = Img_src->Width - 1;
 				if (NewY >= Img_src->Height) NewY = Img_src->Height - 1;
 
-				Img_dst->rgbpix[3 * (i*Img_dst->Width + j)    ] = Img_src->rgbpix[3 * ((NewY)*Img_src->Width + (NewX))    ];
-				Img_dst->rgbpix[3 * (i*Img_dst->Width + j) + 1] = Img_src->rgbpix[3 * ((NewY)*Img_src->Width + (NewX)) + 1];
-				Img_dst->rgbpix[3 * (i*Img_dst->Width + j) + 2] = Img_src->rgbpix[3 * ((NewY)*Img_src->Width + (NewX)) + 2];
+				for(z = 0; z < Img_dst->Num_channels; z++)
+				{
+					Img_dst->rgbpix[Img_dst->Num_channels * (i*Img_dst->Width + j) + z ] = Img_src->rgbpix[Img_dst->Num_channels * ((NewY)*Img_src->Width + (NewX)) + z ];
+				}
 			}
 		}
 	}
@@ -818,7 +822,7 @@ struct Image ScaleImage(struct Image *Img_src, struct Image *Img_dst, double Sca
 */
 struct Image TranslateImage(struct Image *Img_src, struct Image *Img_dst, struct point_xy ToPoint)
 {
-	int i, j;
+	int i, j, z;
 	int NewX = 0, NewY = 0;
 	
 	int ShiftX = ToPoint.X - Img_dst->Width / 2;
@@ -835,10 +839,11 @@ struct Image TranslateImage(struct Image *Img_src, struct Image *Img_dst, struct
 			if (ShiftX > 0)if (NewX >= Img_dst->Width) continue;
 			if (ShiftY < 0) if(NewY < 0) continue;
 			if (ShiftY > 0)if (NewY >= Img_dst->Height) continue;
-
-			Img_dst->rgbpix[3 * (i*Img_dst->Width + j)    ] = Img_src->rgbpix[3 * ((NewY)*Img_src->Width + (NewX))    ];
-			Img_dst->rgbpix[3 * (i*Img_dst->Width + j) + 1] = Img_src->rgbpix[3 * ((NewY)*Img_src->Width + (NewX)) + 1];
-			Img_dst->rgbpix[3 * (i*Img_dst->Width + j) + 2] = Img_src->rgbpix[3 * ((NewY)*Img_src->Width + (NewX)) + 2];
+			
+			for(z = 0; z < Img_dst->Num_channels; z++)
+			{
+				Img_dst->rgbpix[Img_dst->Num_channels * (i*Img_dst->Width + j) + z] = Img_src->rgbpix[Img_dst->Num_channels * ((NewY)*Img_src->Width + (NewX)) + z];
+			}
 		}
 	}
 	return *Img_dst;
@@ -852,12 +857,15 @@ struct ArrPoints EdgeExtraction(struct Image *Img_src, struct Image *Img_dst, in
 	int i, j, z, l;
 	int NewX = 0, NewY = 0;
 	struct ArrPoints ArrPts;
-	struct Image DerrivativeX = CreateNewImage(&Img_src, &DerrivativeX, 1);
-	struct Image DerrivativeY = CreateNewImage(&Img_src, &DerrivativeX, 1);
-	struct Image Magnitude    = CreateNewImage(&Img_src, &Magnitude, 1);
-	struct Image NMS = CreateNewImage(&Img_src, &NMS, 1);
-	struct Image Hysteresis = CreateNewImage(&Img_src, &Hysteresis, 1);
+	struct Image DerrivativeX = CreateNewImage(Img_src, &DerrivativeX, 1);
+	struct Image DerrivativeY = CreateNewImage(Img_src, &DerrivativeY, 1);
+	struct Image Magnitude    = CreateNewImage(Img_src, &Magnitude, 1);
+	struct Image NMS = CreateNewImage(Img_src, &NMS, 1);
+	struct Image Hysteresis = CreateNewImage(Img_src, &Hysteresis, 1);
 
+	Img_dst->Width = Img_src->Width;
+	Img_dst->Height = Img_src->Height;
+	Img_dst->rgbpix = (unsigned char *)realloc(Img_dst->rgbpix, Img_dst->Num_channels * Img_dst->Width * Img_dst->Height * sizeof(unsigned char));
 	ArrPts.ArrayOfPoints = (struct point_xy *)calloc(50,sizeof(struct point_xy));
 
 	if (Algotype < 1 || Algotype > 3)
@@ -873,7 +881,7 @@ struct ArrPoints EdgeExtraction(struct Image *Img_src, struct Image *Img_dst, in
 		FindDerrivative_XY(Img_dst, &DerrivativeX, &DerrivativeY);
 		FindMagnitudeOfGradient(&DerrivativeX, &DerrivativeY, &Magnitude);
 		FindNonMaximumSupp(&Magnitude, &DerrivativeX, &DerrivativeY, &NMS);
-		FindHysteresis(&Magnitude, &NMS, &Img_dst, Algo_param1, Algo_param2);
+		FindHysteresis(&Magnitude, &NMS, &Hysteresis, Algo_param1, Algo_param2);
 	}
 	/* Sobel */
 	else if (Algotype == 2)
@@ -886,6 +894,9 @@ struct ArrPoints EdgeExtraction(struct Image *Img_src, struct Image *Img_dst, in
 
 	}
 
+	memcpy(Img_dst->rgbpix, Hysteresis.rgbpix, Hysteresis.Width* Hysteresis.Height * sizeof(unsigned char));
+
+	DestroyImage(&Hysteresis);
 	DestroyImage(&DerrivativeX);
 	DestroyImage(&DerrivativeY);
 	DestroyImage(&Magnitude);
@@ -956,11 +967,11 @@ void FindMagnitudeOfGradient(struct Image *DerrivativeX_image, struct Image *Der
 void FindNonMaximumSupp(struct Image *Magnitude, struct Image *DerrivativeX, struct Image *DerrivativeY, struct Image *NMS)
 {
 	int rowcount, colcount, count;
-	short *magrowptr, *magptr;
-	short *gxrowptr, *gxptr;
-	short *gyrowptr, *gyptr, z1, z2;
-	short m00, gx, gy;
-	float mag1, mag2, xperp, yperp;
+	unsigned char *magrowptr, *magptr;
+	unsigned char *gxrowptr, *gxptr;
+	unsigned char *gyrowptr, *gyptr, z1, z2;
+	unsigned char m00, gx = 0, gy = 0;
+	float mag1 = 0, mag2 = 0, xperp = 0, yperp = 0;
 	unsigned char *resultrowptr, *resultptr;
 	int nrows = DerrivativeX->Height;
 	int ncols = DerrivativeX->Width;
@@ -989,12 +1000,13 @@ void FindNonMaximumSupp(struct Image *Magnitude, struct Image *DerrivativeX, str
 	****************************************************************************/
 	for (rowcount = 1, magrowptr = mag + ncols + 1, gxrowptr = gradx + ncols + 1,
 		gyrowptr = grady + ncols + 1, resultrowptr = result + ncols + 1;
-		rowcount<nrows - 2;
-	rowcount++, magrowptr += ncols, gyrowptr += ncols, gxrowptr += ncols,
-		resultrowptr += ncols){
+		rowcount<nrows - 2; rowcount++, magrowptr += ncols, gyrowptr += ncols, gxrowptr += ncols,
+		resultrowptr += ncols)
+	{
 		for (colcount = 1, magptr = magrowptr, gxptr = gxrowptr, gyptr = gyrowptr,
 			resultptr = resultrowptr; colcount<ncols - 2;
-			colcount++, magptr++, gxptr++, gyptr++, resultptr++){
+			colcount++, magptr++, gxptr++, gyptr++, resultptr++)
+		{
 			m00 = *magptr;
 			if (m00 == 0){
 				*resultptr = (unsigned char)NOEDGE;
@@ -1165,7 +1177,7 @@ void FindHysteresis(struct Image *Magnitude, struct Image *NMS, struct Image *Im
 {
 	int r, c, pos, edges, lowcount, highcount, lowthreshold, highthreshold,
 		i, hist[32768], rr, cc;
-	short int maximum_mag, sumpix;
+	unsigned char maximum_mag, sumpix;
 
 	int rows = Img_dst->Height;
 	int cols = Img_dst->Width;
@@ -1260,9 +1272,9 @@ void FindHysteresis(struct Image *Magnitude, struct Image *NMS, struct Image *Im
 /*
 	Follow  E D G E S
 */
-void Follow_edges(unsigned char *edgemapptr, short *edgemagptr, short lowval, int cols)
+void Follow_edges(unsigned char *edgemapptr, unsigned char *edgemagptr, unsigned char lowval, int cols)
 {
-	short *tempmagptr;
+	unsigned char *tempmagptr;
 	unsigned char *tempmapptr;
 	int i;
 	float thethresh;
