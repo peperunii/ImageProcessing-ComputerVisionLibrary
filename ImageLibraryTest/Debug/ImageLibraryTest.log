@@ -1,16 +1,72 @@
-﻿Build started 3/19/2014 2:32:34 AM.
-     1>Project "C:\PROJECTS\CV_Library\ImageLibraryTest\ImageLibraryTest.vcxproj" on node 2 (Build target(s)).
-       Project file contains ToolsVersion="12.0". This toolset is unknown or missing. You may be able to resolve this by installing the appropriate .NET Framework for this toolset. Treating the project as if it had ToolsVersion="4.0".
+﻿Build started 19.03.2014 18:08:57 ч..
+     1>Project "D:\Projects\ImageProcessing - CV Library\ImageLibraryTest\ImageLibraryTest.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /I"C:\Users\Petar\Desktop\jpeg-9a\jpeg-9a" /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _LIB /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc110.pdb" /Gd /TC /analyze- /errorReport:prompt main.c
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I"C:\msys\1.0\home\petar.nikolov\jpeg-9a" /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _LIB /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TC /analyze- /errorReport:prompt ReadWriteImage.c main.c
          main.c
-     1>c:\projects\cv_library\imagelibrarytest\main.c(55): warning C4244: 'function' : conversion from 'double' to 'int', possible loss of data
+         ReadWriteImage.c
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(287): warning C4244: 'function' : conversion from 'double' to 'int', possible loss of data
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(346): warning C4244: '=' : conversion from 'double' to 'unsigned char', possible loss of data
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(404): warning C4244: '=' : conversion from 'double' to 'unsigned char', possible loss of data
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(418): warning C4244: 'function' : conversion from 'double' to 'int', possible loss of data
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(433): warning C4244: '=' : conversion from 'double' to 'unsigned char', possible loss of data
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(471): warning C4244: '=' : conversion from 'double' to 'unsigned char', possible loss of data
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(521): warning C4244: '=' : conversion from 'double' to 'unsigned char', possible loss of data
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(524): warning C4244: '=' : conversion from 'double' to 'unsigned char', possible loss of data
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(551): warning C4244: '=' : conversion from 'double' to 'unsigned char', possible loss of data
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(554): warning C4244: '=' : conversion from 'double' to 'unsigned char', possible loss of data
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(589): warning C4244: '=' : conversion from 'double' to 'unsigned char', possible loss of data
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(592): warning C4244: '=' : conversion from 'double' to 'unsigned char', possible loss of data
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(595): warning C4244: '=' : conversion from 'double' to 'unsigned char', possible loss of data
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(622): warning C4244: '=' : conversion from 'double' to 'unsigned char', possible loss of data
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(625): warning C4244: '=' : conversion from 'double' to 'unsigned char', possible loss of data
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(745): warning C4244: '=' : conversion from 'double' to 'unsigned char', possible loss of data
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(767): warning C4244: '=' : conversion from 'double' to 'unsigned char', possible loss of data
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(783): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(784): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(785): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(796): warning C4244: '=' : conversion from 'double' to 'int', possible loss of data
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(797): warning C4244: '=' : conversion from 'double' to 'int', possible loss of data
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(821): warning C4244: '=' : conversion from 'double' to 'int', possible loss of data
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(822): warning C4244: '=' : conversion from 'double' to 'int', possible loss of data
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(831): warning C4244: '=' : conversion from 'double' to 'int', possible loss of data
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(832): warning C4244: '=' : conversion from 'double' to 'int', possible loss of data
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(852): warning C4244: '=' : conversion from 'double' to 'int', possible loss of data
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(853): warning C4244: '=' : conversion from 'double' to 'int', possible loss of data
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(880): warning C4244: 'initializing' : conversion from 'double' to 'int', possible loss of data
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(881): warning C4244: 'initializing' : conversion from 'double' to 'int', possible loss of data
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(938): warning C4244: 'initializing' : conversion from 'int' to 'const float', possible loss of data
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(990): warning C4244: 'function' : conversion from 'double' to 'int', possible loss of data
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(1001): warning C4244: 'function' : conversion from 'double' to 'int', possible loss of data
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(1002): warning C4090: 'function' : different 'const' qualifiers
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(1003): warning C4090: 'function' : different 'const' qualifiers
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(1006): warning C4090: 'function' : different 'const' qualifiers
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(1007): warning C4090: 'function' : different 'const' qualifiers
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(1021): warning C4244: 'function' : conversion from 'double' to 'int', possible loss of data
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(1022): warning C4090: 'function' : different 'const' qualifiers
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(1023): warning C4090: 'function' : different 'const' qualifiers
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(1026): warning C4090: 'function' : different 'const' qualifiers
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(1027): warning C4090: 'function' : different 'const' qualifiers
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(909): warning C4101: 'i' : unreferenced local variable
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(909): warning C4101: 'z' : unreferenced local variable
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(909): warning C4101: 'l' : unreferenced local variable
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(909): warning C4101: 'j' : unreferenced local variable
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(1352): warning C4101: 'sumpix' : unreferenced local variable
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(1351): warning C4101: 'cc' : unreferenced local variable
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(1351): warning C4101: 'i' : unreferenced local variable
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(1351): warning C4101: 'rr' : unreferenced local variable
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(1452): warning C4101: 'thethresh' : unreferenced local variable
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(1474): warning C4244: 'initializing' : conversion from 'double' to 'int', possible loss of data
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(1497): warning C4244: '+=' : conversion from 'float' to 'int', possible loss of data
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(1472): warning C4101: 'n' : unreferenced local variable
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(1472): warning C4101: 'm' : unreferenced local variable
+         Generating Code...
+     1>d:\projects\imageprocessing - cv library\imagelibrarytest\readwriteimage.c(771): warning C4715: 'ConvertToGrayscale_1Channel' : not all control paths return a value
        Link:
-         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\PROJECTS\CV_Library\Debug\ImageLibraryTest.exe" /INCREMENTAL /NOLOGO /LIBPATH:"C:\msys\1.0\home\petar.nikolov\jpeg-9a\.libs" "C:\Users\Petar\Desktop\jpeg-9a\jpeg-9a\.libs\*.o" kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\PROJECTS\CV_Library\Debug\ImageLibraryTest.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\PROJECTS\CV_Library\Debug\ImageLibraryTest.lib" /MACHINE:X86 Debug\main.obj
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"D:\Projects\ImageProcessing - CV Library\Debug\ImageLibraryTest.exe" /INCREMENTAL /NOLOGO /LIBPATH:"C:\msys\1.0\home\petar.nikolov\jpeg-9a\.libs" "C:\msys\1.0\home\petar.nikolov\jpeg-9a\.libs\*.o" kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:\Projects\ImageProcessing - CV Library\Debug\ImageLibraryTest.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\Projects\ImageProcessing - CV Library\Debug\ImageLibraryTest.lib" /MACHINE:X86 Debug\main.obj
          Debug\ReadWriteImage.obj
-         ImageLibraryTest.vcxproj -> C:\PROJECTS\CV_Library\Debug\ImageLibraryTest.exe
-     1>Done Building Project "C:\PROJECTS\CV_Library\ImageLibraryTest\ImageLibraryTest.vcxproj" (Build target(s)).
+         ImageLibraryTest.vcxproj -> D:\Projects\ImageProcessing - CV Library\Debug\ImageLibraryTest.exe
+     1>Done Building Project "D:\Projects\ImageProcessing - CV Library\ImageLibraryTest\ImageLibraryTest.vcxproj" (Build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:00.24
+Time Elapsed 00:00:00.48

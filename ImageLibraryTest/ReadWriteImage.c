@@ -298,10 +298,19 @@ struct Image BlurImageAroundPoint(struct Image *Img_src, struct Image *Img_dst, 
 		}
 	}
 
-	for (i = BlurPixelRadius / 2; i < Img_dst->Height - BlurPixelRadius / 2; i++)
+	for (i = 0; i < Img_dst->Height; i++)
 	{
-		for (j = BlurPixelRadius / 2; j < Img_dst->Width - BlurPixelRadius / 2; j++)
+		for (j = 0; j < Img_dst->Width; j++)
 		{
+
+			if (i < BlurPixelRadius / 2 || j < BlurPixelRadius / 2 || j >= Img_dst->Width - BlurPixelRadius / 2 || i >= Img_dst->Height - BlurPixelRadius / 2)
+			{
+				for (l = 0; l < Img_dst->Num_channels; l++)
+				{
+					Img_dst->rgbpix[Img_dst->Num_channels * (i*Img_dst->Width + j) + l] = Img_src->rgbpix[Img_dst->Num_channels * (i*Img_dst->Width + j) + l];
+				}
+				continue;
+			}
 			for (l = 0; l < 3; l++)
 			{
 				if (Img_src->rgbpix[3 * (i*Img_dst->Width + j) + l] > 255)
@@ -355,10 +364,18 @@ struct Image BlurImageGussian(struct Image *Img_src, struct Image *Img_dst, int 
 	if (NeighborCoefficient > 100) NeighborCoefficient /= 100;
 	if (NeighborCoefficient < 0) NeighborCoefficient *= -1;
 
-	for (i = BlurPixelRadius / 2; i < Img_dst->Height - BlurPixelRadius / 2; i++)
+	for (i = 0; i < Img_dst->Height; i++)
 	{
-		for (j = BlurPixelRadius / 2; j < Img_dst->Width - BlurPixelRadius / 2; j++)
+		for (j = 0; j < Img_dst->Width; j++)
 		{
+			if (i < BlurPixelRadius / 2 || j < BlurPixelRadius / 2 || j >= Img_dst->Width - BlurPixelRadius / 2 || i >= Img_dst->Height - BlurPixelRadius / 2)
+			{
+				for (l = 0; l < Img_dst->Num_channels; l++)
+				{
+					Img_dst->rgbpix[Img_dst->Num_channels * (i*Img_dst->Width + j) + l] = Img_src->rgbpix[Img_dst->Num_channels * (i*Img_dst->Width + j) + l];
+				}
+				continue;
+			}
 			for (l = 0; l < Img_dst->Num_channels; l++)
 			{
 				Sybiraemo = 0;
@@ -469,6 +486,9 @@ struct Image WhiteBalanceCorrection(struct Image *Img_src, struct Image *Img_dst
 	int MaxR = 0, MaxG = 0, MaxB = 0;
 	double GtoR_Ratio = 1;
 	double GtoB_Ratio = 1;
+	long SumG = 0;
+	long SumR = 0;
+	long SumB = 0;
 	double Gto255_Ratio = 1;
 	int check3Values = 0;
 
@@ -502,7 +522,7 @@ struct Image WhiteBalanceCorrection(struct Image *Img_src, struct Image *Img_dst
 				else Img_dst->rgbpix[3 * (i*Img_src->Width + j)] = 255;
 				if (GtoB_Ratio * Img_src->rgbpix[3 * (i*Img_src->Width + j) + 2] <= 255)
 					Img_dst->rgbpix[3 * (i*Img_src->Width + j) + 2] = GtoB_Ratio * Img_src->rgbpix[3 * (i*Img_src->Width + j) + 2];
-				else Img_dst->rgbpix[3 * (i*Img_src->Width + j) + 1] = 255;
+				else Img_dst->rgbpix[3 * (i*Img_src->Width + j) + 2] = 255;
 				
 				Img_dst->rgbpix[3 * (i*Img_src->Width + j) + 1] = Img_src->rgbpix[3 * (i*Img_src->Width + j) + 1];
 			}
@@ -517,12 +537,12 @@ struct Image WhiteBalanceCorrection(struct Image *Img_src, struct Image *Img_dst
 				if (Img_src->rgbpix[3 * (i*Img_src->Width + j) + 1] > MaxG) 
 				{ 
 					MaxG = Img_src->rgbpix[3 * (i*Img_src->Width + j) + 1];
-					GtoR_Ratio = (double)Img_src->rgbpix[3 * (i*Img_src->Width + j) + 1] / Img_src->rgbpix[3 * (i*Img_src->Width + j)];
-					GtoB_Ratio = (double)Img_src->rgbpix[3 * (i*Img_src->Width + j) + 1] / Img_src->rgbpix[3 * (i*Img_src->Width + j) + 2];
+					GtoR_Ratio = (double)MaxG / Img_src->rgbpix[3 * (i*Img_src->Width + j)];
+					GtoB_Ratio = (double)MaxG / Img_src->rgbpix[3 * (i*Img_src->Width + j) + 2];
 				}
 			}
 		}
-		/*Calculate new values based on GtoR amd GtoB ratios*/
+		/*Calculate new values based on GtoR and GtoB ratios*/
 		for (i = 0; i < Img_src->Height; i++)
 		{
 			for (j = 0; j < Img_src->Width; j++)
@@ -532,7 +552,7 @@ struct Image WhiteBalanceCorrection(struct Image *Img_src, struct Image *Img_dst
 				else Img_dst->rgbpix[3 * (i*Img_src->Width + j)] = 255;
 				if (GtoB_Ratio * Img_src->rgbpix[3 * (i*Img_src->Width + j) + 2] <= 255)
 					Img_dst->rgbpix[3 * (i*Img_src->Width + j) + 2] = GtoB_Ratio * Img_src->rgbpix[3 * (i*Img_src->Width + j) + 2];
-				else Img_dst->rgbpix[3 * (i*Img_src->Width + j) + 1] = 255;
+				else Img_dst->rgbpix[3 * (i*Img_src->Width + j) + 2] = 255;
 
 				Img_dst->rgbpix[3 * (i*Img_src->Width + j) + 1] = Img_src->rgbpix[3 * (i*Img_src->Width + j) + 1];
 			}
@@ -555,8 +575,8 @@ struct Image WhiteBalanceCorrection(struct Image *Img_src, struct Image *Img_dst
 				{
 					//Calculate ratios
 					Gto255_Ratio = 255 / MaxG;
-					GtoR_Ratio = (double)MaxG / MaxR;
-					GtoB_Ratio = (double)MaxG / MaxB;
+					GtoR_Ratio = (double)(Gto255_Ratio *(MaxG / MaxR));
+					GtoB_Ratio = (double)(Gto255_Ratio *(MaxG / MaxB));
 				}
 			}
 		}
@@ -577,6 +597,42 @@ struct Image WhiteBalanceCorrection(struct Image *Img_src, struct Image *Img_dst
 			}
 		}
 	}
+	else if (Algotype == 4)
+	{
+		//Green world - automatic white detection
+		for (i = 0; i < Img_src->Height; i++)
+		{
+			for (j = 0; j < Img_src->Width; j++)
+			{
+				SumR += Img_src->rgbpix[3 * (i*Img_src->Width + j)    ];
+				SumG += Img_src->rgbpix[3 * (i*Img_src->Width + j) + 1];
+				SumB += Img_src->rgbpix[3 * (i*Img_src->Width + j) + 2];
+			}
+		}
+		GtoR_Ratio =   (double)SumG / SumR;
+		GtoB_Ratio =   (double)SumG / SumB;
+		Gto255_Ratio = (double)SumG / (255 * Img_src->Height * Img_src->Width);
+	/*	if (GtoB_Ratio < 0.8 || GtoR_Ratio < 0.8)
+		{
+			GtoR_Ratio = GtoR_Ratio * ;
+			GtoB_Ratio = (double)SumG / SumB;
+		}*/
+		/*Calculate new values based on GtoR amd GtoB ratios*/
+		for (i = 0; i < Img_src->Height; i++)
+		{
+			for (j = 0; j < Img_src->Width; j++)
+			{
+				if (GtoR_Ratio * Img_src->rgbpix[3 * (i*Img_src->Width + j) ] <= 255)
+					Img_dst->rgbpix[3 * (i*Img_src->Width + j)] = GtoR_Ratio * Img_src->rgbpix[3 * (i*Img_src->Width + j)];
+				else Img_dst->rgbpix[3 * (i*Img_src->Width + j)] = 255;
+				if (GtoB_Ratio * Img_src->rgbpix[3 * (i*Img_src->Width + j) + 2] <= 255)
+					Img_dst->rgbpix[3 * (i*Img_src->Width + j) + 2] = GtoB_Ratio * Img_src->rgbpix[3 * (i*Img_src->Width + j) + 2];
+				else Img_dst->rgbpix[3 * (i*Img_src->Width + j) + 2] = 255;
+				
+				Img_dst->rgbpix[3 * (i*Img_src->Width + j) + 1] = Img_src->rgbpix[3 * (i*Img_src->Width + j) + 1];
+			}
+		}
+	}
 	else return *Img_src;
 
 	return *Img_dst;
@@ -591,7 +647,7 @@ struct Image NoiseCorrection(struct Image *Img_src, struct Image *Img_dst, doubl
 	int CurrentValue;
 	int ProbablityValue = 0;
 
-	memcpy(Img_dst, &Img_src,sizeof(Image));
+	memcpy(&Img_dst, &Img_src,sizeof(Image));
 
 	/* if the current pixel is X % different from the pixels around -> it is noise*/
 
@@ -852,7 +908,7 @@ struct Image TranslateImage(struct Image *Img_src, struct Image *Img_dst, struct
 /*
 	E D G E   Extraction
 */
-struct ArrPoints EdgeExtraction(struct Image *Img_src, struct Image *Img_dst, int Algotype, int Algo_param1, int Algo_param2)
+struct ArrPoints EdgeExtraction(struct Image *Img_src, struct Image *Img_dst, int Algotype, float Algo_param1, float Algo_param2)
 {
 	int i, j, z, l;
 	int NewX = 0, NewY = 0;
@@ -860,6 +916,8 @@ struct ArrPoints EdgeExtraction(struct Image *Img_src, struct Image *Img_dst, in
 	struct Image DerrivativeX = CreateNewImage(Img_src, &DerrivativeX, 1);
 	struct Image DerrivativeY = CreateNewImage(Img_src, &DerrivativeY, 1);
 	struct Image Magnitude    = CreateNewImage(Img_src, &Magnitude, 1);
+	struct Image Magnitude2 = CreateNewImage(Img_src, &Magnitude2, 1);
+	struct Image Magnitude3 = CreateNewImage(Img_src, &Magnitude3, 1);
 	struct Image NMS = CreateNewImage(Img_src, &NMS, 1);
 	struct Image Hysteresis = CreateNewImage(Img_src, &Hysteresis, 1);
 
@@ -867,6 +925,62 @@ struct ArrPoints EdgeExtraction(struct Image *Img_src, struct Image *Img_dst, in
 	Img_dst->Height = Img_src->Height;
 	Img_dst->rgbpix = (unsigned char *)realloc(Img_dst->rgbpix, Img_dst->Num_channels * Img_dst->Width * Img_dst->Height * sizeof(unsigned char));
 	ArrPts.ArrayOfPoints = (struct point_xy *)calloc(50,sizeof(struct point_xy));
+
+	const float Gx[] = 
+	  { -1, 0, 1,
+		-2, 0, 2,
+		-1, 0, 1 };
+	const float Gy[] = 
+	  { 1, 2, 1,
+		0, 0, 0,
+	   -1, -2, -1 };
+
+	const float HighPass[] = 
+	{ 1 / 9 * (
+	    -1, -1, -1,
+		-1,  8, -1,
+		-1, -1, -1) };
+
+	const float Laplace[] = 
+	 {  0,  1,  0,
+		1, -4,  1,
+		0,  1,  0 };
+
+	const float Prewitt_X_1[] = 
+	 { -5, -5, -5,
+		0,  0,  0,
+		5,  5,  5 };
+	const float Prewitt_Y_1[] =
+	 { -5,  0,  5,
+	   -5,  0,  5,
+	   -5,  0,  5 };
+
+	const float Prewitt_X_2[] = 
+	 { 5,  5,  5,
+	   0,  0,  0,
+	  -5, -5, -5  };
+	const float Prewitt_Y_2[] = 
+	 { 5,  0, -5,
+	   5,  0, -5,
+	   5,  0, -5 };
+
+	const float Sobel_X_1[] =
+	{ -1, -2, -1,
+	   0,  0,  0,
+	   1,  2,  1 };
+	const float Sobel_Y_1[] =
+	{ -1,  0,  1,
+	  -2,  0,  2,
+	  -1,  0,  1 };
+
+	const float Sobel_X_2[] =
+	{  1,  2,  1,
+	   0,  0,  0,
+	  -1, -2, -1 };
+	const float Sobel_Y_2[] =
+	{  1,  0, -1,
+	   2,  0, -2,
+	   1,  0, -1 };
 
 	if (Algotype < 1 || Algotype > 3)
 	{
@@ -877,29 +991,63 @@ struct ArrPoints EdgeExtraction(struct Image *Img_src, struct Image *Img_dst, in
 	if (Algotype == 1)
 	{
 		// Step 1: Perfrom Gaussian Blur
-		BlurImageGussian(Img_src, Img_dst, 5, 0.5);
+		BlurImageGussian(Img_src, Img_dst, (0.5 * Img_src->Width) / 100, 0.6);
 		FindDerrivative_XY(Img_dst, &DerrivativeX, &DerrivativeY);
 		FindMagnitudeOfGradient(&DerrivativeX, &DerrivativeY, &Magnitude);
 		FindNonMaximumSupp(&Magnitude, &DerrivativeX, &DerrivativeY, &NMS);
+		
 		FindHysteresis(&Magnitude, &NMS, &Hysteresis, Algo_param1, Algo_param2);
+		memcpy(Img_dst->rgbpix, Hysteresis.rgbpix, Hysteresis.Width* Hysteresis.Height * sizeof(unsigned char));
 	}
 	/* Sobel */
 	else if (Algotype == 2)
 	{
+		BlurImageGussian(Img_src, Img_dst, (0.5 * Img_src->Width) / 100, 0.6);
+		Convolution(Img_dst->rgbpix, DerrivativeX.rgbpix, DerrivativeX.Height, DerrivativeX.Width, Sobel_X_1, 3);
+		Convolution(Img_dst->rgbpix, DerrivativeY.rgbpix, DerrivativeY.Height, DerrivativeY.Width, Sobel_Y_1, 3);
+		FindMagnitudeOfGradient(&DerrivativeX, &DerrivativeY, &Magnitude);
 
+		Convolution(Img_dst->rgbpix, DerrivativeX.rgbpix, DerrivativeX.Height, DerrivativeX.Width, Sobel_X_2, 3);
+		Convolution(Img_dst->rgbpix, DerrivativeY.rgbpix, DerrivativeY.Height, DerrivativeY.Width, Sobel_Y_2, 3);
+		if (Algo_param1 == 0)
+		{
+			FindMagnitudeOfGradient(&DerrivativeX, &DerrivativeY, &Magnitude2);
+			memcpy(Img_dst->rgbpix, Magnitude2.rgbpix, Magnitude2.Width* Magnitude2.Height * sizeof(unsigned char));
+		}
+		else
+		{
+			memcpy(Img_dst->rgbpix, DerrivativeX.rgbpix, DerrivativeX.Width* DerrivativeX.Height * sizeof(unsigned char));
+		}
 	}
 	/* Prewitt */
 	else if (Algotype == 3)
 	{
+		BlurImageGussian(Img_src, Img_dst, (0.5 * Img_src->Width) / 100, 0.6);
+		Convolution(Img_dst->rgbpix, DerrivativeX.rgbpix, DerrivativeX.Height, DerrivativeX.Width, Prewitt_X_1, 3);
+		Convolution(Img_dst->rgbpix, DerrivativeY.rgbpix, DerrivativeY.Height, DerrivativeY.Width, Prewitt_Y_1, 3);
+		FindMagnitudeOfGradient(&DerrivativeX, &DerrivativeY, &Magnitude);
 
+		Convolution(Img_dst->rgbpix, DerrivativeX.rgbpix, DerrivativeX.Height, DerrivativeX.Width, Prewitt_X_2, 3);
+		Convolution(Img_dst->rgbpix, DerrivativeY.rgbpix, DerrivativeY.Height, DerrivativeY.Width, Prewitt_Y_2, 3);
+		FindMagnitudeOfGradient(&DerrivativeX, &DerrivativeY, &Magnitude2);
+		FindMagnitudeOfGradient(&Magnitude, &Magnitude2, &Magnitude3);
+		if (Algo_param1 == 0)
+		{
+			FindNonMaximumSupp(&Magnitude3, &Magnitude, &Magnitude2, &NMS);
+			FindHysteresis(&Magnitude3, &NMS, &Hysteresis, Algo_param1, Algo_param2);
+
+			memcpy(Img_dst->rgbpix, Hysteresis.rgbpix, Hysteresis.Width* Hysteresis.Height * sizeof(unsigned char));
+		}
+		else
+			memcpy(Img_dst->rgbpix, Magnitude3.rgbpix, Magnitude3.Width* Magnitude3.Height * sizeof(unsigned char));
 	}
 
-	memcpy(Img_dst->rgbpix, Hysteresis.rgbpix, Hysteresis.Width* Hysteresis.Height * sizeof(unsigned char));
-
-	DestroyImage(&Hysteresis);
+	//DestroyImage(&Hysteresis);
 	DestroyImage(&DerrivativeX);
 	DestroyImage(&DerrivativeY);
 	DestroyImage(&Magnitude);
+	DestroyImage(&Magnitude2);
+	DestroyImage(&Magnitude3);
 	DestroyImage(&NMS);
 	
 	return ArrPts;
@@ -915,30 +1063,58 @@ void FindDerrivative_XY(struct Image *Img_src, struct Image *DerrivativeX_image,
 	int cols = Img_src->Width;
 	
 	/* Calculate X - derrivative image */
-	for (r = 0; r < rows; r++)
+	for (r = 0; r < rows-1; r++)
 	{
 		pos = r * cols;
-		DerrivativeX_image->rgbpix[pos] = Img_src->rgbpix[pos + 1] - Img_src->rgbpix[pos];
-		pos++;
-		for (c = 1; c < (cols - 1); c++, pos++)
+		//DerrivativeX_image->rgbpix[pos] = Img_src->rgbpix[pos + 1] - Img_src->rgbpix[pos];
+		//pos++;
+		for (c = 0; c < (cols - 1); c++, pos++)
 		{
-			DerrivativeX_image->rgbpix[pos] = Img_src->rgbpix[pos + 1] - Img_src->rgbpix[pos - 1];
+			DerrivativeX_image->rgbpix[pos] = abs((Img_src->rgbpix[pos] - Img_src->rgbpix[pos + cols + 1]));
 		}
-		DerrivativeX_image->rgbpix[pos] = Img_src->rgbpix[pos] - Img_src->rgbpix[pos - 1];
+		DerrivativeX_image->rgbpix[pos] = abs(Img_src->rgbpix[pos] - Img_src->rgbpix[pos - 1]);
 	}
+	
 
 	/* Calculate Y - derrivative image */
-	for (c = 0; c < cols; c++)
+	for (c = 0; c < cols-1; c++)
 	{
 		pos = c;
-		DerrivativeY_image->rgbpix[pos] = Img_src->rgbpix[pos + cols] - Img_src->rgbpix[pos];
-		pos += cols;
-		for (r = 1; r < (rows - 1); r++, pos += cols)
+		//DerrivativeY_image->rgbpix[pos] = Img_src->rgbpix[pos + cols] - Img_src->rgbpix[pos];
+		//pos += cols;
+		for (r = 0; r < (rows - 1); r++, pos += cols)
 		{
-			DerrivativeY_image->rgbpix[pos] = Img_src->rgbpix[pos + cols] - Img_src->rgbpix[pos - cols];
+			DerrivativeY_image->rgbpix[pos] = abs(Img_src->rgbpix[pos + 1] - Img_src->rgbpix[pos + cols]);
 		}
-		DerrivativeY_image->rgbpix[pos] = Img_src->rgbpix[pos] - Img_src->rgbpix[pos - cols];
+		DerrivativeY_image->rgbpix[pos] = abs(Img_src->rgbpix[pos] - Img_src->rgbpix[pos - cols]);
 	}
+
+	//int kn = 3;
+	//const int khalf = kn / 2;
+	//float min = 35000, max = -3000;
+	//const float Gx[] = { -1, 0, 1,
+	//	-2, 0, 2,
+	//	-1, 0, 1 };
+	//const float Gy[] = { 1, 2, 1,
+	//	0, 0, 0,
+	//	-1, -2, -1 };
+
+	//for (int m = khalf; m < Img_src->Width - khalf; m++)
+	//for (int n = khalf; n < Img_src->Height - khalf; n++) {
+	//	float pixel = 0.0;
+	//	float pixel2 = 0.0;
+	//	size_t c = 0;
+	//	for (int j = -khalf; j <= khalf; j++)
+	//	for (int i = -khalf; i <= khalf; i++) {
+	//		pixel += Img_src->rgbpix[(n - j) * Img_src->Width + m - i] * Gx[c];
+	//		pixel2 += Img_src->rgbpix[(n - j) * Img_src->Width + m - i] * Gy[c];
+	//		c++;
+	//	}
+
+	//	//pixel = 255 * (pixel - min) / (max - min);
+	//	DerrivativeX_image->rgbpix[n * Img_src->Width + m] = pixel;
+	//	DerrivativeY_image->rgbpix[n * Img_src->Width + m] = pixel2;
+	//}
 }
 
 /*
@@ -1173,9 +1349,9 @@ void FindNonMaximumSupp(struct Image *Magnitude, struct Image *DerrivativeX, str
 /*
 	Find     H Y S T E R E S I S
 */
-void FindHysteresis(struct Image *Magnitude, struct Image *NMS, struct Image *Img_dst, int Algo_param1, int Algo_param2)
+void FindHysteresis(struct Image *Magnitude, struct Image *NMS, struct Image *Img_dst, float Algo_param1, float Algo_param2)
 {
-	int r, c, pos, edges, lowcount, highcount, lowthreshold, highthreshold,
+	int r, c, pos, edges, highcount, lowthreshold, highthreshold,
 		i, hist[32768], rr, cc;
 	unsigned char maximum_mag, sumpix;
 
@@ -1288,6 +1464,48 @@ void Follow_edges(unsigned char *edgemapptr, unsigned char *edgemagptr, unsigned
 		if ((*tempmapptr == POSSIBLE_EDGE) && (*tempmagptr > lowval)){
 			*tempmapptr = (unsigned char)EDGE;
 			Follow_edges(tempmapptr, tempmagptr, lowval, cols);
+		}
+	}
+}
+
+/*
+	C O N V O L U T I O N
+*/
+void Convolution(unsigned char *InputArray, unsigned char *OutputArray, int rows, int cols, float *Kernel, int KernelSize)
+{
+	int i, j, n, m;
+	int FinalNum;
+	int DevideNumber = pow((double)KernelSize, 2) - 1;
+
+	for (i = KernelSize / 2; i < cols - KernelSize / 2; i++)
+	{
+		for (j = KernelSize / 2; j < rows - KernelSize / 2; j++)
+		{
+			//OutputArray[i * cols + j] = OutputArray[i * cols + j];
+			size_t c = 0;
+			FinalNum = 0;
+			for (int n = -KernelSize / 2; n <= KernelSize / 2; n++)
+			for (int m = -KernelSize / 2; m <= KernelSize / 2; m++)
+			{
+				//if (OutputArray[j * cols + i] + InputArray[(j - n) * cols + i - m] * Kernel[c] > 255)
+				//{
+				//	OutputArray[j * cols + i] = 255;
+				//	continue;
+				//}
+				//if (OutputArray[j * cols + i] + InputArray[(j - n) * cols + i - m] * Kernel[c] < 0)
+				//{
+				//	//OutputArray[j * cols + i] = 0;
+				//	continue;
+				//}
+
+				FinalNum += InputArray[(j - n) * cols + i - m] * Kernel[c];
+				c++;
+			}
+			FinalNum = FinalNum / DevideNumber;
+			if (FinalNum < 0) FinalNum = 0;
+			else if (FinalNum > 255) FinalNum = 255;
+
+			OutputArray[j * cols + i] = FinalNum;
 		}
 	}
 }

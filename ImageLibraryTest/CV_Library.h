@@ -48,9 +48,10 @@ struct Image	 ConvertToGrayscale_1Channel(struct Image *Img_src, struct Image *I
 struct Image	 ScaleImage(struct Image *Img_src, struct Image *Img_dst, double ScalePercentage);
 struct Image	 TranslateImage(struct Image *Img_src, struct Image *Img_dst, struct point_xy ToPoint);
 struct Image	 RotateImage(struct Image *Img_src, struct Image *Img_dst, double RotationAngle, struct point_xy CentralPoint);
-struct ArrPoints EdgeExtraction(struct Image *Img_src, struct Image *Img_dst, int Algotype, int Algo_param1, int Algo_param2);
+struct ArrPoints EdgeExtraction(struct Image *Img_src, struct Image *Img_dst, int Algotype, float Algo_param1, float Algo_param2);
 void			 FindDerrivative_XY(struct Image *Img_src, struct Image *DerrivativeX_image, struct Image *DerrivativeY_image);
 void			 FindMagnitudeOfGradient(struct Image *DerrivativeX_image, struct Image *DerrivativeY_image, struct Image *Magnitude);
 void			 FindNonMaximumSupp(struct Image *Magnitude, struct Image *DerrivativeX, struct Image *DerrivativeY, struct Image *NMS);
-void			 FindHysteresis(struct Image *Magnitude, struct Image *NMS, struct Image *Img_dst, int Algo_param1, int Algo_param2);
+void			 FindHysteresis(struct Image *Magnitude, struct Image *NMS, struct Image *Img_dst, float Algo_param1, float Algo_param2);
 void			 Follow_edges(unsigned char *edgemapptr, unsigned char *edgemagptr, unsigned char lowval, int cols);
+void			 Convolution(unsigned char *InputArray, unsigned char *OutputArray, int rows, int cols, float *Kernel, int KernelSize);
