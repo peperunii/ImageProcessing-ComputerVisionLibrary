@@ -29,17 +29,72 @@ struct ArrPoints
 	struct point_xy *ArrayOfPoints;
 }ArrPoints;
 
+enum AlgoType_Edges
+{
+	EDGES_Undefined,
+	EDGES_CANNY,
+	EDGES_SOBEL,
+	EDGES_PREWITT
+};
+
+enum AlgoType_Brightness
+{
+	BRIGHTNESS_Undefined,
+	BRIGHTNESS_PERCENTAGE_ALGO,
+	BRIGHTNESS_EV_ALGO
+};
+
+enum AlgoType_Noise
+{
+	NOISE_Undefined,
+	NOISE_GAUSSIAN
+};
+
+enum AlgoType_BLUR
+{
+	BLUR_Undefined,
+	BLUR_AROUND_CENTER,
+	BLUR_CENTER
+};
+
+enum AlgoType_WB
+{
+	WB_Undefined,
+	WB_ALGO_1,
+	WB_ALGO_2,
+	WB_ALGO_3,
+	WB_GREEN_WORLD
+};
+
+enum Write_Quality
+{
+	QUALITY_NONE,
+	QUALITY_LOW_1, QUALITY_LOW_2, QUALITY_LOW_3, QUALITY_LOW_4, QUALITY_LOW_5, QUALITY_LOW_6, QUALITY_LOW_7, QUALITY_LOW_8, QUALITY_LOW_9,
+	QUALITY_LOW_10, QUALITY_LOW_11, QUALITY_LOW_12, QUALITY_LOW_13, QUALITY_LOW_14, QUALITY_LOW_15, QUALITY_LOW_16, QUALITY_LOW_17, QUALITY_LOW_18, QUALITY_LOW_19,
+	QUALITY_LOW_20, QUALITY_LOW_21, QUALITY_LOW_22, QUALITY_LOW_23, QUALITY_LOW_24, QUALITY_LOW_25, QUALITY_LOW_26, QUALITY_LOW_27, QUALITY_LOW_28, QUALITY_LOW_29,
+	QUALITY_AVERAGE_30, QUALITY_AVERAGE_31, QUALITY_AVERAGE_32, QUALITY_AVERAGE_33, QUALITY_AVERAGE_34, QUALITY_AVERAGE_35, QUALITY_AVERAGE_36, QUALITY_AVERAGE_37, QUALITY_AVERAGE_38, QUALITY_AVERAGE_39,
+	QUALITY_AVERAGE_40, QUALITY_AVERAGE_41, QUALITY_AVERAGE_42, QUALITY_AVERAGE_43, QUALITY_AVERAGE_44, QUALITY_AVERAGE_45, QUALITY_AVERAGE_46, QUALITY_AVERAGE_47, QUALITY_AVERAGE_48, QUALITY_AVERAGE_49,
+	QUALITY_AVERAGE_50, QUALITY_AVERAGE_51, QUALITY_AVERAGE_52, QUALITY_AVERAGE_53, QUALITY_AVERAGE_54, QUALITY_AVERAGE_55, QUALITY_AVERAGE_56, QUALITY_AVERAGE_57, QUALITY_AVERAGE_58, QUALITY_AVERAGE_59,
+	QUALITY_HIGH_60, QUALITY_HIGH_61, QUALITY_HIGH_62, QUALITY_HIGH_63, QUALITY_HIGH_64, QUALITY_HIGH_65, QUALITY_HIGH_66, QUALITY_HIGH_67, QUALITY_HIGH_68, QUALITY_HIGH_69,
+	QUALITY_HIGH_70, QUALITY_HIGH_71, QUALITY_HIGH_72, QUALITY_HIGH_73, QUALITY_HIGH_74, QUALITY_HIGH_75, QUALITY_HIGH_76, QUALITY_HIGH_77, QUALITY_HIGH_78, QUALITY_HIGH_79,
+	QUALITY_HIGH_80, QUALITY_HIGH_81, QUALITY_HIGH_82, QUALITY_HIGH_83, QUALITY_HIGH_84, QUALITY_HIGH_85, QUALITY_HIGH_86, QUALITY_HIGH_87, QUALITY_HIGH_88, QUALITY_HIGH_89,
+	QUALITY_EXCELLENT_90, QUALITY_EXCELLENT_91, QUALITY_EXCELLENT_92, QUALITY_EXCELLENT_93, QUALITY_EXCELLENT_94, QUALITY_EXCELLENT_95, QUALITY_EXCELLENT_96, QUALITY_EXCELLENT_97, QUALITY_EXCELLENT_98, QUALITY_EXCELLENT_99,
+	QUALITY_MAX
+
+};
+
 struct Image	 CreateNewImage(struct Image *Prototype, struct Image *Img_dst, int NumChannels);
+struct Image	 SetDestination(struct Image *Prototype, struct Image *Img_dst);
 void			 DestroyImage(struct Image *Img);
 struct Image	 ReadImage(char *filename);
 struct Image	 read_Image_file(FILE *file);
 GLOBAL(void)	 WriteImage(char *filename, struct Image, int quality);
 struct Image	 BlurImageAroundPoint(struct Image *Img_src, struct Image *Img_dst, struct point_xy CentralPoint, int BlurPixelRadius, int SizeOfBlur, int BlurOrSharp, int BlurAgression);
 struct Image	 BlurImageGussian(struct Image *Img_src, struct Image *Img_dst, int BlurPixelRadius, double NeighborCoefficient);
-struct Image	 BrightnessCorrection(struct Image *Img_src, struct Image *Img_dst, double percentage);
+struct Image	 BrightnessCorrection(struct Image *Img_src, struct Image *Img_dst, double Algo_paramBrightnessOrEV, int Algotype);
 struct Image	 ContrastCorrection(struct Image *Img_src, struct Image *Img_dst, double percentage);
 struct Image	 WhiteBalanceCorrection(struct Image *Img_src, struct Image *Img_dst, int Algotype);
-struct Image	 NoiseCorrection(struct Image *Img_src, struct Image *Img_dst, double percentage, int Algotype);
+struct Image	 NoiseCorrection(struct Image *Img_src, struct Image *Img_dst, double threshold, int Algotype);
 struct Image	 GammaCorrection(struct Image *Img_src, struct Image *Img_dst, double RedGamma, double GreenGamma, double BlueGamma);
 void			 getPositionFromIndex(struct Image *Img_src, int pixIdx, int *red, int *col);
 int				 getPixelIndex(struct Image *Img_src, int *pixIdx, int red, int col);
@@ -55,3 +110,13 @@ void			 FindNonMaximumSupp(struct Image *Magnitude, struct Image *DerrivativeX, 
 void			 FindHysteresis(struct Image *Magnitude, struct Image *NMS, struct Image *Img_dst, float Algo_param1, float Algo_param2);
 void			 Follow_edges(unsigned char *edgemapptr, unsigned char *edgemagptr, unsigned char lowval, int cols);
 void			 Convolution(unsigned char *InputArray, unsigned char *OutputArray, int rows, int cols, float *Kernel, int KernelSize);
+struct Image	 MirrorImageHorizontal(struct Image *Img_src, struct Image *Img_dst);
+struct Image	 MirrorImageVertical(struct Image *Img_src, struct Image *Img_dst);
+struct Image	 CropImage(struct Image *Img_src, struct Image *Img_dst, struct point_xy CentralPoint, int NewWidth, int NewHeight);
+struct Image	 MorphDilate(struct Image *Img_src, struct Image *Img_dst, int ElementSize, int NumberofIterations);
+struct Image	 MorphErode(struct Image *Img_src, struct Image *Img_dst, int ElementSize, int NumberofIterations);
+struct Image	 MorphOpen(struct Image *Img_src, struct Image *Img_dst, int ElementSize, int NumberofIterations);
+struct Image	 MorphClose(struct Image *Img_src, struct Image *Img_dst, int ElementSize, int NumberofIterations);
+struct Image     SharpImageContours(struct Image *Img_src, struct Image *Img_dst , int Percentage);
+struct Image     SharpImageBinary(struct Image *Img_src, struct Image *Img_dst, struct Image *Img_Binary , int Percentage);
+

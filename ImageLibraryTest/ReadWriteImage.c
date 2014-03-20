@@ -253,6 +253,25 @@ struct Image CreateNewImage(struct Image *Prototype, struct Image *Img_dst, int 
 	return *Img_dst;
 }
 
+/* 
+	S E T   D E S T I N A T I O N  - to match the size of the prototype
+*/
+struct Image SetDestination(struct Image *Prototype, struct Image *Img_dst)
+{
+	Img_dst->ColorSpace = Prototype->ColorSpace;
+	Img_dst->Height = Prototype->Height;
+	Img_dst->Width = Prototype->Width;
+
+	Img_dst->rgbpix = (unsigned char *)realloc(Img_dst->rgbpix, Img_dst->Height * Img_dst->Width * Img_dst->Num_channels, sizeof(unsigned char));
+	if (Img_dst->rgbpix == NULL)
+	{
+		printf("cannot allocate memory for the new image\n");
+		Img_dst->isLoaded = 0;
+	}
+	else
+		Img_dst->isLoaded = 1;
+}
+
 /*
 	D E S T R O Y  image
 */
@@ -411,26 +430,50 @@ struct Image BlurImageGussian(struct Image *Img_src, struct Image *Img_dst, int 
 /* 
 	Correct   B R I G H T N E S S 
 */
-struct Image BrightnessCorrection(struct Image *Img_src, struct Image *Img_dst, double percentage)
+struct Image BrightnessCorrection(struct Image *Img_src, struct Image *Img_dst, double Algo_paramBrightnessOrEV, int Algotype)
 {
 	int i, j, l;
 
-	if (abs(percentage) > 1) percentage /= 100;
+	if (Img_src->Num_channels != Img_dst->Num_channels)
+		return *Img_dst;
 
-	for (i = 0; i < Img_dst->Height; i++)
+	if (Algotype == 1)
 	{
-		for (j = 0; j < Img_dst->Width; j++)
+		if (abs(Algo_paramBrightnessOrEV) > 1) Algo_paramBrightnessOrEV /= 100;
+
+		for (i = 0; i < Img_dst->Height; i++)
 		{
-			for (l = 0; l < 3; l++)
+			for (j = 0; j < Img_dst->Width; j++)
 			{
-				if (percentage * Img_src->rgbpix[3 * (i*Img_dst->Width + j) + l] + Img_src->rgbpix[3 * (i*Img_dst->Width + j) + l]> 255)
-					Img_dst->rgbpix[3 * (i*Img_dst->Width + j) + l] = 255;
-				else
+				for (l = 0; l < Img_dst->Num_channels; l++)
 				{
-					if (percentage * Img_src->rgbpix[3 * (i*Img_dst->Width + j) + l] + Img_src->rgbpix[3 * (i*Img_dst->Width + j) + l] < 0)
-						Img_dst->rgbpix[3 * (i*Img_dst->Width + j) + l] = 0;
-					else	
-						Img_dst->rgbpix[3 * (i*Img_dst->Width + j) + l] = percentage * Img_src->rgbpix[3 * (i*Img_dst->Width + j) + l] + Img_src->rgbpix[3 * (i*Img_dst->Width + j) + l];
+					if (Algo_paramBrightnessOrEV * Img_src->rgbpix[Img_dst->Num_channels * (i*Img_dst->Width + j) + l] + Img_src->rgbpix[Img_dst->Num_channels * (i*Img_dst->Width + j) + l]> 255)
+						Img_dst->rgbpix[3 * (i*Img_dst->Width + j) + l] = 255;
+					else
+					{
+						if (Algo_paramBrightnessOrEV * Img_src->rgbpix[Img_dst->Num_channels * (i*Img_dst->Width + j) + l] + Img_src->rgbpix[Img_dst->Num_channels * (i*Img_dst->Width + j) + l] < 0)
+							Img_dst->rgbpix[Img_dst->Num_channels * (i*Img_dst->Width + j) + l] = 0;
+						else
+							Img_dst->rgbpix[Img_dst->Num_channels * (i*Img_dst->Width + j) + l] = Algo_paramBrightnessOrEV * Img_src->rgbpix[Img_dst->Num_channels * (i*Img_dst->Width + j) + l] + Img_src->rgbpix[Img_dst->Num_channels * (i*Img_dst->Width + j) + l];
+					}
+				}
+			}
+		}
+	}
+	else if (Algotype == 2)
+	{
+		for (i = 0; i < Img_dst->Height; i++)
+		{
+			for (j = 0; j < Img_dst->Width; j++)
+			{
+				for (l = 0; l < Img_dst->Num_channels; l++)
+				{
+					if (pow(2, Algo_paramBrightnessOrEV) * Img_src->rgbpix[Img_dst->Num_channels * (i*Img_dst->Width + j) + l] > 255)
+						Img_dst->rgbpix[Img_dst->Num_channels * (i*Img_dst->Width + j) + l] = 255;
+					else if (pow(2, Algo_paramBrightnessOrEV) * Img_src->rgbpix[Img_dst->Num_channels * (i*Img_dst->Width + j) + l] < 0)
+						Img_dst->rgbpix[Img_dst->Num_channels * (i*Img_dst->Width + j) + l] = 0;
+					else
+						Img_dst->rgbpix[Img_dst->Num_channels * (i*Img_dst->Width + j) + l] = pow(2, Algo_paramBrightnessOrEV) * Img_src->rgbpix[Img_dst->Num_channels * (i*Img_dst->Width + j) + l];
 				}
 			}
 		}
@@ -449,6 +492,9 @@ struct Image ContrastCorrection(struct Image *Img_src, struct Image *Img_dst, do
 	double contrast = 0;
 	int i, j, l;
 
+	if (Img_src->Num_channels != Img_dst->Num_channels)
+		return *Img_dst;
+
 	if (percentage < -100) percentage = -100;
 	if (percentage > 100) percentage = 100;
 	contrast = (100.0 + percentage) / 100.0;
@@ -459,16 +505,16 @@ struct Image ContrastCorrection(struct Image *Img_src, struct Image *Img_dst, do
 	{
 		for (j = 0; j < Img_dst->Width; j++)
 		{
-			for (l = 0; l < 3; l++)
+			for (l = 0; l < Img_dst->Num_channels; l++)
 			{
-				pixel = (double)Img_src->rgbpix[3 * (i*Img_dst->Width + j) + l] / 255;
+				pixel = (double)Img_src->rgbpix[Img_dst->Num_channels * (i*Img_dst->Width + j) + l] / 255;
 				pixel -= 0.5;
 				pixel *= contrast;
 				pixel += 0.5;
 				pixel *= 255;
 				if (pixel < 0) pixel = 0;
 				if (pixel > 255) pixel = 255;
-				Img_dst->rgbpix[3 * (i*Img_dst->Width + j) + l] = pixel;
+				Img_dst->rgbpix[Img_dst->Num_channels * (i*Img_dst->Width + j) + l] = pixel;
 			}
 		}
 	}
@@ -491,6 +537,9 @@ struct Image WhiteBalanceCorrection(struct Image *Img_src, struct Image *Img_dst
 	long SumB = 0;
 	double Gto255_Ratio = 1;
 	int check3Values = 0;
+
+	if ((Img_src->Num_channels != Img_dst->Num_channels) || (Img_src->Num_channels != 3))
+		return *Img_dst;
 
 	if (Algotype == 1)
 	{
@@ -641,11 +690,14 @@ struct Image WhiteBalanceCorrection(struct Image *Img_src, struct Image *Img_dst
 /* 
 	Correct    N O I S E 
 */
-struct Image NoiseCorrection(struct Image *Img_src, struct Image *Img_dst, double percentage, int Algotype)
+struct Image NoiseCorrection(struct Image *Img_src, struct Image *Img_dst, double threshold, int Algotype)
 {
 	int i, j, z;
 	int CurrentValue;
 	int ProbablityValue = 0;
+
+	if (Img_src->Num_channels != Img_dst->Num_channels)
+		return *Img_dst;
 
 	memcpy(&Img_dst, &Img_src,sizeof(Image));
 
@@ -660,16 +712,16 @@ struct Image NoiseCorrection(struct Image *Img_src, struct Image *Img_dst, doubl
 				for (z = 0; z < Img_dst->Num_channels; z++)
 				{
 					ProbablityValue = 0;
-					CurrentValue = Img_src->rgbpix[i * 3 * Img_src->Width + 3 * j + z];
+					CurrentValue = Img_src->rgbpix[i * Img_dst->Num_channels * Img_src->Width + Img_dst->Num_channels * j + z];
 
-					if (percentage * CurrentValue < Img_src->rgbpix[(i - 1) * 3 * Img_src->Width + 3 * j + z] || CurrentValue > percentage *  Img_src->rgbpix[(i - 1) * 3 * Img_src->Width + 3 * j + z]) ProbablityValue++;
-					if (percentage * CurrentValue < Img_src->rgbpix[(i + 1) * 3 * Img_src->Width + 3 * j + z] || CurrentValue > percentage *  Img_src->rgbpix[(i + 1) * 3 * Img_src->Width + 3 * j + z]) ProbablityValue++;
-					if (percentage * CurrentValue < Img_src->rgbpix[(i)* 3 * Img_src->Width + 3 * (j - 1) + z] || CurrentValue > percentage *  Img_src->rgbpix[(i)* 3 * Img_src->Width + 3 * (j - 1) + z]) ProbablityValue++;
-					if (percentage * CurrentValue < Img_src->rgbpix[(i)* 3 * Img_src->Width + 3 * (j + 1) + z] || CurrentValue > percentage *  Img_src->rgbpix[(i)* 3 * Img_src->Width + 3 * (j + 1) + z]) ProbablityValue++;
+					if (threshold * CurrentValue < Img_src->rgbpix[(i - 1) * Img_dst->Num_channels * Img_src->Width + Img_dst->Num_channels * j + z] || CurrentValue > threshold *  Img_src->rgbpix[(i - 1) * Img_dst->Num_channels * Img_src->Width + Img_dst->Num_channels * j + z]) ProbablityValue++;
+					if (threshold * CurrentValue < Img_src->rgbpix[(i + 1) * Img_dst->Num_channels * Img_src->Width + Img_dst->Num_channels * j + z] || CurrentValue > threshold *  Img_src->rgbpix[(i + 1) * Img_dst->Num_channels * Img_src->Width + Img_dst->Num_channels * j + z]) ProbablityValue++;
+					if (threshold * CurrentValue < Img_src->rgbpix[(i)* Img_dst->Num_channels * Img_src->Width + Img_dst->Num_channels * (j - 1) + z] || CurrentValue > threshold *  Img_src->rgbpix[(i)* Img_dst->Num_channels * Img_src->Width + Img_dst->Num_channels * (j - 1) + z]) ProbablityValue++;
+					if (threshold * CurrentValue < Img_src->rgbpix[(i)* Img_dst->Num_channels * Img_src->Width + Img_dst->Num_channels * (j + 1) + z] || CurrentValue > threshold *  Img_src->rgbpix[(i)* Img_dst->Num_channels * Img_src->Width + Img_dst->Num_channels * (j + 1) + z]) ProbablityValue++;
 
 					if (ProbablityValue >= 3)
 					{
-						Img_dst->rgbpix[(i)* 3 * Img_src->Width + 3 * j + z] = (Img_src->rgbpix[(i - 1) * 3 * Img_src->Width + 3 * j + z] + Img_src->rgbpix[(i + 1) * 3 * Img_src->Width + 3 * j + z] + Img_src->rgbpix[(i)* 3 * Img_src->Width + 3 * (j - 1) + z] + Img_src->rgbpix[(i)* 3 * Img_src->Width + 3 * (j + 1) + z]) / 4;
+						Img_dst->rgbpix[(i)* Img_dst->Num_channels * Img_src->Width + Img_dst->Num_channels * j + z] = (Img_src->rgbpix[(i - 1) * Img_dst->Num_channels * Img_src->Width + Img_dst->Num_channels * j + z] + Img_src->rgbpix[(i + 1) * Img_dst->Num_channels * Img_src->Width + Img_dst->Num_channels * j + z] + Img_src->rgbpix[(i)* Img_dst->Num_channels * Img_src->Width + Img_dst->Num_channels * (j - 1) + z] + Img_src->rgbpix[(i)* Img_dst->Num_channels * Img_src->Width + Img_dst->Num_channels * (j + 1) + z]) / 4;
 					}
 				}
 			}
@@ -693,6 +745,9 @@ struct Image GammaCorrection(struct Image *Img_src, struct Image *Img_dst, doubl
 	int redGamma[256];
 	int greenGamma[256];
 	int blueGamma[256];
+
+	if ((Img_src->Num_channels != Img_dst->Num_channels) || (Img_src->Num_channels != 3))
+		return *Img_dst;
 
 	for (i = 0; i < 256; ++i)
 	{
@@ -718,8 +773,8 @@ struct Image GammaCorrection(struct Image *Img_src, struct Image *Img_dst, doubl
 */
 void getPositionFromIndex(struct Image *Img_src, int pixIdx, int *red, int *col)
 {
-	*red = pixIdx / Img_src->Width;
-	*col = pixIdx - ((*red)*Img_src->Width);
+	*red = pixIdx / (Img_src->Num_channels * Img_src->Width);
+	*col = pixIdx - ((*red)*Img_src->Width * Img_src->Num_channels);
 }
 
 /*
@@ -729,7 +784,7 @@ int getPixelIndex(struct Image *Img_src, int *pixIdx, int red, int col)
 {
 	int pixelIndex = 0;
 
-	*pixIdx = red * Img_src->Width + col;
+	*pixIdx = (red * Img_src->Width + col)*Img_src->Num_channels;
 	pixelIndex = *pixIdx;
 
 	return pixelIndex;
@@ -771,7 +826,6 @@ struct Image ConvertToGrayscale_1Channel(struct Image *Img_src, struct Image *Im
 			Img_dst->rgbpix[(i*Img_src->Width + j)] = 0.3 * Img_src->rgbpix[3 * (i*Img_src->Width + j)] + 0.59 * Img_src->rgbpix[3 * (i*Img_src->Width + j) + 1] + 0.11 * Img_src->rgbpix[3 * (i*Img_src->Width + j) + 2];
 		}
 	}
-
 }
 
 /*
@@ -822,6 +876,8 @@ struct Image ScaleImage(struct Image *Img_src, struct Image *Img_dst, double Sca
 	int i, j, z;
 	int NewX = 0;
 	int NewY = 0;
+
+	/* Modify Img_dst */
 	Img_dst->Width = Img_src->Width * (1 + (ScalePercentage / 100.0));
 	Img_dst->Height = Img_src->Height * (1 + (ScalePercentage / 100.0));
 	Img_dst->rgbpix = (unsigned char *)realloc(Img_dst->rgbpix, Img_dst->Height * Img_dst->Width * Img_dst->Num_channels* sizeof(unsigned char));
@@ -1487,25 +1543,301 @@ void Convolution(unsigned char *InputArray, unsigned char *OutputArray, int rows
 			for (int n = -KernelSize / 2; n <= KernelSize / 2; n++)
 			for (int m = -KernelSize / 2; m <= KernelSize / 2; m++)
 			{
-				//if (OutputArray[j * cols + i] + InputArray[(j - n) * cols + i - m] * Kernel[c] > 255)
-				//{
-				//	OutputArray[j * cols + i] = 255;
-				//	continue;
-				//}
-				//if (OutputArray[j * cols + i] + InputArray[(j - n) * cols + i - m] * Kernel[c] < 0)
-				//{
-				//	//OutputArray[j * cols + i] = 0;
-				//	continue;
-				//}
-
 				FinalNum += InputArray[(j - n) * cols + i - m] * Kernel[c];
 				c++;
 			}
-			FinalNum = FinalNum / DevideNumber;
+			FinalNum = (double)FinalNum / DevideNumber;
 			if (FinalNum < 0) FinalNum = 0;
 			else if (FinalNum > 255) FinalNum = 255;
 
 			OutputArray[j * cols + i] = FinalNum;
 		}
 	}
+}
+
+/*
+	M I R R O R  image - horizontal
+*/
+struct Image MirrorImageHorizontal(struct Image *Img_src, struct Image *Img_dst)
+{
+	int i, j, l, k;
+
+	for (i = Img_dst->Height-1; i >= 0; i--)
+	{
+		for (j = 0; j < Img_dst->Width; j++)
+		{
+			for (l = 0; l < Img_dst->Num_channels; l++)
+			{
+				Img_dst->rgbpix[((Img_dst->Height - 1 - i) * Img_src->Num_channels * Img_src->Width) + (Img_src->Num_channels * j) + l] = Img_src->rgbpix[(i * Img_src->Num_channels * Img_src->Width) + (Img_src->Num_channels * j) + l];
+			}
+		}
+	}
+
+	return *Img_dst;
+}
+
+/*
+	M I R R O R  image - vertical
+*/
+struct Image MirrorImageVertical(struct Image *Img_src, struct Image *Img_dst)
+{
+	int i, j, l;
+
+	if (Img_src->Num_channels != Img_dst->Num_channels)
+		return *Img_dst;
+
+	for (i = 0; i < Img_dst->Height; i++)
+	{
+		for (j = 0; j < Img_dst->Width; j++)
+		{
+			for (l = 0; l < Img_dst->Num_channels; l++)
+			{
+				Img_dst->rgbpix[(i * Img_src->Num_channels * Img_src->Width) + (Img_src->Num_channels * (Img_dst->Width - 1 - j)) + l] = Img_src->rgbpix[(i * Img_src->Num_channels * Img_src->Width) + (Img_src->Num_channels * j) + l];
+			}
+		}
+	}
+
+	return *Img_dst;
+}
+
+/*
+	C R O P  image - around given point and given new dimensions
+*/
+struct Image CropImage(struct Image *Img_src, struct Image *Img_dst, struct point_xy CentralPoint, int NewWidth, int NewHeight)
+{
+	int i, j, l, k, z;
+
+	if (Img_src->Num_channels != Img_dst->Num_channels)
+		return *Img_dst;
+
+	if (NewWidth >= Img_src->Width || NewHeight >= Img_src->Height)
+		return *Img_dst;
+
+	/* Modify Img_dst */
+	Img_dst->Width = NewWidth;
+	Img_dst->Height = NewHeight;
+	Img_dst->rgbpix = (unsigned char *)realloc(Img_dst->rgbpix, Img_dst->Width * Img_dst->Height * Img_dst->Num_channels * sizeof(unsigned char));
+
+	/* Modify Central point - shift x and y*/
+	if (CentralPoint.X > Img_src->Width - 1) CentralPoint.X = Img_src->Width - 1;
+	if (CentralPoint.Y > Img_src->Height - 1) CentralPoint.X = Img_src->Height - 1;
+	if (CentralPoint.X < 0) CentralPoint.X = 0;
+	if (CentralPoint.Y < 0) CentralPoint.X = 0;
+
+	/* for x - too right*/
+	if (Img_src->Width < (NewWidth / 2) + CentralPoint.X) CentralPoint.X = Img_src->Width - (NewWidth / 2) - 1;
+	/* for y - too down */
+	if (Img_src->Height < (NewHeight / 2) + CentralPoint.Y) CentralPoint.Y = Img_src->Height - (NewHeight / 2) - 1;
+	/* for x - too left*/
+	if (CentralPoint.X - (NewWidth / 2 ) < 0) CentralPoint.X = (NewWidth / 2) + 1;
+	/* for y - too up*/
+	if (CentralPoint.Y - (NewHeight / 2) < 0) CentralPoint.Y = (NewHeight / 2) + 1;
+
+	k = CentralPoint.Y - (NewHeight / 2);
+	for (i = 0; i < Img_dst->Height; i++)
+	{
+		k++;
+		z = CentralPoint.X - (NewWidth / 2);
+		for (j = 0; j < Img_dst->Width; j++)
+		{
+			z++;
+			for (l = 0; l < Img_dst->Num_channels; l++)
+			{
+				Img_dst->rgbpix[(i * Img_dst->Num_channels * Img_dst->Width) + (Img_dst->Num_channels * j) + l] = Img_src->rgbpix[(k * Img_src->Num_channels * Img_src->Width) + (Img_src->Num_channels * z) + l];
+			}
+		}
+	}
+
+	return *Img_dst;
+}
+
+/*
+	M O R P H O L O G Y  -  Dilation
+*/
+struct Image MorphDilate(struct Image *Img_src, struct Image *Img_dst, int ElementSize, int NumberOfIterations)
+{
+	int i, j, l, k, z;
+
+	/* Only Grayscale is currently supported */
+	if ((Img_src->Num_channels != Img_dst->Num_channels) && Img_dst->Num_channels != 1)
+		return *Img_dst;
+	if (ElementSize < 3) ElementSize = 3;
+	if (NumberOfIterations < 0) NumberOfIterations = 0;
+	if ((Img_src->Width != Img_dst->Width) || (Img_src->Height != Img_dst->Height)) SetDestination(&Img_src, &Img_dst);
+
+	float StructureElement[9] = { 0, 1, 0, 1, 1, 1, 0, 1, 0 };
+	Convolution(Img_src->rgbpix, Img_dst->rgbpix, Img_src->Height, Img_src->Width, StructureElement, ElementSize);
+
+	if (NumberOfIterations % 2 == 0)
+	{
+		if (NumberOfIterations > 0 && NumberOfIterations % 2 == 0)
+		{
+			NumberOfIterations -= 1;
+			MorphDilate(Img_src, Img_dst, ElementSize, NumberOfIterations);
+			return *Img_dst;
+		}
+		if (NumberOfIterations > 0 && NumberOfIterations % 2 == 1)
+		{
+			NumberOfIterations -= 1;
+			MorphDilate(Img_dst, Img_src, ElementSize, NumberOfIterations);
+			return *Img_src;
+		}
+	}
+	else
+	{
+		if (NumberOfIterations > 0 && NumberOfIterations % 2 == 0)
+		{
+			NumberOfIterations -= 1;
+			MorphDilate(Img_dst, Img_src, ElementSize, NumberOfIterations);
+			return *Img_src;
+		}
+		if (NumberOfIterations > 0 && NumberOfIterations % 2 == 1)
+		{
+			NumberOfIterations -= 1;
+			MorphDilate(Img_src, Img_dst, ElementSize, NumberOfIterations);
+			return *Img_dst;
+		}
+	}
+}
+
+
+/*
+	M O R P H O L O G Y  -  Erosion
+*/
+struct Image MorphErode(struct Image *Img_src, struct Image *Img_dst, int ElementSize, int NumberOfIterations)
+{
+	int i, j, l, k, z;
+
+	if (Img_src->Num_channels != Img_dst->Num_channels)
+		return *Img_dst;
+	if (ElementSize < 3) ElementSize = 3;
+	if (NumberOfIterations < 0) NumberOfIterations = 0;
+	if ((Img_src->Width != Img_dst->Width) || (Img_src->Height != Img_dst->Height)) SetDestination(&Img_src, &Img_dst);
+
+	float StructureElement[9] = { 1, 0, 1, 0, 0, 0, 1, 0, 1 };
+	Convolution(Img_src->rgbpix, Img_dst->rgbpix, Img_src->Height, Img_src->Width, StructureElement, ElementSize);
+
+	if (NumberOfIterations % 2 == 0)
+	{
+		if (NumberOfIterations > 0 && NumberOfIterations % 2 == 0)
+		{
+			NumberOfIterations -= 1;
+			MorphErode(Img_src, Img_dst, ElementSize, NumberOfIterations);
+			return *Img_dst;
+		}
+		if (NumberOfIterations > 0 && NumberOfIterations % 2 == 1)
+		{
+			NumberOfIterations -= 1;
+			MorphErode(Img_dst, Img_src, ElementSize, NumberOfIterations);
+			return *Img_src;
+		}
+	}
+	else
+	{
+		if (NumberOfIterations > 0 && NumberOfIterations % 2 == 0)
+		{
+			NumberOfIterations -= 1;
+			MorphErode(Img_dst, Img_src, ElementSize, NumberOfIterations);
+			return *Img_src;
+		}
+		if (NumberOfIterations > 0 && NumberOfIterations % 2 == 1)
+		{
+			NumberOfIterations -= 1;
+			MorphErode(Img_src, Img_dst, ElementSize, NumberOfIterations);
+			return *Img_dst;
+		}
+	}
+}
+
+
+/*
+	M O R P H O L O G Y  -  Opening
+*/
+struct Image MorphOpen(struct Image *Img_src, struct Image *Img_dst, int ElementSize, int NumberOfIterations)
+{
+	int i, j, l, k, z;
+
+
+}
+/*
+	M O R P H O L O G Y  -  Closing
+*/
+struct Image MorphClose(struct Image *Img_src, struct Image *Img_dst, int ElementSize, int NumberOfIterations)
+{
+	int i, j, l, k, z;
+
+
+}
+
+/*
+	S H A R P   image - using EdgeExtraction function
+*/
+struct Image SharpImageContours(struct Image *Img_src, struct Image *Img_dst, int Percentage)
+{
+	int i, j, l;
+
+	Image Img_dst_Grayscale = CreateNewImage(Img_src, &Img_dst_Grayscale, 1);
+	Image Img_src_Grayscale = CreateNewImage(Img_src, &Img_src_Grayscale, 1);
+
+	if (abs(Percentage) > 1) Percentage /= 100;
+	if ((Img_src->Width != Img_dst->Width) || (Img_src->Height != Img_dst->Height)) SetDestination(Img_src, Img_dst);
+
+	ConvertToGrayscale_1Channel(Img_src, &Img_src_Grayscale);
+
+	EdgeExtraction(&Img_src_Grayscale, &Img_dst_Grayscale, EDGES_PREWITT, 1, 0.9);
+
+	for (i = 0; i < Img_dst->Height; i++)
+	{
+		for (j = 0; j < Img_dst->Width; j++)
+		{
+			for (l = 0; l < Img_dst->Num_channels; l++)
+			{
+				if (Img_dst_Grayscale.rgbpix[(i*Img_src->Width + j)] >= POSSIBLE_EDGE)
+				{
+					if (Percentage * Img_src->rgbpix[3 * (i*Img_src->Width + j) + l] + Img_src->rgbpix[3 * (i*Img_src->Width + j) + l] > 255)
+						Img_dst->rgbpix[3 * (i*Img_src->Width + j) + l] = 255;
+					else if (Percentage * Img_src->rgbpix[3 * (i*Img_src->Width + j) + l] + Img_src->rgbpix[3 * (i*Img_src->Width + j) + l] < 0)
+						Img_dst->rgbpix[3 * (i*Img_src->Width + j) + l] = 0;
+					else 
+						Img_dst->rgbpix[3 * (i*Img_src->Width + j) + l] = Percentage * Img_src->rgbpix[3 * (i*Img_src->Width + j) + l] + Img_src->rgbpix[3 * (i*Img_src->Width + j) + l];
+				}
+				else
+					Img_dst->rgbpix[3 * (i*Img_src->Width + j) + l] = Img_src->rgbpix[3 * (i*Img_src->Width + j) + l];
+			}
+		}
+	}
+
+	DestroyImage(&Img_dst_Grayscale);
+	DestroyImage(&Img_src_Grayscale);
+	return *Img_dst;
+}
+
+/*
+	S H A R P   image - using Binary mask
+*/
+struct Image SharpImageBinary(struct Image *Img_src, struct Image *Img_dst, struct Image *Img_Binary, int Percentage)
+{
+	int i, j, l;
+
+	for (i = 0; i < Img_dst->Height; i++)
+	{
+		for (j = 0; j < Img_dst->Width; j++)
+		{
+			for (l = 0; l < Img_dst->Num_channels; l++)
+			{
+				if (Img_Binary->rgbpix[(i*Img_src->Width + j)] == 1)
+				{
+					if (Percentage * Img_src->rgbpix[3 * (i*Img_src->Width + j) + l] + Img_src->rgbpix[3 * (i*Img_src->Width + j) + l] > 255)
+						Img_dst->rgbpix[3 * (i*Img_src->Width + j) + l] = 255;
+					else if (Percentage * Img_src->rgbpix[3 * (i*Img_src->Width + j) + l] + Img_src->rgbpix[3 * (i*Img_src->Width + j) + l] < 0)
+						Img_dst->rgbpix[3 * (i*Img_src->Width + j) + l] = 0;
+					else Img_dst->rgbpix[3 * (i*Img_src->Width + j) + l] = Percentage * Img_src->rgbpix[3 * (i*Img_src->Width + j) + l] + Img_src->rgbpix[3 * (i*Img_src->Width + j) + l];
+				}
+				else
+					Img_dst->rgbpix[3 * (i*Img_src->Width + j) + l] = Img_src->rgbpix[3 * (i*Img_src->Width + j) + l];
+			}
+		}
+	}
+
+	return *Img_dst;
 }
