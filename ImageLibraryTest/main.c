@@ -9,7 +9,7 @@
 int main()
 {
 	/*OPEN*/
-	Image Img_src = ReadImage("test.jpg");
+	Image Img_src = ReadImage("giraf.jpg");
 	Image Img_srDst = CreateNewImage(&Img_src, &Img_srDst, 3);
 	Image Img_srDst2 = CreateNewImage(&Img_src, &Img_srDst2, 3);
 	Image Img_dst = CreateNewImage(&Img_src, &Img_dst, 1);
@@ -34,26 +34,26 @@ int main()
 	//RotateImage(&Img_src, &Img_dst, 180, CentralPoint);
 	
 	/*BRIGHTNESS*/
-	//BrightnessCorrection(&Img_src, &Img_srDst, 3, PERCENTAGE_ALGO);
-	
-	/*CONRAST*/
-	//ContrastCorrection(&Img_srDst, &Img_srDst2, 3);
+	//BrightnessCorrection(&Img_src, &Img_srDst, 15, BRIGHTNESS_PERCENTAGE_ALGO);
 	
 	/*NOISE*/
 	//NoiseCorrection(&Img_src, &Img_srDst, 60, 1);
 	
+	/*GAMMA*/
+	//GammaCorrection(&Img_src, &Img_srDst, 0.9, 0.9, 0.9);
+	
+	/*CONRAST*/
+	//ContrastCorrection(&Img_srDst, &Img_srDst2, 5);
+
 	/*WHITE Balance*/
 	//WhiteBalanceCorrection(&Img_src, &Img_srDst, WB_GREEN_WORLD);
-	
-	/*GAMMA*/
-	//GammaCorrection(&Img_srDst2, &Img_srDst, 1.5, 1.5, 1.5);
 
 	/*GrayScale - result in 3 channels*/
 	//ConvertToGrayscale_3Channels(&Img_src, &Img_dst);
 	//ConvertToGrayscale_1Channel(&Img_src, &Img_dst);
 	
 	/*ZOOM - in_or_out +-Percentage (SCALE)*/
-	//ScaleImage(&Img_src, &Img_srDst, -70);
+	//ScaleImage(&Img_src, &Img_srDst, -5);
 
 	/*TRANSLATION*/
 	//TranslateImage(&Img_src, &Img_dst, CentralPoint);
@@ -69,11 +69,12 @@ int main()
 	//CropImage(&Img_src, &Img_srDst, CentralPoint,500,500 );
 
 	/*MORPH*/
-	//MorphDilate(&Img_dst2, &Img_dst, 3 , 7);
-	//MorphErode(&Img_dst2, &Img_dst, 3, 25);
+	//MorphDilate(&Img_dst, &Img_dst2, 3 , 7);
+	//MorphErode(&Img_dst, &Img_dst2, 3, 1);
 
 	/*SHARP*/
 	SharpImageContours(&Img_src, &Img_srDst2, 100);
+
 
 	/*WRITE*/
 	WriteImage("Result.jpg", Img_srDst2, QUALITY_MAX);

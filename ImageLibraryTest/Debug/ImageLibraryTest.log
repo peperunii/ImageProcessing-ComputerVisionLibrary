@@ -1,14 +1,15 @@
-﻿Build started 20.03.2014 18:14:30 ч..
-     1>Project "D:\Projects\ImageProcessing - CV Library\ImageLibraryTest\ImageLibraryTest.vcxproj" on node 2 (Build target(s)).
+﻿Build started 3/24/2014 12:39:57 AM.
+     1>Project "C:\PROJECTS\CV_Library\ImageLibraryTest\ImageLibraryTest.vcxproj" on node 2 (Build target(s)).
+       Project file contains ToolsVersion="12.0". This toolset is unknown or missing. You may be able to resolve this by installing the appropriate .NET Framework for this toolset. Treating the project as if it had ToolsVersion="4.0".
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I"C:\msys\1.0\home\petar.nikolov\jpeg-9a" /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _LIB /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TC /analyze- /errorReport:prompt main.c
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /I"C:\Users\Petar\Desktop\jpeg-9a\jpeg-9a\\" /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _LIB /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc110.pdb" /Gd /TC /analyze- /errorReport:prompt main.c
          main.c
        Link:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"D:\Projects\ImageProcessing - CV Library\Debug\ImageLibraryTest.exe" /INCREMENTAL /NOLOGO /LIBPATH:"C:\msys\1.0\home\petar.nikolov\jpeg-9a\.libs" "C:\msys\1.0\home\petar.nikolov\jpeg-9a\.libs\*.o" kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:\Projects\ImageProcessing - CV Library\Debug\ImageLibraryTest.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\Projects\ImageProcessing - CV Library\Debug\ImageLibraryTest.lib" /MACHINE:X86 Debug\main.obj
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\PROJECTS\CV_Library\Debug\ImageLibraryTest.exe" /INCREMENTAL /NOLOGO /LIBPATH:"C:\Users\Petar\Desktop\jpeg-9a\jpeg-9a\.libs" "C:\Users\Petar\Desktop\jpeg-9a\jpeg-9a\.libs\*.o" kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\PROJECTS\CV_Library\Debug\ImageLibraryTest.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\PROJECTS\CV_Library\Debug\ImageLibraryTest.lib" /MACHINE:X86 Debug\main.obj
          Debug\ReadWriteImage.obj
-         ImageLibraryTest.vcxproj -> D:\Projects\ImageProcessing - CV Library\Debug\ImageLibraryTest.exe
-     1>Done Building Project "D:\Projects\ImageProcessing - CV Library\ImageLibraryTest\ImageLibraryTest.vcxproj" (Build target(s)).
+         ImageLibraryTest.vcxproj -> C:\PROJECTS\CV_Library\Debug\ImageLibraryTest.exe
+     1>Done Building Project "C:\PROJECTS\CV_Library\ImageLibraryTest\ImageLibraryTest.vcxproj" (Build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:00.38
+Time Elapsed 00:00:00.25

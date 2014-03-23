@@ -262,7 +262,7 @@ struct Image SetDestination(struct Image *Prototype, struct Image *Img_dst)
 	Img_dst->Height = Prototype->Height;
 	Img_dst->Width = Prototype->Width;
 
-	Img_dst->rgbpix = (unsigned char *)realloc(Img_dst->rgbpix, Img_dst->Height * Img_dst->Width * Img_dst->Num_channels, sizeof(unsigned char));
+	Img_dst->rgbpix = (unsigned char *)realloc(Img_dst->rgbpix, Img_dst->Height * Img_dst->Width * Img_dst->Num_channels* sizeof(unsigned char));
 	if (Img_dst->rgbpix == NULL)
 	{
 		printf("cannot allocate memory for the new image\n");
@@ -977,66 +977,68 @@ struct ArrPoints EdgeExtraction(struct Image *Img_src, struct Image *Img_dst, in
 	struct Image NMS = CreateNewImage(Img_src, &NMS, 1);
 	struct Image Hysteresis = CreateNewImage(Img_src, &Hysteresis, 1);
 
-	Img_dst->Width = Img_src->Width;
-	Img_dst->Height = Img_src->Height;
-	Img_dst->rgbpix = (unsigned char *)realloc(Img_dst->rgbpix, Img_dst->Num_channels * Img_dst->Width * Img_dst->Height * sizeof(unsigned char));
-	ArrPts.ArrayOfPoints = (struct point_xy *)calloc(50,sizeof(struct point_xy));
-
-	const float Gx[] = 
+	float Gx[] = 
 	  { -1, 0, 1,
 		-2, 0, 2,
 		-1, 0, 1 };
-	const float Gy[] = 
+	float Gy[] = 
 	  { 1, 2, 1,
 		0, 0, 0,
 	   -1, -2, -1 };
 
-	const float HighPass[] = 
+	float HighPass[] = 
 	{ 1 / 9 * (
 	    -1, -1, -1,
 		-1,  8, -1,
 		-1, -1, -1) };
 
-	const float Laplace[] = 
+	float Laplace[] = 
 	 {  0,  1,  0,
 		1, -4,  1,
 		0,  1,  0 };
 
-	const float Prewitt_X_1[] = 
+	float Prewitt_X_1[] = 
 	 { -5, -5, -5,
 		0,  0,  0,
 		5,  5,  5 };
-	const float Prewitt_Y_1[] =
+	float Prewitt_Y_1[] =
 	 { -5,  0,  5,
 	   -5,  0,  5,
 	   -5,  0,  5 };
 
-	const float Prewitt_X_2[] = 
+	float Prewitt_X_2[] = 
 	 { 5,  5,  5,
 	   0,  0,  0,
 	  -5, -5, -5  };
-	const float Prewitt_Y_2[] = 
+	float Prewitt_Y_2[] = 
 	 { 5,  0, -5,
 	   5,  0, -5,
 	   5,  0, -5 };
 
-	const float Sobel_X_1[] =
+	float Sobel_X_1[] =
 	{ -1, -2, -1,
 	   0,  0,  0,
 	   1,  2,  1 };
-	const float Sobel_Y_1[] =
+	float Sobel_Y_1[] =
 	{ -1,  0,  1,
 	  -2,  0,  2,
 	  -1,  0,  1 };
 
-	const float Sobel_X_2[] =
+	float Sobel_X_2[] =
 	{  1,  2,  1,
 	   0,  0,  0,
 	  -1, -2, -1 };
-	const float Sobel_Y_2[] =
+	float Sobel_Y_2[] =
 	{  1,  0, -1,
 	   2,  0, -2,
 	   1,  0, -1 };
+
+	Img_dst->Width = Img_src->Width;
+	Img_dst->Height = Img_src->Height;
+	Img_dst->rgbpix = (unsigned char *)realloc(Img_dst->rgbpix, Img_dst->Num_channels * Img_dst->Width * Img_dst->Height * sizeof(unsigned char));
+	ArrPts.ArrayOfPoints = (struct point_xy *)calloc(50,sizeof(struct point_xy));
+
+	
 
 	if (Algotype < 1 || Algotype > 3)
 	{
@@ -1443,8 +1445,10 @@ void FindHysteresis(struct Image *Magnitude, struct Image *NMS, struct Image *Im
 	* compute hysteresis thresholds.
 	****************************************************************************/
 	for (r = 0; r<32768; r++) hist[r] = 0;
-	for (r = 0, pos = 0; r<rows; r++){
-		for (c = 0; c<cols; c++, pos++){
+	for (r = 0, pos = 0; r<rows; r++)
+	{
+		for (c = 0; c<cols; c++, pos++)
+		{
 			if (Img_dst->rgbpix[pos] == POSSIBLE_EDGE) hist[Magnitude->rgbpix[pos]]++;
 		}
 	}
@@ -1452,7 +1456,8 @@ void FindHysteresis(struct Image *Magnitude, struct Image *NMS, struct Image *Im
 	/****************************************************************************
 	* Compute the number of pixels that passed the nonmaximal suppression.
 	****************************************************************************/
-	for (r = 1, edges = 0; r<32768; r++){
+	for (r = 1, edges = 0; r<32768; r++)
+	{
 		if (hist[r] != 0) maximum_mag = r;
 		edges += hist[r];
 	}
@@ -1471,7 +1476,8 @@ void FindHysteresis(struct Image *Magnitude, struct Image *NMS, struct Image *Im
 	****************************************************************************/
 	r = 1;
 	edges = hist[1];
-	while ((r<(maximum_mag - 1)) && (edges < highcount)){
+	while ((r<(maximum_mag - 1)) && (edges < highcount))
+	{
 		r++;
 		edges += hist[r];
 	}
@@ -1483,8 +1489,10 @@ void FindHysteresis(struct Image *Magnitude, struct Image *NMS, struct Image *Im
 	* This loop looks for pixels above the highthreshold to locate Img_dst->rgbpixs and
 	* then calls follow_Img_dst->rgbpixs to continue the Img_dst->rgbpix.
 	****************************************************************************/
-	for (r = 0, pos = 0; r<rows; r++){
-		for (c = 0; c<cols; c++, pos++){
+	for (r = 0, pos = 0; r<rows; r++)
+	{
+		for (c = 0; c<cols; c++, pos++)
+		{
 			if ((Img_dst->rgbpix[pos] == POSSIBLE_EDGE) && (Magnitude->rgbpix[pos] >= highthreshold)){
 				Img_dst->rgbpix[pos] = EDGE;
 				Follow_edges((Img_dst->rgbpix + pos), (Magnitude->rgbpix + pos), lowthreshold, cols);
@@ -1540,8 +1548,8 @@ void Convolution(unsigned char *InputArray, unsigned char *OutputArray, int rows
 			//OutputArray[i * cols + j] = OutputArray[i * cols + j];
 			size_t c = 0;
 			FinalNum = 0;
-			for (int n = -KernelSize / 2; n <= KernelSize / 2; n++)
-			for (int m = -KernelSize / 2; m <= KernelSize / 2; m++)
+			for (n = -KernelSize / 2; n <= KernelSize / 2; n++)
+			for (m = -KernelSize / 2; m <= KernelSize / 2; m++)
 			{
 				FinalNum += InputArray[(j - n) * cols + i - m] * Kernel[c];
 				c++;
@@ -1657,15 +1665,16 @@ struct Image CropImage(struct Image *Img_src, struct Image *Img_dst, struct poin
 struct Image MorphDilate(struct Image *Img_src, struct Image *Img_dst, int ElementSize, int NumberOfIterations)
 {
 	int i, j, l, k, z;
+	float StructureElement[9] = { 0, 1, 0, 1, 1, 1, 0, 1, 0 };
 
 	/* Only Grayscale is currently supported */
 	if ((Img_src->Num_channels != Img_dst->Num_channels) && Img_dst->Num_channels != 1)
 		return *Img_dst;
 	if (ElementSize < 3) ElementSize = 3;
 	if (NumberOfIterations < 0) NumberOfIterations = 0;
-	if ((Img_src->Width != Img_dst->Width) || (Img_src->Height != Img_dst->Height)) SetDestination(&Img_src, &Img_dst);
+	if ((Img_src->Width != Img_dst->Width) || (Img_src->Height != Img_dst->Height)) SetDestination(Img_src, Img_dst);
 
-	float StructureElement[9] = { 0, 1, 0, 1, 1, 1, 0, 1, 0 };
+	
 	Convolution(Img_src->rgbpix, Img_dst->rgbpix, Img_src->Height, Img_src->Width, StructureElement, ElementSize);
 
 	if (NumberOfIterations % 2 == 0)
@@ -1707,14 +1716,16 @@ struct Image MorphDilate(struct Image *Img_src, struct Image *Img_dst, int Eleme
 struct Image MorphErode(struct Image *Img_src, struct Image *Img_dst, int ElementSize, int NumberOfIterations)
 {
 	int i, j, l, k, z;
+	//float StructureElement[9] = { 1, 0, 1, 0, 0, 0, 1, 0, 1 };
+	float StructureElement[9] = { -1, -1, -1, -1, 8, -1, -1, -1, -1 };
 
 	if (Img_src->Num_channels != Img_dst->Num_channels)
 		return *Img_dst;
 	if (ElementSize < 3) ElementSize = 3;
 	if (NumberOfIterations < 0) NumberOfIterations = 0;
-	if ((Img_src->Width != Img_dst->Width) || (Img_src->Height != Img_dst->Height)) SetDestination(&Img_src, &Img_dst);
+	if ((Img_src->Width != Img_dst->Width) || (Img_src->Height != Img_dst->Height)) SetDestination(Img_src, Img_dst);
 
-	float StructureElement[9] = { 1, 0, 1, 0, 0, 0, 1, 0, 1 };
+	
 	Convolution(Img_src->rgbpix, Img_dst->rgbpix, Img_src->Height, Img_src->Width, StructureElement, ElementSize);
 
 	if (NumberOfIterations % 2 == 0)
@@ -1780,6 +1791,7 @@ struct Image SharpImageContours(struct Image *Img_src, struct Image *Img_dst, in
 	Image Img_src_Grayscale = CreateNewImage(Img_src, &Img_src_Grayscale, 1);
 
 	if (abs(Percentage) > 1) Percentage /= 100;
+	Percentage *= -1;
 	if ((Img_src->Width != Img_dst->Width) || (Img_src->Height != Img_dst->Height)) SetDestination(Img_src, Img_dst);
 
 	ConvertToGrayscale_1Channel(Img_src, &Img_src_Grayscale);
@@ -1792,23 +1804,35 @@ struct Image SharpImageContours(struct Image *Img_src, struct Image *Img_dst, in
 		{
 			for (l = 0; l < Img_dst->Num_channels; l++)
 			{
-				if (Img_dst_Grayscale.rgbpix[(i*Img_src->Width + j)] >= POSSIBLE_EDGE)
+				if (Img_dst_Grayscale.rgbpix[(i*Img_src->Width + j)] >= EDGE)//POSSIBLE_EDGE)
 				{
-					if (Percentage * Img_src->rgbpix[3 * (i*Img_src->Width + j) + l] + Img_src->rgbpix[3 * (i*Img_src->Width + j) + l] > 255)
+					if (Percentage * Img_dst_Grayscale.rgbpix[(i*Img_src->Width + j)] + Img_src->rgbpix[3 * (i*Img_src->Width + j) + l] > 255)
+					{	
 						Img_dst->rgbpix[3 * (i*Img_src->Width + j) + l] = 255;
-					else if (Percentage * Img_src->rgbpix[3 * (i*Img_src->Width + j) + l] + Img_src->rgbpix[3 * (i*Img_src->Width + j) + l] < 0)
+					}
+					else if (Percentage * Img_dst_Grayscale.rgbpix[(i*Img_src->Width + j)] + Img_src->rgbpix[3 * (i*Img_src->Width + j) + l] < 0)
+					{
 						Img_dst->rgbpix[3 * (i*Img_src->Width + j) + l] = 0;
-					else 
-						Img_dst->rgbpix[3 * (i*Img_src->Width + j) + l] = Percentage * Img_src->rgbpix[3 * (i*Img_src->Width + j) + l] + Img_src->rgbpix[3 * (i*Img_src->Width + j) + l];
+					}
+					else
+					{
+						Img_dst->rgbpix[3 * (i*Img_src->Width + j) + l] = Percentage * Img_dst_Grayscale.rgbpix[(i*Img_src->Width + j)] + Img_src->rgbpix[3 * (i*Img_src->Width + j) + l];
+					}
 				}
 				else
+				{
 					Img_dst->rgbpix[3 * (i*Img_src->Width + j) + l] = Img_src->rgbpix[3 * (i*Img_src->Width + j) + l];
+					break;
+				}
 			}
 		}
 	}
 
 	DestroyImage(&Img_dst_Grayscale);
 	DestroyImage(&Img_src_Grayscale);
+
+	
+
 	return *Img_dst;
 }
 

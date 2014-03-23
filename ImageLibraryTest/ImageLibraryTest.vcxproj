@@ -27,7 +27,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v110</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
@@ -86,13 +86,13 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>C:\msys\1.0\home\petar.nikolov\jpeg-9a</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Petar\Desktop\jpeg-9a\jpeg-9a\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\msys\1.0\home\petar.nikolov\jpeg-9a\.libs</AdditionalLibraryDirectories>
-      <AdditionalDependencies>C:\msys\1.0\home\petar.nikolov\jpeg-9a\.libs\*.o;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Users\Petar\Desktop\jpeg-9a\jpeg-9a\.libs</AdditionalLibraryDirectories>
+      <AdditionalDependencies>C:\Users\Petar\Desktop\jpeg-9a\jpeg-9a\.libs\*.o;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
