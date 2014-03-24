@@ -4,23 +4,29 @@
 
 #include <stdio.h>
 #include "jpeglib.h"
+
 #include "CV_Library.h"
 
 int main()
 {
 	/*OPEN*/
-	Image Img_src = ReadImage("giraf.jpg");
-	Image Img_srDst = CreateNewImage(&Img_src, &Img_srDst, 3);
-	Image Img_srDst2 = CreateNewImage(&Img_src, &Img_srDst2, 3);
-	Image Img_dst = CreateNewImage(&Img_src, &Img_dst, 1);
+	Image Img_src = ReadImage("wb2.jpg");
 	
 	/*CREATE*/
-	Image Img_dst2 = CreateNewImage(&Img_src, &Img_dst2, 1);
+	Image Img_srDst = CreateNewImage(&Img_src, &Img_srDst, 3, COLORSPACE_RGB);
+	Image Img_srDst2 = CreateNewImage(&Img_src, &Img_srDst2, 3, COLORSPACE_RGB);
+	Image Img_dst = CreateNewImage(&Img_src, &Img_dst, 1, COLORSPACE_GRAYSCALE);
+	Image Img_dst2 = CreateNewImage(&Img_src, &Img_dst2, 1, COLORSPACE_GRAYSCALE);
 
 	struct point_xy CentralPoint;
 	CentralPoint.X = 2000;// Img_dst.Width / 2 - 200;
 	CentralPoint.Y = 920;// Img_dst.Height / 2 + 200;
 	
+	struct ColorPoint_RGB ColorPoint;
+	ColorPoint.R = 230;
+	ColorPoint.G = 150;
+	ColorPoint.B = 140;
+
 	/*SET destination*/
 	//SetDestination(&Img_src, &Img_srDst);
 
@@ -53,7 +59,7 @@ int main()
 	//ConvertToGrayscale_1Channel(&Img_src, &Img_dst);
 	
 	/*ZOOM - in_or_out +-Percentage (SCALE)*/
-	//ScaleImage(&Img_src, &Img_srDst, -5);
+	//ScaleImage(&Img_src, &Img_srDst, -50);
 
 	/*TRANSLATION*/
 	//TranslateImage(&Img_src, &Img_dst, CentralPoint);
@@ -73,11 +79,17 @@ int main()
 	//MorphErode(&Img_dst, &Img_dst2, 3, 1);
 
 	/*SHARP*/
-	SharpImageContours(&Img_src, &Img_srDst2, 100);
+	SharpImageContours(&Img_src, &Img_srDst2, 60);
 
+	/*COLOR  from gray*/
+	//ColorFromGray(&Img_dst, &Img_srDst2, ColorPoint);
 
+	/*BINARY  image*/
+	//ConvertToBinary(&Img_src, &Img_dst, 0);
+	
 	/*WRITE*/
 	WriteImage("Result.jpg", Img_srDst2, QUALITY_MAX);
+
 
 	/* DESTROY images*/
 	DestroyImage(&Img_src);

@@ -7,27 +7,72 @@
 #define POSSIBLE_EDGE 128
 #define EDGE 0
 
+/* Main structure in the program */
 typedef struct Image
 {
-	int Width;
-	int Height;
-	unsigned char *rgbpix;
-	int Num_channels;
-	char *Image_FileName;
-	int ColorSpace;
-	int isLoaded;
+	int Width;                // Image Width
+	int Height;               // Image Height
+	unsigned char *rgbpix;    // Pointer to data of the image
+	int Num_channels;         // Number of channels for image. 1 = Grayscale, 3 = Color
+	char *Image_FileName;     // Image file name. Currently is not used
+	int ColorSpace;           // Color space: 0 - Binary image, 1 -Grayscale, 2 - RGB, 3 - YCbCr, 4 - Lab, 5 - HSV
+	int isLoaded;			  // This flag is raised if the image is succefully loaded
 }Image;
 
 struct point_xy
 {
 	double X;
 	double Y;
+
 }point;
 
 struct ArrPoints
 {
 	struct point_xy *ArrayOfPoints;
+
 }ArrPoints;
+
+struct ColorPoint_RGB
+{
+	int R;
+	int G;
+	int B;
+
+}ColorPoint_RGB;
+
+struct ColorPoint_Lab
+{
+	double L;
+	double a;
+	double b;
+
+}ColorPoint_Lab;
+
+struct ColorPoint_HSV
+{
+	int H;
+	int S;
+	int V;
+
+}ColorPoint_HSV;
+
+struct ColorPoint_YCbCr
+{
+	int Y;
+	int Cb;
+	int Cr;
+
+}ColorPoint_YCbCr;
+
+enum ColorSpace
+{
+	COLORSPACE_BINARY,
+	COLORSPACE_GRAYSCALE,
+	COLORSPACE_RGB,
+	COLORSPACE_YCbCr,
+	COLORSPACE_LAB,
+	COLORSPACE_HSV,
+};
 
 enum AlgoType_Edges
 {
@@ -83,7 +128,10 @@ enum Write_Quality
 
 };
 
-struct Image	 CreateNewImage(struct Image *Prototype, struct Image *Img_dst, int NumChannels);
+
+/* Function prototypes */
+
+struct Image	 CreateNewImage(struct Image *Prototype, struct Image *Img_dst, int NumChannels, int ColorSpace);
 struct Image	 SetDestination(struct Image *Prototype, struct Image *Img_dst);
 void			 DestroyImage(struct Image *Img);
 struct Image	 ReadImage(char *filename);
@@ -110,6 +158,7 @@ void			 FindNonMaximumSupp(struct Image *Magnitude, struct Image *DerrivativeX, 
 void			 FindHysteresis(struct Image *Magnitude, struct Image *NMS, struct Image *Img_dst, float Algo_param1, float Algo_param2);
 void			 Follow_edges(unsigned char *edgemapptr, unsigned char *edgemagptr, unsigned char lowval, int cols);
 void			 Convolution(unsigned char *InputArray, unsigned char *OutputArray, int rows, int cols, float *Kernel, int KernelSize);
+void			 ConvolutionBinary(unsigned char *InputArray, unsigned char *OutputArray, int rows, int cols, float *Kernel, int KernelSize, int DilateOrErode);
 struct Image	 MirrorImageHorizontal(struct Image *Img_src, struct Image *Img_dst);
 struct Image	 MirrorImageVertical(struct Image *Img_src, struct Image *Img_dst);
 struct Image	 CropImage(struct Image *Img_src, struct Image *Img_dst, struct point_xy CentralPoint, int NewWidth, int NewHeight);
@@ -119,4 +168,6 @@ struct Image	 MorphOpen(struct Image *Img_src, struct Image *Img_dst, int Elemen
 struct Image	 MorphClose(struct Image *Img_src, struct Image *Img_dst, int ElementSize, int NumberofIterations);
 struct Image     SharpImageContours(struct Image *Img_src, struct Image *Img_dst , int Percentage);
 struct Image     SharpImageBinary(struct Image *Img_src, struct Image *Img_dst, struct Image *Img_Binary , int Percentage);
-
+struct Image     ColorFromGray(struct Image *Img_src, struct Image *Img_dst, struct ColorPoint_RGB ColorPoint);
+struct Image	 ConvertToBinary(struct Image *Img_src, struct Image *Img_dst, /* 0 for automatic */ int Threshold);
+void			 ConvertImage_RGB_HSV(struct Image *Img_src, struct Image *Img_dst);

@@ -94,7 +94,11 @@ GLOBAL(void) WriteImage(char * filename, struct Image Img_src, int quality)//uin
   if (Img_src.Num_channels == 3)
   {
 	  cinfo.input_components = 3;		/* # of color components per pixel */
-	  cinfo.in_color_space = JCS_RGB; 	/* colorspace of input image */
+	  if (Img_src.ColorSpace == 2)
+		  cinfo.in_color_space = JCS_RGB; 	/* colorspace of input image */
+	  else if (Img_src.ColorSpace == 2)
+		  cinfo.in_color_space = JCS_YCbCr;
+	  
 	  row_stride = Img_src.Width * 3;
   }
   else if (Img_src.Num_channels == 1)
@@ -232,7 +236,7 @@ static void put_scanline(unsigned char buffer[], int line, int width,
 /*
 	C R E A T E -  New Image
 */
-struct Image CreateNewImage(struct Image *Prototype, struct Image *Img_dst, int NumChannels)
+struct Image CreateNewImage(struct Image *Prototype, struct Image *Img_dst, int NumChannels, int ColorSpace)
 {
 	Img_dst->ColorSpace = Prototype->ColorSpace;
 	Img_dst->Height = Prototype->Height;
@@ -240,6 +244,14 @@ struct Image CreateNewImage(struct Image *Prototype, struct Image *Img_dst, int 
 	
 	if (NumChannels == 0) Img_dst->Num_channels = Prototype->Num_channels;
 	else Img_dst->Num_channels = NumChannels;
+
+	/* If we have Binary or Grayscale image, NumChannels should be == 1*/
+	if (ColorSpace < 2 && NumChannels != 1)
+	{
+		Img_dst->isLoaded = 0;
+		return *Img_dst;
+	}
+	Img_dst->ColorSpace = ColorSpace;
 
 	Img_dst->rgbpix = (unsigned char *)calloc(Img_dst->Height * Img_dst->Width * Img_dst->Num_channels, sizeof(unsigned char));
 	if (Img_dst->rgbpix == NULL) 
@@ -969,13 +981,13 @@ struct ArrPoints EdgeExtraction(struct Image *Img_src, struct Image *Img_dst, in
 	int i, j, z, l;
 	int NewX = 0, NewY = 0;
 	struct ArrPoints ArrPts;
-	struct Image DerrivativeX = CreateNewImage(Img_src, &DerrivativeX, 1);
-	struct Image DerrivativeY = CreateNewImage(Img_src, &DerrivativeY, 1);
-	struct Image Magnitude    = CreateNewImage(Img_src, &Magnitude, 1);
-	struct Image Magnitude2 = CreateNewImage(Img_src, &Magnitude2, 1);
-	struct Image Magnitude3 = CreateNewImage(Img_src, &Magnitude3, 1);
-	struct Image NMS = CreateNewImage(Img_src, &NMS, 1);
-	struct Image Hysteresis = CreateNewImage(Img_src, &Hysteresis, 1);
+	struct Image DerrivativeX = CreateNewImage(Img_src, &DerrivativeX, 1, COLORSPACE_GRAYSCALE);
+	struct Image DerrivativeY = CreateNewImage(Img_src, &DerrivativeY, 1, COLORSPACE_GRAYSCALE);
+	struct Image Magnitude = CreateNewImage(Img_src, &Magnitude, 1, COLORSPACE_GRAYSCALE);
+	struct Image Magnitude2 = CreateNewImage(Img_src, &Magnitude2, 1, COLORSPACE_GRAYSCALE);
+	struct Image Magnitude3 = CreateNewImage(Img_src, &Magnitude3, 1, COLORSPACE_GRAYSCALE);
+	struct Image NMS = CreateNewImage(Img_src, &NMS, 1, COLORSPACE_GRAYSCALE);
+	struct Image Hysteresis = CreateNewImage(Img_src, &Hysteresis, 1, COLORSPACE_GRAYSCALE);
 
 	float Gx[] = 
 	  { -1, 0, 1,
@@ -1539,7 +1551,7 @@ void Convolution(unsigned char *InputArray, unsigned char *OutputArray, int rows
 {
 	int i, j, n, m;
 	int FinalNum;
-	int DevideNumber = pow((double)KernelSize, 2) - 1;
+	int DevideNumber = pow((double)KernelSize, 2);
 
 	for (i = KernelSize / 2; i < cols - KernelSize / 2; i++)
 	{
@@ -1549,16 +1561,74 @@ void Convolution(unsigned char *InputArray, unsigned char *OutputArray, int rows
 			size_t c = 0;
 			FinalNum = 0;
 			for (n = -KernelSize / 2; n <= KernelSize / 2; n++)
-			for (m = -KernelSize / 2; m <= KernelSize / 2; m++)
 			{
-				FinalNum += InputArray[(j - n) * cols + i - m] * Kernel[c];
-				c++;
+				DevideNumber = 9;
+				for (m = -KernelSize / 2; m <= KernelSize / 2; m++)
+				{
+					FinalNum += InputArray[(j - n) * cols + i - m] * Kernel[c];
+					//if (FinalNum != 0)printf("%d\n", FinalNum);
+					//if (Kernel[c] == 0) DevideNumber--;
+					c++;
+				}
 			}
-			FinalNum = (double)FinalNum / DevideNumber;
+			if (DevideNumber <= 0) 
+				FinalNum = 0;
+			else 
+				FinalNum = (double)FinalNum / DevideNumber;
+
 			if (FinalNum < 0) FinalNum = 0;
 			else if (FinalNum > 255) FinalNum = 255;
+			//if (FinalNum > 128) FinalNum = 255;
+			//else FinalNum = 0;
 
 			OutputArray[j * cols + i] = FinalNum;
+		}
+	}
+}
+
+
+/*
+	C O N V O L U T I O N - Binary Image
+*/
+void ConvolutionBinary(unsigned char *InputArray, unsigned char *OutputArray, int rows, int cols, float *Kernel, int KernelSize, int DilateOrErode)
+{
+	int i, j, n, m;
+	int FinalNum;
+	int DevideNumber = pow((double)KernelSize, 2);
+
+	for (i = KernelSize / 2; i < cols - KernelSize / 2; i++)
+	{
+		for (j = KernelSize / 2; j < rows - KernelSize / 2; j++)
+		{
+
+			size_t c = 0;
+			FinalNum = 0;
+			//printf("%f", InputArray[(j)* cols + i]);
+			if (InputArray[(j) * cols + i] > 0)
+			{
+				for (n = -KernelSize / 2; n <= KernelSize / 2; n++)
+				{
+					for (m = -KernelSize / 2; m <= KernelSize / 2; m++)
+					{
+						if (Kernel[c] == 1)
+						{
+							if (DilateOrErode == 0)
+								OutputArray[(j - n) * cols + i - m] = 255;
+							else
+								OutputArray[(j - n) * cols + i - m] = 0;
+						}
+						else
+						{
+							OutputArray[(j - n) * cols + i - m] = InputArray[(j - n) * cols + i - m];
+						}
+						c++;
+					}
+				}
+			}
+			else
+			{
+				OutputArray[(j) * cols + i ] = InputArray[(j) * cols + i];
+			}
 		}
 	}
 }
@@ -1665,7 +1735,8 @@ struct Image CropImage(struct Image *Img_src, struct Image *Img_dst, struct poin
 struct Image MorphDilate(struct Image *Img_src, struct Image *Img_dst, int ElementSize, int NumberOfIterations)
 {
 	int i, j, l, k, z;
-	float StructureElement[9] = { 0, 1, 0, 1, 1, 1, 0, 1, 0 };
+	//float StructureElement[9] = { 0, 1, 0, 1, 1, 1, 0, 1, 0 };
+	float StructureElement[9] = { 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 
 	/* Only Grayscale is currently supported */
 	if ((Img_src->Num_channels != Img_dst->Num_channels) && Img_dst->Num_channels != 1)
@@ -1673,40 +1744,28 @@ struct Image MorphDilate(struct Image *Img_src, struct Image *Img_dst, int Eleme
 	if (ElementSize < 3) ElementSize = 3;
 	if (NumberOfIterations < 0) NumberOfIterations = 0;
 	if ((Img_src->Width != Img_dst->Width) || (Img_src->Height != Img_dst->Height)) SetDestination(Img_src, Img_dst);
-
 	
-	Convolution(Img_src->rgbpix, Img_dst->rgbpix, Img_src->Height, Img_src->Width, StructureElement, ElementSize);
+	ConvolutionBinary(Img_src->rgbpix, Img_dst->rgbpix, Img_src->Height, Img_src->Width, &StructureElement, ElementSize, 0);
 
 	if (NumberOfIterations % 2 == 0)
 	{
 		if (NumberOfIterations > 0 && NumberOfIterations % 2 == 0)
 		{
 			NumberOfIterations -= 1;
-			MorphDilate(Img_src, Img_dst, ElementSize, NumberOfIterations);
+			if (NumberOfIterations != 0) MorphDilate(Img_src, Img_dst, ElementSize, NumberOfIterations);
 			return *Img_dst;
-		}
-		if (NumberOfIterations > 0 && NumberOfIterations % 2 == 1)
-		{
-			NumberOfIterations -= 1;
-			MorphDilate(Img_dst, Img_src, ElementSize, NumberOfIterations);
-			return *Img_src;
 		}
 	}
 	else
 	{
-		if (NumberOfIterations > 0 && NumberOfIterations % 2 == 0)
-		{
-			NumberOfIterations -= 1;
-			MorphDilate(Img_dst, Img_src, ElementSize, NumberOfIterations);
-			return *Img_src;
-		}
 		if (NumberOfIterations > 0 && NumberOfIterations % 2 == 1)
 		{
 			NumberOfIterations -= 1;
-			MorphDilate(Img_src, Img_dst, ElementSize, NumberOfIterations);
-			return *Img_dst;
+			if (NumberOfIterations != 0) MorphDilate(Img_dst, Img_src, ElementSize, NumberOfIterations);
+			return *Img_src;
 		}
 	}
+	
 }
 
 
@@ -1716,46 +1775,34 @@ struct Image MorphDilate(struct Image *Img_src, struct Image *Img_dst, int Eleme
 struct Image MorphErode(struct Image *Img_src, struct Image *Img_dst, int ElementSize, int NumberOfIterations)
 {
 	int i, j, l, k, z;
-	//float StructureElement[9] = { 1, 0, 1, 0, 0, 0, 1, 0, 1 };
-	float StructureElement[9] = { -1, -1, -1, -1, 8, -1, -1, -1, -1 };
+	float StructureElement[9] = { 0, 1, 0, 1, 1, 1, 0, 1, 0 };
 
 	if (Img_src->Num_channels != Img_dst->Num_channels)
 		return *Img_dst;
 	if (ElementSize < 3) ElementSize = 3;
 	if (NumberOfIterations < 0) NumberOfIterations = 0;
+	
 	if ((Img_src->Width != Img_dst->Width) || (Img_src->Height != Img_dst->Height)) SetDestination(Img_src, Img_dst);
 
 	
-	Convolution(Img_src->rgbpix, Img_dst->rgbpix, Img_src->Height, Img_src->Width, StructureElement, ElementSize);
+	ConvolutionBinary(Img_src->rgbpix, Img_dst->rgbpix, Img_src->Height, Img_src->Width, StructureElement, ElementSize, 1);
 
 	if (NumberOfIterations % 2 == 0)
 	{
 		if (NumberOfIterations > 0 && NumberOfIterations % 2 == 0)
 		{
 			NumberOfIterations -= 1;
-			MorphErode(Img_src, Img_dst, ElementSize, NumberOfIterations);
+			if(NumberOfIterations != 0) MorphErode(Img_src, Img_dst, ElementSize, NumberOfIterations);
 			return *Img_dst;
-		}
-		if (NumberOfIterations > 0 && NumberOfIterations % 2 == 1)
-		{
-			NumberOfIterations -= 1;
-			MorphErode(Img_dst, Img_src, ElementSize, NumberOfIterations);
-			return *Img_src;
 		}
 	}
 	else
 	{
-		if (NumberOfIterations > 0 && NumberOfIterations % 2 == 0)
-		{
-			NumberOfIterations -= 1;
-			MorphErode(Img_dst, Img_src, ElementSize, NumberOfIterations);
-			return *Img_src;
-		}
 		if (NumberOfIterations > 0 && NumberOfIterations % 2 == 1)
 		{
 			NumberOfIterations -= 1;
-			MorphErode(Img_src, Img_dst, ElementSize, NumberOfIterations);
-			return *Img_dst;
+			if (NumberOfIterations != 0) MorphErode(Img_dst, Img_src, ElementSize, NumberOfIterations);
+			return *Img_src;
 		}
 	}
 }
@@ -1766,16 +1813,32 @@ struct Image MorphErode(struct Image *Img_src, struct Image *Img_dst, int Elemen
 */
 struct Image MorphOpen(struct Image *Img_src, struct Image *Img_dst, int ElementSize, int NumberOfIterations)
 {
-	int i, j, l, k, z;
+	struct Image BackupImage = CreateNewImage(Img_src, &BackupImage, 1, COLORSPACE_GRAYSCALE);
+	
+	MorphErode(Img_src, Img_dst, ElementSize, NumberOfIterations);
+	MorphDilate(Img_dst, &BackupImage, ElementSize, NumberOfIterations);
 
+	memcpy(Img_dst->rgbpix, BackupImage.rgbpix, Img_dst->Width * Img_dst->Height * sizeof(unsigned char));
+	//memcpy(Img_dst, &BackupImage, sizeof(BackupImage));
 
+	DestroyImage(&BackupImage);
+	return *Img_dst;
 }
 /*
 	M O R P H O L O G Y  -  Closing
 */
 struct Image MorphClose(struct Image *Img_src, struct Image *Img_dst, int ElementSize, int NumberOfIterations)
 {
-	int i, j, l, k, z;
+	struct Image BackupImage = CreateNewImage(Img_src, &BackupImage, 1, COLORSPACE_GRAYSCALE);
+
+	MorphDilate(Img_src, Img_dst, ElementSize, NumberOfIterations);
+	MorphErode(Img_dst, &BackupImage, ElementSize, NumberOfIterations);
+
+	memcpy(Img_dst->rgbpix, BackupImage.rgbpix, Img_dst->Width * Img_dst->Height * sizeof(unsigned char));
+	//memcpy(Img_dst, &BackupImage, sizeof(Img_dst));
+
+	DestroyImage(&BackupImage);
+	return *Img_dst;
 
 
 }
@@ -1787,8 +1850,8 @@ struct Image SharpImageContours(struct Image *Img_src, struct Image *Img_dst, in
 {
 	int i, j, l;
 
-	Image Img_dst_Grayscale = CreateNewImage(Img_src, &Img_dst_Grayscale, 1);
-	Image Img_src_Grayscale = CreateNewImage(Img_src, &Img_src_Grayscale, 1);
+	Image Img_dst_Grayscale = CreateNewImage(Img_src, &Img_dst_Grayscale, 1, COLORSPACE_GRAYSCALE);
+	Image Img_src_Grayscale = CreateNewImage(Img_src, &Img_src_Grayscale, 1, COLORSPACE_GRAYSCALE);
 
 	if (abs(Percentage) > 1) Percentage /= 100;
 	Percentage *= -1;
@@ -1864,4 +1927,113 @@ struct Image SharpImageBinary(struct Image *Img_src, struct Image *Img_dst, stru
 	}
 
 	return *Img_dst;
+}
+
+/*
+	C O L O R  -  artificial
+*/
+struct Image ColorFromGray(struct Image *Img_src, struct Image *Img_dst, struct ColorPoint_RGB ColorPoint)
+{
+	int i, j, l;
+	double R_to_G_Ratio = 0;
+	double B_to_G_Ratio = 0;
+
+	// The input should be 1 channel image. The output is 3 channel
+	if (Img_src->Num_channels != 1 || Img_dst->Num_channels != 3)
+	{
+		return *Img_dst;
+	}
+
+	R_to_G_Ratio = ColorPoint.R / (double)ColorPoint.G;
+	B_to_G_Ratio = ColorPoint.B / (double)ColorPoint.G;
+
+	//step 1: copy the gray information to RGB channels
+	for (i = 0; i < Img_dst->Height; i++)
+	{
+		for (j = 0; j < Img_dst->Width; j++)
+		{
+			if (R_to_G_Ratio*Img_src->rgbpix[(i*Img_src->Width + j)] > 255) 
+				Img_dst->rgbpix[3 * (i*Img_src->Width + j)] = 255;
+			else 
+				Img_dst->rgbpix[3 * (i*Img_src->Width + j)] = R_to_G_Ratio*Img_src->rgbpix[(i*Img_src->Width + j)];
+			Img_dst->rgbpix[3 * (i*Img_src->Width + j) + 1] = Img_src->rgbpix[(i*Img_src->Width + j)];
+			if (B_to_G_Ratio*Img_src->rgbpix[(i*Img_src->Width + j)] > 255) 
+				Img_dst->rgbpix[3 * (i*Img_src->Width + j) + 2] = 255;
+			else 
+				Img_dst->rgbpix[3 * (i*Img_src->Width + j) + 2] = B_to_G_Ratio*Img_src->rgbpix[(i*Img_src->Width + j)];
+		}
+	}
+	//step 2: Gamma correction for B and R channels
+	//GammaCorrection(Img_src, Img_dst, 0.6, 0.95, 0.7);
+
+	return *Img_dst;
+}
+
+/*
+	B I N A R Y  image 
+*/
+struct Image ConvertToBinary(struct Image *Img_src, struct Image *Img_dst, int Threshold)
+{
+	int i, j, l;
+	int Sum = 0;
+	int AverageGray = 0;
+
+	struct Image GrayImage = CreateNewImage(Img_src, &GrayImage, 1, COLORSPACE_GRAYSCALE);
+
+	if (Img_src->Width * Img_src->Height != Img_dst->Width * Img_dst->Height)
+	{
+		SetDestination(Img_src, Img_dst);
+	}
+	if (Img_src->Num_channels != 1)
+	{
+		ConvertToGrayscale_1Channel(Img_src, &GrayImage);
+	}
+	if (Threshold == 0)
+	{
+		for (i = 0; i < Img_dst->Height; i++)
+		{
+			for (j = 0; j < Img_dst->Width; j++)
+			{
+				if (Img_src->Num_channels != 1)
+					Sum += GrayImage.rgbpix[i * Img_dst->Width + j];
+				else
+					Sum += Img_src->rgbpix[i * Img_dst->Width + j];
+			}
+		}
+		AverageGray = Sum / (double)(Img_dst->Width * Img_dst->Height);
+	}
+	else
+		AverageGray = Threshold;
+	for (i = 0; i < Img_dst->Height; i++)
+	{
+		for (j = 0; j < Img_dst->Width; j++)
+		{
+			if (Img_src->Num_channels == 1)
+			{
+				if (Img_src->rgbpix[i * Img_src->Width + j] > AverageGray)
+					Img_dst->rgbpix[i * Img_src->Width + j] = 255;
+				else
+					Img_dst->rgbpix[i * Img_src->Width + j] = 0;
+			}
+			else
+			{
+				if (GrayImage.rgbpix[i * Img_src->Width + j] > AverageGray)
+					Img_dst->rgbpix[i * Img_src->Width + j] = 255;
+				else
+					Img_dst->rgbpix[i * Img_src->Width + j] = 0;
+			}
+		}
+	}
+
+	DestroyImage(&GrayImage);
+	return *Img_dst;
+}
+
+/*
+	C O N V E R T -  RGB to HSV
+*/
+void ConvertImage_RGB_HSV(struct Image *Img_src, struct Image *Img_dst)
+{
+
+
 }
