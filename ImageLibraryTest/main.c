@@ -10,13 +10,13 @@
 int main()
 {
 	/*OPEN*/
-	Image Img_src = ReadImage("wb2.jpg");
+	Image Img_src = ReadImage("flower.jpg");
 	
 	/*CREATE*/
-	Image Img_srDst = CreateNewImage(&Img_src, &Img_srDst, 3, COLORSPACE_RGB);
-	Image Img_srDst2 = CreateNewImage(&Img_src, &Img_srDst2, 3, COLORSPACE_RGB);
-	Image Img_dst = CreateNewImage(&Img_src, &Img_dst, 1, COLORSPACE_GRAYSCALE);
-	Image Img_dst2 = CreateNewImage(&Img_src, &Img_dst2, 1, COLORSPACE_GRAYSCALE);
+	Image Img_srDst = CreateNewImage_BasedOnPrototype(&Img_src, &Img_srDst);
+	Image Img_srDst2 = CreateNewImage_BasedOnPrototype(&Img_src, &Img_srDst2);
+	Image Img_dst = CreateNewImage(&Img_dst, Img_src.Width, Img_src.Height, 1, 1);
+	Image Img_dst2 = CreateNewImage(&Img_dst2, Img_src.Width, Img_src.Height, 1, 1);
 
 	struct point_xy CentralPoint;
 	CentralPoint.X = 2000;// Img_dst.Width / 2 - 200;
@@ -79,7 +79,7 @@ int main()
 	//MorphErode(&Img_dst, &Img_dst2, 3, 1);
 
 	/*SHARP*/
-	SharpImageContours(&Img_src, &Img_srDst2, 60);
+	//SharpImageContours(&Img_src, &Img_srDst2, 60);
 
 	/*COLOR  from gray*/
 	//ColorFromGray(&Img_dst, &Img_srDst2, ColorPoint);
@@ -87,9 +87,14 @@ int main()
 	/*BINARY  image*/
 	//ConvertToBinary(&Img_src, &Img_dst, 0);
 	
+	/*RGB to HSL convert*/
+	ConvertImage_RGB_to_HSL(&Img_src, &Img_srDst);
+
+	/*HSL to RGB convert*/
+	ConvertImage_HSL_to_RGB(&Img_srDst, &Img_srDst2);
+
 	/*WRITE*/
 	WriteImage("Result.jpg", Img_srDst2, QUALITY_MAX);
-
 
 	/* DESTROY images*/
 	DestroyImage(&Img_src);

@@ -96,7 +96,7 @@ GLOBAL(void) WriteImage(char * filename, struct Image Img_src, int quality)//uin
 	  cinfo.input_components = 3;		/* # of color components per pixel */
 	  if (Img_src.ColorSpace == 2)
 		  cinfo.in_color_space = JCS_RGB; 	/* colorspace of input image */
-	  else if (Img_src.ColorSpace == 2)
+	  else if (Img_src.ColorSpace == 3)
 		  cinfo.in_color_space = JCS_YCbCr;
 	  
 	  row_stride = Img_src.Width * 3;
@@ -192,6 +192,13 @@ struct Image read_Image_file(FILE * infile)
   Img_src.Height = cinfo.image_height;
   Img_src.Num_channels = cinfo.num_components;
   Img_src.ColorSpace = cinfo.jpeg_color_space;
+  
+  
+  /* TO  DELETE */
+  Img_src.ColorSpace = 2;
+  /***************/
+  
+  
   Img_src.rgbpix = (unsigned char *)calloc(Img_src.Num_channels * Img_src.Width*Img_src.Height, sizeof(unsigned char));
   buffer = (*cinfo.mem->alloc_sarray)
 		((j_common_ptr) &cinfo, JPOOL_IMAGE, row_stride, 1);
@@ -234,24 +241,15 @@ static void put_scanline(unsigned char buffer[], int line, int width,
 } /* end put_scanline */
 
 /*
-	C R E A T E -  New Image
+	C R E A T E -  New Image - Based On Prototype
 */
-struct Image CreateNewImage(struct Image *Prototype, struct Image *Img_dst, int NumChannels, int ColorSpace)
+struct Image CreateNewImage_BasedOnPrototype(struct Image *Prototype, struct Image *Img_dst)
 {
 	Img_dst->ColorSpace = Prototype->ColorSpace;
 	Img_dst->Height = Prototype->Height;
 	Img_dst->Width = Prototype->Width;
-	
-	if (NumChannels == 0) Img_dst->Num_channels = Prototype->Num_channels;
-	else Img_dst->Num_channels = NumChannels;
-
-	/* If we have Binary or Grayscale image, NumChannels should be == 1*/
-	if (ColorSpace < 2 && NumChannels != 1)
-	{
-		Img_dst->isLoaded = 0;
-		return *Img_dst;
-	}
-	Img_dst->ColorSpace = ColorSpace;
+	Img_dst->Num_channels = Prototype->Num_channels;
+	Img_dst->ColorSpace = Prototype->ColorSpace;
 
 	Img_dst->rgbpix = (unsigned char *)calloc(Img_dst->Height * Img_dst->Width * Img_dst->Num_channels, sizeof(unsigned char));
 	if (Img_dst->rgbpix == NULL) 
@@ -265,11 +263,49 @@ struct Image CreateNewImage(struct Image *Prototype, struct Image *Img_dst, int 
 	return *Img_dst;
 }
 
+/*
+	C R E A T E -  New Image
+*/
+struct Image CreateNewImage(struct Image *Img_dst, int Width, int Height, int NumChannels, int ColorSpace)
+{
+	FILE *fdebug = NULL;
+	Img_dst->ColorSpace = ColorSpace;
+	Img_dst->Height = Height;
+	Img_dst->Width = Width;
+	Img_dst->Num_channels = NumChannels;
+
+	/* If we have Binary or Grayscale image, NumChannels should be == 1*/
+	if (ColorSpace < 2 && NumChannels != 1)
+	{
+		Img_dst->isLoaded = 0;
+		return *Img_dst;
+	}
+	Img_dst->ColorSpace = ColorSpace;
+
+	Img_dst->rgbpix = (unsigned char *)calloc(Img_dst->Height * Img_dst->Width * Img_dst->Num_channels, sizeof(unsigned char));
+	if (Img_dst->rgbpix == NULL)
+	{
+
+		#ifdef DEBUG_FILE
+			fdebug = fopen(DEBUG_FILE, "wt");
+			fprintf(fdebug,"cannot allocate memory for the new image\n");
+			fclose(fdebug);
+		#endif // DEBUG_FILE
+		
+		Img_dst->isLoaded = 0;
+	}
+	else
+		Img_dst->isLoaded = 1;
+
+	return *Img_dst;
+}
+
 /* 
 	S E T   D E S T I N A T I O N  - to match the size of the prototype
 */
 struct Image SetDestination(struct Image *Prototype, struct Image *Img_dst)
 {
+	FILE *fdebug = NULL;
 	Img_dst->ColorSpace = Prototype->ColorSpace;
 	Img_dst->Height = Prototype->Height;
 	Img_dst->Width = Prototype->Width;
@@ -277,7 +313,11 @@ struct Image SetDestination(struct Image *Prototype, struct Image *Img_dst)
 	Img_dst->rgbpix = (unsigned char *)realloc(Img_dst->rgbpix, Img_dst->Height * Img_dst->Width * Img_dst->Num_channels* sizeof(unsigned char));
 	if (Img_dst->rgbpix == NULL)
 	{
-		printf("cannot allocate memory for the new image\n");
+		#ifdef DEBUG_FILE
+				fdebug = fopen(DEBUG_FILE, "wt");
+				fprintf(fdebug, "cannot allocate memory for the new image\n");
+				fclose(fdebug);
+		#endif // DEBUG_FILE
 		Img_dst->isLoaded = 0;
 	}
 	else
@@ -551,6 +591,10 @@ struct Image WhiteBalanceCorrection(struct Image *Img_src, struct Image *Img_dst
 	int check3Values = 0;
 
 	if ((Img_src->Num_channels != Img_dst->Num_channels) || (Img_src->Num_channels != 3))
+		return *Img_dst;
+
+	/* Only RGB is supported for WhiteBalance algos*/
+	if (Img_src->ColorSpace != 2) 
 		return *Img_dst;
 
 	if (Algotype == 1)
@@ -981,13 +1025,13 @@ struct ArrPoints EdgeExtraction(struct Image *Img_src, struct Image *Img_dst, in
 	int i, j, z, l;
 	int NewX = 0, NewY = 0;
 	struct ArrPoints ArrPts;
-	struct Image DerrivativeX = CreateNewImage(Img_src, &DerrivativeX, 1, COLORSPACE_GRAYSCALE);
-	struct Image DerrivativeY = CreateNewImage(Img_src, &DerrivativeY, 1, COLORSPACE_GRAYSCALE);
-	struct Image Magnitude = CreateNewImage(Img_src, &Magnitude, 1, COLORSPACE_GRAYSCALE);
-	struct Image Magnitude2 = CreateNewImage(Img_src, &Magnitude2, 1, COLORSPACE_GRAYSCALE);
-	struct Image Magnitude3 = CreateNewImage(Img_src, &Magnitude3, 1, COLORSPACE_GRAYSCALE);
-	struct Image NMS = CreateNewImage(Img_src, &NMS, 1, COLORSPACE_GRAYSCALE);
-	struct Image Hysteresis = CreateNewImage(Img_src, &Hysteresis, 1, COLORSPACE_GRAYSCALE);
+	struct Image DerrivativeX = CreateNewImage(&DerrivativeX, Img_src->Width, Img_src->Height, 1, COLORSPACE_GRAYSCALE);
+	struct Image DerrivativeY = CreateNewImage(&DerrivativeY, Img_src->Width, Img_src->Height, 1, COLORSPACE_GRAYSCALE);
+	struct Image Magnitude = CreateNewImage(&Magnitude, Img_src->Width, Img_src->Height, 1, COLORSPACE_GRAYSCALE);
+	struct Image Magnitude2 = CreateNewImage(&Magnitude2, Img_src->Width, Img_src->Height, 1, COLORSPACE_GRAYSCALE);
+	struct Image Magnitude3 = CreateNewImage(&Magnitude3, Img_src->Width, Img_src->Height, 1, COLORSPACE_GRAYSCALE);
+	struct Image NMS = CreateNewImage(&NMS, Img_src->Width, Img_src->Height, 1, COLORSPACE_GRAYSCALE);
+	struct Image Hysteresis = CreateNewImage(&Hysteresis, Img_src->Width, Img_src->Height, 1, COLORSPACE_GRAYSCALE);
 
 	float Gx[] = 
 	  { -1, 0, 1,
@@ -1813,7 +1857,7 @@ struct Image MorphErode(struct Image *Img_src, struct Image *Img_dst, int Elemen
 */
 struct Image MorphOpen(struct Image *Img_src, struct Image *Img_dst, int ElementSize, int NumberOfIterations)
 {
-	struct Image BackupImage = CreateNewImage(Img_src, &BackupImage, 1, COLORSPACE_GRAYSCALE);
+	struct Image BackupImage = CreateNewImage(&BackupImage, Img_src->Width, Img_src->Height, 1, COLORSPACE_GRAYSCALE);
 	
 	MorphErode(Img_src, Img_dst, ElementSize, NumberOfIterations);
 	MorphDilate(Img_dst, &BackupImage, ElementSize, NumberOfIterations);
@@ -1829,7 +1873,7 @@ struct Image MorphOpen(struct Image *Img_src, struct Image *Img_dst, int Element
 */
 struct Image MorphClose(struct Image *Img_src, struct Image *Img_dst, int ElementSize, int NumberOfIterations)
 {
-	struct Image BackupImage = CreateNewImage(Img_src, &BackupImage, 1, COLORSPACE_GRAYSCALE);
+	struct Image BackupImage = CreateNewImage(&BackupImage, Img_src->Width, Img_src->Height, 1, COLORSPACE_GRAYSCALE);
 
 	MorphDilate(Img_src, Img_dst, ElementSize, NumberOfIterations);
 	MorphErode(Img_dst, &BackupImage, ElementSize, NumberOfIterations);
@@ -1850,8 +1894,8 @@ struct Image SharpImageContours(struct Image *Img_src, struct Image *Img_dst, in
 {
 	int i, j, l;
 
-	Image Img_dst_Grayscale = CreateNewImage(Img_src, &Img_dst_Grayscale, 1, COLORSPACE_GRAYSCALE);
-	Image Img_src_Grayscale = CreateNewImage(Img_src, &Img_src_Grayscale, 1, COLORSPACE_GRAYSCALE);
+	Image Img_dst_Grayscale = CreateNewImage(&Img_dst_Grayscale, Img_src->Width, Img_src->Height, 1, COLORSPACE_GRAYSCALE);
+	Image Img_src_Grayscale = CreateNewImage(&Img_src_Grayscale, Img_src->Width, Img_src->Height, 1, COLORSPACE_GRAYSCALE);
 
 	if (abs(Percentage) > 1) Percentage /= 100;
 	Percentage *= -1;
@@ -1978,7 +2022,7 @@ struct Image ConvertToBinary(struct Image *Img_src, struct Image *Img_dst, int T
 	int Sum = 0;
 	int AverageGray = 0;
 
-	struct Image GrayImage = CreateNewImage(Img_src, &GrayImage, 1, COLORSPACE_GRAYSCALE);
+	struct Image GrayImage = CreateNewImage(&GrayImage, Img_src->Width, Img_src->Height, 1, COLORSPACE_GRAYSCALE);
 
 	if (Img_src->Width * Img_src->Height != Img_dst->Width * Img_dst->Height)
 	{
@@ -2030,10 +2074,245 @@ struct Image ConvertToBinary(struct Image *Img_src, struct Image *Img_dst, int T
 }
 
 /*
+	Chech Color values - Used in HSL - RGB conversion
+*/
+float CheckColorValue(float TempColor, float Temporary_1, float Temporary_2)
+{
+	float NewColor;
+
+	if (6 * TempColor < 1)
+	{
+		NewColor = Temporary_2 + ((Temporary_1 - Temporary_2) * 6 * TempColor);
+	}
+	else
+	{
+		if (2 * TempColor < 1)
+		{
+			NewColor = Temporary_1;
+		}
+		else
+		{
+			if (3 * TempColor < 2)
+			{
+				NewColor = Temporary_2 + ((Temporary_1 - Temporary_2) * 6 * (0.666 - TempColor));
+			}
+			else
+				NewColor = Temporary_2;
+		}
+	}
+
+	return NewColor;
+}
+
+/*
 	C O N V E R T -  RGB to HSV
 */
-void ConvertImage_RGB_HSV(struct Image *Img_src, struct Image *Img_dst)
+void ConvertImage_RGB_to_HSL(struct Image *Img_src, struct Image *Img_dst)
 {
+	FILE *fdebug = NULL;
+	float R_scaled;
+	float G_scaled;
+	float B_scaled;
+	float C_max;
+	float C_min;
+	float Delta;
+	int Hue;
+	float Saturation, Luma = 0;
+
+	int i, j;
+
+	if ((Img_src->Num_channels != 3) || (Img_dst->Num_channels != 3))
+	{
+		#ifdef DEBUG_FILE
+				fdebug = fopen(DEBUG_FILE, "wt");
+				fprintf(fdebug, "The input images are not with 3 channels\n");
+				fclose(fdebug);
+		#endif // DEBUG_FILE
+		return;
+	}
+
+	if (Img_src->Width * Img_src->Height != Img_dst->Width * Img_dst->Height)
+	{
+		SetDestination(Img_src, Img_dst);
+	}
+
+	if (Img_src->ColorSpace != 2)
+	{
+		#ifdef DEBUG_FILE
+				fdebug = fopen(DEBUG_FILE, "wt");
+				fprintf(fdebug, "The input image is not in RGB format\n");
+				fclose(fdebug);
+		#endif // DEBUG_FILE
+		return;
+	}
+
+	Img_dst->ColorSpace = 5;
 
 
+	for (i = 0; i < Img_dst->Height; i++)
+	{
+		for (j = 0; j < Img_dst->Width; j++)
+		{
+			R_scaled = Img_src->rgbpix[3 * (i * Img_src->Width + j) + 0] / (float)255;
+			G_scaled = Img_src->rgbpix[3 * (i * Img_src->Width + j) + 1] / (float)255;
+			B_scaled = Img_src->rgbpix[3 * (i * Img_src->Width + j) + 2] / (float)255;
+			C_max = MAX(R_scaled, MAX(G_scaled, B_scaled));
+			C_min = MIN(R_scaled, MIN(G_scaled, B_scaled));
+			Delta = C_max - C_min;
+
+			// HUE
+			if (C_max == R_scaled)
+			{
+				Hue = (int)(60 * ( ((G_scaled - B_scaled)/ Delta) ));
+				if (Hue < 0) Hue = 360 - Hue;
+				if (Hue > 360) Hue = Hue % 360;
+			}
+			else if (C_max == G_scaled)
+			{
+				Hue = (int)(60 * (((B_scaled - R_scaled) / Delta) + 2));
+				if (Hue < 0) Hue = 360 - Hue;
+				if (Hue > 360) Hue = Hue % 360;
+			}
+			else if (C_max == B_scaled)
+			{
+				Hue = (int)(60 * (((R_scaled - G_scaled) / Delta) + 4));
+				if (Hue < 0) Hue = 360 - Hue;
+				if (Hue > 360) Hue = Hue % 360;
+			}
+
+			// LUMA
+			Luma = (C_max + C_min) / (float)2;
+
+			// SATURATION
+			if (Delta == 0) 
+			{
+				Saturation = 0; 
+				Hue = 0;
+			}
+			else
+			{ 
+				Saturation = Luma > 0.5 ? Delta / (float)(2 - C_max - C_min) : Delta / (float)(C_max + C_min);
+			}
+
+			Img_dst->rgbpix[3 * (i * Img_src->Width + j) + 0] = Hue;
+			Img_dst->rgbpix[3 * (i * Img_src->Width + j) + 1] = Saturation * 100;
+			Img_dst->rgbpix[3 * (i * Img_src->Width + j) + 2] = Luma * 100;
+			
+		}
+	}
+}
+
+/*
+C O N V E R T -  HSL to RGB
+*/
+void ConvertImage_HSL_to_RGB(struct Image *Img_src, struct Image *Img_dst)
+{
+	FILE *fdebug = NULL;
+	float R_temp;
+	float G_temp;
+	float B_temp;
+	float C, X, m;
+	float Hue;
+	float Temporary_1, Temporary_2;
+	float Saturation, Luma = 0;
+
+	int i, j;
+
+	if ((Img_src->Num_channels != 3) || (Img_dst->Num_channels != 3))
+	{
+		#ifdef DEBUG_FILE
+				fdebug = fopen(DEBUG_FILE, "wt");
+				fprintf(fdebug, "The input images are not with 3 channels\n");
+				fclose(fdebug);
+		#endif // DEBUG_FILE
+		return;
+	}
+
+	if (Img_src->Width * Img_src->Height != Img_dst->Width * Img_dst->Height)
+	{
+		SetDestination(Img_src, Img_dst);
+	}
+
+	if (Img_src->ColorSpace != 5)
+	{
+		#ifdef DEBUG_FILE
+				fdebug = fopen(DEBUG_FILE, "wt");
+				fprintf(fdebug, "The input image is not in HSL format\n");
+				fclose(fdebug);
+		#endif // DEBUG_FILE
+		return;
+	}
+
+	Img_dst->ColorSpace = 2;
+
+
+	for (i = 0; i < Img_dst->Height; i++)
+	{
+		for (j = 0; j < Img_dst->Width; j++)
+		{
+			Hue = Img_src->rgbpix[3 * (i * Img_src->Width + j) + 0] / (float)360;
+			
+			Saturation = Img_src->rgbpix[3 * (i * Img_src->Width + j) + 1] / (float)100;
+			
+			Luma = Img_src->rgbpix[3 * (i * Img_src->Width + j) + 2] / (float)100;
+
+			if (Saturation == 0)
+			{
+				R_temp = Luma * 255;
+				if (R_temp > 255) 
+				{
+					R_temp = 255; B_temp = 255; G_temp = 255;
+				}
+				else
+					B_temp = G_temp = R_temp;
+			}
+			else
+			{
+				if (Luma >= 0.5)
+				{
+					Temporary_1 = ((Luma + Saturation)  - (Luma * Saturation));
+				}
+				else
+				{
+					Temporary_1 = Luma * (1 + Saturation);
+				}
+				Temporary_2 = 2 * Luma - Temporary_1;
+				
+				R_temp = Hue + 0.333;
+				if (R_temp < 0) R_temp += 1;
+				if (R_temp > 1) R_temp -= 1;
+				
+				G_temp = Hue;
+				if (G_temp < 0) G_temp += 1;
+				if (G_temp > 1) G_temp -= 1;
+
+				B_temp = Hue - 0.333;
+				if (B_temp < 0) B_temp += 1;
+				if (B_temp > 1) B_temp -= 1;
+
+				// Check R
+				R_temp = CheckColorValue(R_temp, Temporary_1, Temporary_2);
+
+				// Check G
+				G_temp = CheckColorValue(G_temp, Temporary_1, Temporary_2);
+
+				// Check B
+				B_temp = CheckColorValue(B_temp, Temporary_1, Temporary_2);
+
+				
+				R_temp *= 255;
+				if (R_temp > 255) R_temp = 255;
+				G_temp *= 255;
+				if (G_temp > 255) G_temp = 255;
+				B_temp *= 255;
+				if (B_temp > 255) B_temp = 255;
+			}
+
+			Img_dst->rgbpix[3 * (i * Img_src->Width + j) + 0] = R_temp;
+			Img_dst->rgbpix[3 * (i * Img_src->Width + j) + 1] = G_temp;
+			Img_dst->rgbpix[3 * (i * Img_src->Width + j) + 2] = B_temp;
+			//if (i == 567 && j == 255)
+			//	_getch();
+		}
+	}
 }

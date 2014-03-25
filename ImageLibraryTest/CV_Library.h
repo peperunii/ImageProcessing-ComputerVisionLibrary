@@ -1,7 +1,26 @@
+/***************************************************
+*
+*  This is the main header file for the CV Library
+*  
+*
+*
+*
+****************************************************/
+
 #define _CRT_SECURE_NO_WARNINGS
 
 #include <stdio.h>
 #include <conio.h>
+
+
+/* DEBUG information - define if you  want to save debug information */
+//#define DEBUG_LOG 
+
+#ifdef DEBUG_LOG 
+#define DEBUG_FILE "Debug_log.txt"
+#endif // DEBUG_LOG
+
+
 
 #define NOEDGE 255
 #define POSSIBLE_EDGE 128
@@ -15,7 +34,7 @@ typedef struct Image
 	unsigned char *rgbpix;    // Pointer to data of the image
 	int Num_channels;         // Number of channels for image. 1 = Grayscale, 3 = Color
 	char *Image_FileName;     // Image file name. Currently is not used
-	int ColorSpace;           // Color space: 0 - Binary image, 1 -Grayscale, 2 - RGB, 3 - YCbCr, 4 - Lab, 5 - HSV
+	int ColorSpace;           // Color space: 0 - Binary image, 1 -Grayscale, 2 - RGB, 3 - YCbCr, 4 - Lab, 5 - HSL
 	int isLoaded;			  // This flag is raised if the image is succefully loaded
 }Image;
 
@@ -131,12 +150,20 @@ enum Write_Quality
 
 /* Function prototypes */
 
-struct Image	 CreateNewImage(struct Image *Prototype, struct Image *Img_dst, int NumChannels, int ColorSpace);
+/* Creates new image, based on a prototype ( for width, height, Num of chanels and color space ) */
+struct Image	 CreateNewImage_BasedOnPrototype(struct Image *Prototype, struct Image *Img_dst);
+/* Creates new image. Specify width, height, number of channels and color space */
+struct Image	 CreateNewImage(struct Image *Img_dst, int Width, int Height, int NumChannels, int ColorSpace);
+/* Set destination Image parameters to match the ones in source image */
 struct Image	 SetDestination(struct Image *Prototype, struct Image *Img_dst);
+/* Release the memory allocated by calling CreateNewImage */
 void			 DestroyImage(struct Image *Img);
+/* Read Jpeg file and load it into memory */
 struct Image	 ReadImage(char *filename);
 struct Image	 read_Image_file(FILE *file);
+/* Write Jpeg file. Parameter: quality (0, 100) */
 GLOBAL(void)	 WriteImage(char *filename, struct Image, int quality);
+
 struct Image	 BlurImageAroundPoint(struct Image *Img_src, struct Image *Img_dst, struct point_xy CentralPoint, int BlurPixelRadius, int SizeOfBlur, int BlurOrSharp, int BlurAgression);
 struct Image	 BlurImageGussian(struct Image *Img_src, struct Image *Img_dst, int BlurPixelRadius, double NeighborCoefficient);
 struct Image	 BrightnessCorrection(struct Image *Img_src, struct Image *Img_dst, double Algo_paramBrightnessOrEV, int Algotype);
@@ -170,4 +197,9 @@ struct Image     SharpImageContours(struct Image *Img_src, struct Image *Img_dst
 struct Image     SharpImageBinary(struct Image *Img_src, struct Image *Img_dst, struct Image *Img_Binary , int Percentage);
 struct Image     ColorFromGray(struct Image *Img_src, struct Image *Img_dst, struct ColorPoint_RGB ColorPoint);
 struct Image	 ConvertToBinary(struct Image *Img_src, struct Image *Img_dst, /* 0 for automatic */ int Threshold);
-void			 ConvertImage_RGB_HSV(struct Image *Img_src, struct Image *Img_dst);
+/* Change image color space - RGB to HSV. Both Src and Dst have to be 3 channeled images.*/
+void			 ConvertImage_RGB_to_HSL(struct Image *Img_src, struct Image *Img_dst);
+/* Change image color space - RGB to HSV. Both Src and Dst have to be 3 channeled images.*/
+void			 ConvertImage_HSL_to_RGB(struct Image *Img_src, struct Image *Img_dst);
+/* Change image saturation by percentage. Params: 1: Input Image, 2: Output Image, Percentage to increase/decrease saturation (-100, 100) */
+void			 Saturation(struct Image *Img_src, struct Image *Img_dst, int percentage);
