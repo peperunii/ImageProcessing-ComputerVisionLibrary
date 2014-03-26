@@ -19,17 +19,19 @@ int main()
 	Image Img_dst2 = CreateNewImage(&Img_dst2, Img_src.Width, Img_src.Height, 1, 1);
 
 	struct point_xy CentralPoint;
+	struct ColorPoint_RGB ColorPoint;
+	struct WhitePoint WhitePoint_lab1;
+	struct WhitePoint WhitePoint_lab2;
+
 	CentralPoint.X = 2000;// Img_dst.Width / 2 - 200;
 	CentralPoint.Y = 920;// Img_dst.Height / 2 + 200;
 	
-	struct ColorPoint_RGB ColorPoint;
 	ColorPoint.R = 230;
 	ColorPoint.G = 150;
 	ColorPoint.B = 140;
-
-	struct WhitePoint WhitePoint_lab;
-	SetWhiteBalanceValues(&WhitePoint_lab, INCADESCENT_2865K);
-
+	
+	SetWhiteBalanceValues(&WhitePoint_lab1, D65_6504K);
+	SetWhiteBalanceValues(&WhitePoint_lab2, D55_5500K);
 
 	/*SET destination*/
 	//SetDestination(&Img_src, &Img_srDst);
@@ -98,15 +100,15 @@ int main()
 	//ConvertImage_HSL_to_RGB(&Img_srDst, &Img_srDst2);
 
 	/*SATURATION*/
-	//Saturation(&Img_srDst, &Img_srDst2, 50);
+	//Saturation(&Img_srDst, &Img_srDst2, -50);
 	
 	/* RGB, XYZ, LAB convert */
-	ConvertImage_RGB_to_LAB(&Img_src, &Img_srDst, WhitePoint_lab);
+	//ConvertImage_RGB_to_LAB(&Img_src, &Img_srDst2, WhitePoint_lab1);
 
-	ConvertImage_LAB_to_RGB(&Img_src, &Img_srDst2, WhitePoint_lab);
+	//ConvertImage_LAB_to_RGB(&Img_srDst2, &Img_srDst, WhitePoint_lab2);
 
 	/*WRITE*/
-	WriteImage("Result.jpg", Img_srDst2, QUALITY_MAX);
+	WriteImage("Result.jpg", Img_src, QUALITY_MAX);
 
 	/* DESTROY images*/
 	DestroyImage(&Img_src);
