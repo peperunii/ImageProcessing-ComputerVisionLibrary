@@ -27,6 +27,10 @@ int main()
 	ColorPoint.G = 150;
 	ColorPoint.B = 140;
 
+	struct WhitePoint WhitePoint_lab;
+	SetWhiteBalanceValues(&WhitePoint_lab, INCADESCENT_2865K);
+
+
 	/*SET destination*/
 	//SetDestination(&Img_src, &Img_srDst);
 
@@ -52,7 +56,7 @@ int main()
 	//ContrastCorrection(&Img_srDst, &Img_srDst2, 5);
 
 	/*WHITE Balance*/
-	//WhiteBalanceCorrection(&Img_src, &Img_srDst, WB_GREEN_WORLD);
+	//WhiteBalanceCorrectionRGB(&Img_src, &Img_srDst, WB_GREEN_WORLD);
 
 	/*GrayScale - result in 3 channels*/
 	//ConvertToGrayscale_3Channels(&Img_src, &Img_dst);
@@ -88,10 +92,18 @@ int main()
 	//ConvertToBinary(&Img_src, &Img_dst, 0);
 	
 	/*RGB to HSL convert*/
-	ConvertImage_RGB_to_HSL(&Img_src, &Img_srDst);
+	//ConvertImage_RGB_to_HSL(&Img_src, &Img_srDst);
 
 	/*HSL to RGB convert*/
-	ConvertImage_HSL_to_RGB(&Img_srDst, &Img_srDst2);
+	//ConvertImage_HSL_to_RGB(&Img_srDst, &Img_srDst2);
+
+	/*SATURATION*/
+	//Saturation(&Img_srDst, &Img_srDst2, 50);
+	
+	/* RGB, XYZ, LAB convert */
+	ConvertImage_RGB_to_LAB(&Img_src, &Img_srDst, WhitePoint_lab);
+
+	ConvertImage_LAB_to_RGB(&Img_src, &Img_srDst2, WhitePoint_lab);
 
 	/*WRITE*/
 	WriteImage("Result.jpg", Img_srDst2, QUALITY_MAX);

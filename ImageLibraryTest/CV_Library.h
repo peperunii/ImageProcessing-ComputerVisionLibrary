@@ -51,6 +51,18 @@ struct ArrPoints
 
 }ArrPoints;
 
+
+
+/* White Balance -> L*ab algorithm */
+struct WhitePoint
+{
+	double X;
+	double Y;
+	double Z;
+
+}WhitePoint;
+
+
 struct ColorPoint_RGB
 {
 	int R;
@@ -66,6 +78,8 @@ struct ColorPoint_Lab
 	double b;
 
 }ColorPoint_Lab;
+
+
 
 struct ColorPoint_HSV
 {
@@ -83,6 +97,16 @@ struct ColorPoint_YCbCr
 
 }ColorPoint_YCbCr;
 
+enum WhitePointType
+{
+	D50_5000K,
+	D55_5500K,
+	D65_6504K,
+	INCADESCENT_2865K,
+	NORTH_SKY_6774K,
+	DAYLIGHT_7500K
+};
+
 enum ColorSpace
 {
 	COLORSPACE_BINARY,
@@ -90,7 +114,7 @@ enum ColorSpace
 	COLORSPACE_RGB,
 	COLORSPACE_YCbCr,
 	COLORSPACE_LAB,
-	COLORSPACE_HSV,
+	COLORSPACE_HSV
 };
 
 enum AlgoType_Edges
@@ -168,7 +192,8 @@ struct Image	 BlurImageAroundPoint(struct Image *Img_src, struct Image *Img_dst,
 struct Image	 BlurImageGussian(struct Image *Img_src, struct Image *Img_dst, int BlurPixelRadius, double NeighborCoefficient);
 struct Image	 BrightnessCorrection(struct Image *Img_src, struct Image *Img_dst, double Algo_paramBrightnessOrEV, int Algotype);
 struct Image	 ContrastCorrection(struct Image *Img_src, struct Image *Img_dst, double percentage);
-struct Image	 WhiteBalanceCorrection(struct Image *Img_src, struct Image *Img_dst, int Algotype);
+struct Image	 WhiteBalanceCorrectionRGB(struct Image *Img_src, struct Image *Img_dst, int Algotype);
+struct Image	 WhiteBalanceCorrectionLAB(struct Image *Img_src, struct Image *Img_dst, struct WhitePoint WhitePointXYZ);
 struct Image	 NoiseCorrection(struct Image *Img_src, struct Image *Img_dst, double threshold, int Algotype);
 struct Image	 GammaCorrection(struct Image *Img_src, struct Image *Img_dst, double RedGamma, double GreenGamma, double BlueGamma);
 void			 getPositionFromIndex(struct Image *Img_src, int pixIdx, int *red, int *col);
@@ -197,9 +222,14 @@ struct Image     SharpImageContours(struct Image *Img_src, struct Image *Img_dst
 struct Image     SharpImageBinary(struct Image *Img_src, struct Image *Img_dst, struct Image *Img_Binary , int Percentage);
 struct Image     ColorFromGray(struct Image *Img_src, struct Image *Img_dst, struct ColorPoint_RGB ColorPoint);
 struct Image	 ConvertToBinary(struct Image *Img_src, struct Image *Img_dst, /* 0 for automatic */ int Threshold);
-/* Change image color space - RGB to HSV. Both Src and Dst have to be 3 channeled images.*/
+/* Change image color space - RGB to HSL. Both Src and Dst have to be 3 channeled images.*/
 void			 ConvertImage_RGB_to_HSL(struct Image *Img_src, struct Image *Img_dst);
-/* Change image color space - RGB to HSV. Both Src and Dst have to be 3 channeled images.*/
+/* Change image color space - HSL to RGB. Both Src and Dst have to be 3 channeled images.*/
 void			 ConvertImage_HSL_to_RGB(struct Image *Img_src, struct Image *Img_dst);
-/* Change image saturation by percentage. Params: 1: Input Image, 2: Output Image, Percentage to increase/decrease saturation (-100, 100) */
-void			 Saturation(struct Image *Img_src, struct Image *Img_dst, int percentage);
+/* Change image saturation by percentage. Params: 1: Input Image - HSL or RGB, 2: Output Image - HSL or RGB, Percentage to increase/decrease saturation (-100, 100) */
+struct Image	 Saturation(struct Image *Img_src, struct Image *Img_dst, int percentage);
+/* Change image color space - RGB to L*ab. Both Src and Dst have to be 3 channeled images.*/
+void			 ConvertImage_RGB_to_LAB(struct Image *Img_src, struct Image *Img_dst, struct WhitePoint WhitePoint_XYZ);
+/* Change image color space - L*ab to RGB. Both Src and Dst have to be 3 channeled images.*/
+void			 ConvertImage_LAB_to_RGB(struct Image *Img_src, struct Image *Img_dst, struct WhitePoint WhitePoint_XYZ);
+void			 SetWhiteBalanceValues(struct WhitePoint *WhitePoint_lab, int TYPE);
