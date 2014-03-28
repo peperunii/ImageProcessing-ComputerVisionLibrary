@@ -10,7 +10,7 @@
 int main()
 {
 	/*OPEN*/
-	Image Img_src = ReadImage("flower.jpg");
+	Image Img_src = ReadImage("panorama_2800K.jpg");
 	
 	/*CREATE*/
 	Image Img_srDst = CreateNewImage_BasedOnPrototype(&Img_src, &Img_srDst);
@@ -30,8 +30,10 @@ int main()
 	ColorPoint.G = 150;
 	ColorPoint.B = 140;
 	
-	SetWhiteBalanceValues(&WhitePoint_lab1, D65_6504K);
-	SetWhiteBalanceValues(&WhitePoint_lab2, D55_5500K);
+	// The color temperature of the imput image
+	SetWhiteBalanceValues(&WhitePoint_lab1, WHITE_2856K_A_HALOGEN);
+	// The color temperature of the output image
+	SetWhiteBalanceValues(&WhitePoint_lab2, WHITE_5000K_D50_DAYLIGHT_RENDER);
 
 	/*SET destination*/
 	//SetDestination(&Img_src, &Img_srDst);
@@ -57,8 +59,14 @@ int main()
 	/*CONRAST*/
 	//ContrastCorrection(&Img_srDst, &Img_srDst2, 5);
 
-	/*WHITE Balance*/
+	/* COLOR TEMPERATURE */
+	//ColorTemperature()
+
+	/*WHITE BALANCE*/
 	//WhiteBalanceCorrectionRGB(&Img_src, &Img_srDst, WB_GREEN_WORLD);
+	
+	/* WHITE BALANCE - convert to XYZ. Set WhitePoints first */
+	WhiteBalanceLab(&Img_src, &Img_srDst, WhitePoint_lab1, WhitePoint_lab2);
 
 	/*GrayScale - result in 3 channels*/
 	//ConvertToGrayscale_3Channels(&Img_src, &Img_dst);
@@ -100,15 +108,15 @@ int main()
 	//ConvertImage_HSL_to_RGB(&Img_srDst, &Img_srDst2);
 
 	/*SATURATION*/
-	//Saturation(&Img_srDst, &Img_srDst2, -50);
-	
+	//Saturation(&Img_srDst, &Img_srDst2, 60);
+
 	/* RGB, XYZ, LAB convert */
 	//ConvertImage_RGB_to_LAB(&Img_src, &Img_srDst2, WhitePoint_lab1);
 
 	//ConvertImage_LAB_to_RGB(&Img_srDst2, &Img_srDst, WhitePoint_lab2);
-
+	
 	/*WRITE*/
-	WriteImage("Result.jpg", Img_src, QUALITY_MAX);
+	WriteImage("Result.jpg", Img_srDst, QUALITY_MAX);
 
 	/* DESTROY images*/
 	DestroyImage(&Img_src);

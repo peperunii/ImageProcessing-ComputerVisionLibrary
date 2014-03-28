@@ -14,7 +14,7 @@
 
 
 /* DEBUG information - define if you  want to save debug information */
-//#define DEBUG_LOG 
+#define DEBUG_LOG 
 
 #ifdef DEBUG_LOG 
 #define DEBUG_FILE "Debug_log.txt"
@@ -40,8 +40,8 @@ typedef struct Image
 
 struct point_xy
 {
-	double X;
-	double Y;
+	float X;
+	float Y;
 
 }point;
 
@@ -56,9 +56,10 @@ struct ArrPoints
 /* White Balance -> L*ab algorithm */
 struct WhitePoint
 {
-	double X;
-	double Y;
-	double Z;
+	int Temperature;
+	float X;
+	float Y;
+	float Z;
 
 }WhitePoint;
 
@@ -73,9 +74,9 @@ struct ColorPoint_RGB
 
 struct ColorPoint_Lab
 {
-	double L;
-	double a;
-	double b;
+	float L;
+	float a;
+	float b;
 
 }ColorPoint_Lab;
 
@@ -99,13 +100,17 @@ struct ColorPoint_YCbCr
 
 enum WhitePointType
 {
-	D50_5000K,
-	D55_5500K,
-	D65_6504K,
-	INCADESCENT_2865K,
-	NORTH_SKY_6774K,
-	DAYLIGHT_7500K,
-	UNKNOWN_EQUAL
+	WHITE_2856K_A_HALOGEN,
+	WHITE_4000K_F11_NARROW_F,
+	WHITE_4200K_F2_COOL_F,
+	WHITE_4874K_B_SUNLIGHT_DIRECT,
+	WHITE_5000K_D50_DAYLIGHT_RENDER,
+	WHITE_5400K_E_UNIFORM_ENERGY,
+	WHITE_5500K_D55_DAYLIGHT_PHOTOGRAPHY,
+	WHITE_6504K_D65_NORTH_SKY2,
+	WHITE_6774K_C_NORT_SKY,
+	WHITE_7500K_D75_DAYLIGHT,
+	WHITE_9300K_D93_PHOSPHOR_MONITORS
 };
 
 enum ColorSpace
@@ -190,20 +195,20 @@ struct Image	 read_Image_file(FILE *file);
 GLOBAL(void)	 WriteImage(char *filename, struct Image, int quality);
 
 struct Image	 BlurImageAroundPoint(struct Image *Img_src, struct Image *Img_dst, struct point_xy CentralPoint, int BlurPixelRadius, int SizeOfBlur, int BlurOrSharp, int BlurAgression);
-struct Image	 BlurImageGussian(struct Image *Img_src, struct Image *Img_dst, int BlurPixelRadius, double NeighborCoefficient);
-struct Image	 BrightnessCorrection(struct Image *Img_src, struct Image *Img_dst, double Algo_paramBrightnessOrEV, int Algotype);
-struct Image	 ContrastCorrection(struct Image *Img_src, struct Image *Img_dst, double percentage);
+struct Image	 BlurImageGussian(struct Image *Img_src, struct Image *Img_dst, int BlurPixelRadius, float NeighborCoefficient);
+struct Image	 BrightnessCorrection(struct Image *Img_src, struct Image *Img_dst, float Algo_paramBrightnessOrEV, int Algotype);
+struct Image	 ContrastCorrection(struct Image *Img_src, struct Image *Img_dst, float percentage);
 struct Image	 WhiteBalanceCorrectionRGB(struct Image *Img_src, struct Image *Img_dst, int Algotype);
 struct Image	 WhiteBalanceCorrectionLAB(struct Image *Img_src, struct Image *Img_dst, struct WhitePoint WhitePointXYZ);
-struct Image	 NoiseCorrection(struct Image *Img_src, struct Image *Img_dst, double threshold, int Algotype);
-struct Image	 GammaCorrection(struct Image *Img_src, struct Image *Img_dst, double RedGamma, double GreenGamma, double BlueGamma);
+struct Image	 NoiseCorrection(struct Image *Img_src, struct Image *Img_dst, float threshold, int Algotype);
+struct Image	 GammaCorrection(struct Image *Img_src, struct Image *Img_dst, float RedGamma, float GreenGamma, float BlueGamma);
 void			 getPositionFromIndex(struct Image *Img_src, int pixIdx, int *red, int *col);
 int				 getPixelIndex(struct Image *Img_src, int *pixIdx, int red, int col);
 struct Image	 ConvertToGrayscale_3Channels(struct Image *Img_src, struct Image *Img_dst);
 struct Image	 ConvertToGrayscale_1Channel(struct Image *Img_src, struct Image *Img_dst);
-struct Image	 ScaleImage(struct Image *Img_src, struct Image *Img_dst, double ScalePercentage);
+struct Image	 ScaleImage(struct Image *Img_src, struct Image *Img_dst, float ScalePercentage);
 struct Image	 TranslateImage(struct Image *Img_src, struct Image *Img_dst, struct point_xy ToPoint);
-struct Image	 RotateImage(struct Image *Img_src, struct Image *Img_dst, double RotationAngle, struct point_xy CentralPoint);
+struct Image	 RotateImage(struct Image *Img_src, struct Image *Img_dst, float RotationAngle, struct point_xy CentralPoint);
 struct ArrPoints EdgeExtraction(struct Image *Img_src, struct Image *Img_dst, int Algotype, float Algo_param1, float Algo_param2);
 void			 FindDerrivative_XY(struct Image *Img_src, struct Image *DerrivativeX_image, struct Image *DerrivativeY_image);
 void			 FindMagnitudeOfGradient(struct Image *DerrivativeX_image, struct Image *DerrivativeY_image, struct Image *Magnitude);
@@ -234,3 +239,8 @@ void			 ConvertImage_RGB_to_LAB(struct Image *Img_src, struct Image *Img_dst, st
 /* Change image color space - L*ab to RGB. Both Src and Dst have to be 3 channeled images.*/
 void			 ConvertImage_LAB_to_RGB(struct Image *Img_src, struct Image *Img_dst, struct WhitePoint WhitePoint_XYZ);
 void			 SetWhiteBalanceValues(struct WhitePoint *WhitePoint_lab, int TYPE);
+void			 WhiteBalanceLab(struct Image *src, struct Image *dst, struct WhitePoint WhitePoint_lab, struct WhitePoint WhitePoint_lab2);
+float			 RoundValue_toX_SignificantBits(float Value, int X);
+void			 Convert_RGB_to_XYZ(struct Image *Img_src, struct Image *Img_dst);
+void             Convert_XYZ_to_RGB(struct Image *Img_src, struct Image *Img_dst);
+void			 ColorTemperature(struct Image *Img_src, struct WhitePoint *WhitePoint_lab);

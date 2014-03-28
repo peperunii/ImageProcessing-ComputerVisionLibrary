@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include "jpeglib.h"
 #include <setjmp.h>
@@ -342,11 +341,11 @@ void DestroyImage(struct Image *Img)
 */
 struct Image BlurImageAroundPoint(struct Image *Img_src, struct Image *Img_dst, struct point_xy CentralPoint, int BlurPixelRadius, int SizeOfBlur, int BlurOrSharp, int BlurAgression)
 {
-	double MaxRatio = 0;
-	double Distance = 0;
-	double DistanceRatio = 0;
-	double *matrix = (double *)calloc(Img_src->Width * Img_src->Height, sizeof(double));
-	double Chislo = 0, Chislo2 = 0;
+	float MaxRatio = 0;
+	float Distance = 0;
+	float DistanceRatio = 0;
+	float *matrix = (float *)calloc(Img_src->Width * Img_src->Height, sizeof(float));
+	float Chislo = 0, Chislo2 = 0;
 	int Sybiraemo = 0;
 	int i, j, z, t, l;
 
@@ -354,21 +353,21 @@ struct Image BlurImageAroundPoint(struct Image *Img_src, struct Image *Img_dst, 
 	if (BlurPixelRadius % 2 == 0) BlurPixelRadius += 1;
 	if (BlurPixelRadius < 5) BlurPixelRadius = 5;
 
-	MaxRatio = (double)MAX(CentralPoint.X - ((double)SizeOfBlur * Img_dst->Width / 100), Img_dst->Width - CentralPoint.X + ((double)SizeOfBlur * Img_dst->Width / 100)) / ((double)SizeOfBlur * Img_dst->Width / 100);
+	MaxRatio = (float)MAX(CentralPoint.X - ((float)SizeOfBlur * Img_dst->Width / 100), Img_dst->Width - CentralPoint.X + ((float)SizeOfBlur * Img_dst->Width / 100)) / ((float)SizeOfBlur * Img_dst->Width / 100);
 	for (i = 0; i < Img_dst->Height; i++)
 	{
 		for (j = 0; j < Img_dst->Width; j++)
 		{
 			//luma = ui->imageData[row * width + col];
-			Distance = sqrt(pow(abs((double)CentralPoint.X - j), 2) + pow(abs((double)CentralPoint.Y - i), 2));
-			if (Distance < ((double)SizeOfBlur * Img_dst->Width / 100))
+			Distance = sqrt(pow(abs((float)CentralPoint.X - j), 2) + pow(abs((float)CentralPoint.Y - i), 2));
+			if (Distance < ((float)SizeOfBlur * Img_dst->Width / 100))
 			{
 				matrix[i * Img_dst->Width + j] = 1;
 			}
 			else
 			{
-				DistanceRatio = Distance / ((double)SizeOfBlur * Img_dst->Width / 100);
-				matrix[i * Img_dst->Width + j] = 1 - ((double)BlurAgression / 100 * (DistanceRatio / MaxRatio));
+				DistanceRatio = Distance / ((float)SizeOfBlur * Img_dst->Width / 100);
+				matrix[i * Img_dst->Width + j] = 1 - ((float)BlurAgression / 100 * (DistanceRatio / MaxRatio));
 				if (matrix[i * Img_dst->Width + j] < 0) matrix[i * Img_dst->Width + j] = 0;
 			}
 		}
@@ -394,9 +393,9 @@ struct Image BlurImageAroundPoint(struct Image *Img_src, struct Image *Img_dst, 
 
 				Sybiraemo = 0;
 				if (BlurOrSharp == 0)
-					Chislo2 = ((double)(matrix[i * Img_dst->Width + j]) / (pow((double)BlurPixelRadius, 2) - 1 - (12 + (2 * (BlurPixelRadius - 5)))));
+					Chislo2 = ((float)(matrix[i * Img_dst->Width + j]) / (pow((float)BlurPixelRadius, 2) - 1 - (12 + (2 * (BlurPixelRadius - 5)))));
 				else
-					Chislo2 = ((double)(1 - matrix[i * Img_dst->Width + j]) / (pow((double)BlurPixelRadius, 2) - 1 - (12 + (2 * (BlurPixelRadius - 5)))));
+					Chislo2 = ((float)(1 - matrix[i * Img_dst->Width + j]) / (pow((float)BlurPixelRadius, 2) - 1 - (12 + (2 * (BlurPixelRadius - 5)))));
 				for (z = 0; z < BlurPixelRadius / 2; z++)
 				{
 					for (t = 0; t < BlurPixelRadius / 2; t++)
@@ -430,12 +429,12 @@ struct Image BlurImageAroundPoint(struct Image *Img_src, struct Image *Img_dst, 
 /*
 	B L U R  image function - Gaussian
 */
-struct Image BlurImageGussian(struct Image *Img_src, struct Image *Img_dst, int BlurPixelRadius, double NeighborCoefficient)
+struct Image BlurImageGussian(struct Image *Img_src, struct Image *Img_dst, int BlurPixelRadius, float NeighborCoefficient)
 {
 	int i, j, l, z, t;
 	int Sybiraemo = 0;
-	double Chislo = 0;
-	double Chislo2 = 0;
+	float Chislo = 0;
+	float Chislo2 = 0;
 	if (BlurPixelRadius < 5) BlurPixelRadius = 5;
 	if (NeighborCoefficient > 100) NeighborCoefficient /= 100;
 	if (NeighborCoefficient < 0) NeighborCoefficient *= -1;
@@ -455,7 +454,7 @@ struct Image BlurImageGussian(struct Image *Img_src, struct Image *Img_dst, int 
 			for (l = 0; l < Img_dst->Num_channels; l++)
 			{
 				Sybiraemo = 0;
-				Chislo2 = ((double)(NeighborCoefficient) / (pow((double)BlurPixelRadius, 2) - 1 - (12 + (2 * (BlurPixelRadius - 5)))));
+				Chislo2 = ((float)(NeighborCoefficient) / (pow((float)BlurPixelRadius, 2) - 1 - (12 + (2 * (BlurPixelRadius - 5)))));
 				
 				for (z = 0; z < BlurPixelRadius / 2; z++)
 				{
@@ -487,7 +486,7 @@ struct Image BlurImageGussian(struct Image *Img_src, struct Image *Img_dst, int 
 /* 
 	Correct   B R I G H T N E S S  - RGB and Lab only !
 */
-struct Image BrightnessCorrection(struct Image *Img_src, struct Image *Img_dst, double Algo_paramBrightnessOrEV, int Algotype)
+struct Image BrightnessCorrection(struct Image *Img_src, struct Image *Img_dst, float Algo_paramBrightnessOrEV, int Algotype)
 {
 	int i, j, l;
 
@@ -565,11 +564,11 @@ struct Image BrightnessCorrection(struct Image *Img_src, struct Image *Img_dst, 
 /* 
 	Correct    C O N T R A S T 
 */
-struct Image ContrastCorrection(struct Image *Img_src, struct Image *Img_dst, double percentage)
+struct Image ContrastCorrection(struct Image *Img_src, struct Image *Img_dst, float percentage)
 {
 	/* The percentage value should be between -100 and 100*/
-	double pixel = 0;
-	double contrast = 0;
+	float pixel = 0;
+	float contrast = 0;
 	int i, j, l;
 
 	if (Img_src->Num_channels != Img_dst->Num_channels)
@@ -587,7 +586,7 @@ struct Image ContrastCorrection(struct Image *Img_src, struct Image *Img_dst, do
 		{
 			for (l = 0; l < Img_dst->Num_channels; l++)
 			{
-				pixel = (double)Img_src->rgbpix[Img_dst->Num_channels * (i*Img_dst->Width + j) + l] / 255;
+				pixel = (float)Img_src->rgbpix[Img_dst->Num_channels * (i*Img_dst->Width + j) + l] / 255;
 				pixel -= 0.5;
 				pixel *= contrast;
 				pixel += 0.5;
@@ -610,12 +609,12 @@ struct Image WhiteBalanceCorrectionRGB(struct Image *Img_src, struct Image *Img_
 	int i, j;
 
 	int MaxR = 0, MaxG = 0, MaxB = 0;
-	double GtoR_Ratio = 1;
-	double GtoB_Ratio = 1;
+	float GtoR_Ratio = 1;
+	float GtoB_Ratio = 1;
 	long SumG = 0;
 	long SumR = 0;
 	long SumB = 0;
-	double Gto255_Ratio = 1;
+	float Gto255_Ratio = 1;
 	int check3Values = 0;
 
 	if ((Img_src->Num_channels != Img_dst->Num_channels) || (Img_src->Num_channels != 3))
@@ -640,8 +639,8 @@ struct Image WhiteBalanceCorrectionRGB(struct Image *Img_src, struct Image *Img_
 				if (check3Values == 3)
 				{
 					//Calculate ratios
-					GtoR_Ratio = (double)Img_src->rgbpix[3 * (i*Img_src->Width + j) +1] / Img_src->rgbpix[3 * (i*Img_src->Width + j) ];
-					GtoB_Ratio = (double)Img_src->rgbpix[3 * (i*Img_src->Width + j) +1] / Img_src->rgbpix[3 * (i*Img_src->Width + j) + 2];
+					GtoR_Ratio = (float)Img_src->rgbpix[3 * (i*Img_src->Width + j) +1] / Img_src->rgbpix[3 * (i*Img_src->Width + j) ];
+					GtoB_Ratio = (float)Img_src->rgbpix[3 * (i*Img_src->Width + j) +1] / Img_src->rgbpix[3 * (i*Img_src->Width + j) + 2];
 				}
 			}
 		}
@@ -670,8 +669,8 @@ struct Image WhiteBalanceCorrectionRGB(struct Image *Img_src, struct Image *Img_
 				if (Img_src->rgbpix[3 * (i*Img_src->Width + j) + 1] > MaxG) 
 				{ 
 					MaxG = Img_src->rgbpix[3 * (i*Img_src->Width + j) + 1];
-					GtoR_Ratio = (double)MaxG / Img_src->rgbpix[3 * (i*Img_src->Width + j)];
-					GtoB_Ratio = (double)MaxG / Img_src->rgbpix[3 * (i*Img_src->Width + j) + 2];
+					GtoR_Ratio = (float)MaxG / Img_src->rgbpix[3 * (i*Img_src->Width + j)];
+					GtoB_Ratio = (float)MaxG / Img_src->rgbpix[3 * (i*Img_src->Width + j) + 2];
 				}
 			}
 		}
@@ -708,8 +707,8 @@ struct Image WhiteBalanceCorrectionRGB(struct Image *Img_src, struct Image *Img_
 				{
 					//Calculate ratios
 					Gto255_Ratio = 255 / MaxG;
-					GtoR_Ratio = (double)(Gto255_Ratio *(MaxG / MaxR));
-					GtoB_Ratio = (double)(Gto255_Ratio *(MaxG / MaxB));
+					GtoR_Ratio = (float)(Gto255_Ratio *(MaxG / MaxR));
+					GtoB_Ratio = (float)(Gto255_Ratio *(MaxG / MaxB));
 				}
 			}
 		}
@@ -742,13 +741,13 @@ struct Image WhiteBalanceCorrectionRGB(struct Image *Img_src, struct Image *Img_
 				SumB += Img_src->rgbpix[3 * (i*Img_src->Width + j) + 2];
 			}
 		}
-		GtoR_Ratio =   (double)SumG / SumR;
-		GtoB_Ratio =   (double)SumG / SumB;
-		Gto255_Ratio = (double)SumG / (255 * Img_src->Height * Img_src->Width);
+		GtoR_Ratio =   (float)SumG / SumR;
+		GtoB_Ratio =   (float)SumG / SumB;
+		Gto255_Ratio = (float)SumG / (255 * Img_src->Height * Img_src->Width);
 	/*	if (GtoB_Ratio < 0.8 || GtoR_Ratio < 0.8)
 		{
 			GtoR_Ratio = GtoR_Ratio * ;
-			GtoB_Ratio = (double)SumG / SumB;
+			GtoB_Ratio = (float)SumG / SumB;
 		}*/
 		/*Calculate new values based on GtoR amd GtoB ratios*/
 		for (i = 0; i < Img_src->Height; i++)
@@ -787,7 +786,7 @@ struct Image WhiteBalanceCorrectionLAB(struct Image *Img_src, struct Image *Img_
 /* 
 	Correct    N O I S E 
 */
-struct Image NoiseCorrection(struct Image *Img_src, struct Image *Img_dst, double threshold, int Algotype)
+struct Image NoiseCorrection(struct Image *Img_src, struct Image *Img_dst, float threshold, int Algotype)
 {
 	int i, j, z;
 	int CurrentValue;
@@ -835,8 +834,9 @@ struct Image NoiseCorrection(struct Image *Img_src, struct Image *Img_dst, doubl
 /*
 	Correction   G A M M A  - RGB only
 */
-struct Image GammaCorrection(struct Image *Img_src, struct Image *Img_dst, double RedGamma, double GreenGamma, double BlueGamma)
+struct Image GammaCorrection(struct Image *Img_src, struct Image *Img_dst, float RedGamma, float GreenGamma, float BlueGamma)
 {
+	FILE *fdebug = NULL;
 	int i, j;
 
 	int redGamma[256];
@@ -857,9 +857,9 @@ struct Image GammaCorrection(struct Image *Img_src, struct Image *Img_dst, doubl
 
 	for (i = 0; i < 256; ++i)
 	{
-		redGamma[i] = MIN(255, (int)((255.0 * pow((double)i / 255.0, 1.0 / RedGamma)) + 0.5));
-		greenGamma[i] = MIN(255, (int)((255.0 * pow((double)i / 255.0, 1.0 / GreenGamma)) + 0.5));
-		blueGamma[i] = MIN(255, (int)((255.0 * pow((double)i / 255.0, 1.0 / BlueGamma)) + 0.5));
+		redGamma[i] = MIN(255, (int)((255.0 * pow((float)i / 255.0, 1.0 / RedGamma)) + 0.5));
+		greenGamma[i] = MIN(255, (int)((255.0 * pow((float)i / 255.0, 1.0 / GreenGamma)) + 0.5));
+		blueGamma[i] = MIN(255, (int)((255.0 * pow((float)i / 255.0, 1.0 / BlueGamma)) + 0.5));
 	}
 
 	for (i = 0; i < Img_dst->Height; i++)
@@ -937,7 +937,7 @@ struct Image ConvertToGrayscale_1Channel(struct Image *Img_src, struct Image *Im
 /*
 A F F I N E  -  Transformation: Rotation
 */
-struct Image RotateImage(struct Image *Img_src, struct Image *Img_dst, double RotationAngle, struct point_xy CentralPoint)
+struct Image RotateImage(struct Image *Img_src, struct Image *Img_dst, float RotationAngle, struct point_xy CentralPoint)
 {
 	float Sx, Matrix[2][2], Cos, Sin;
 	int i, j, z ;
@@ -977,7 +977,7 @@ struct Image RotateImage(struct Image *Img_src, struct Image *Img_dst, double Ro
 /*
 	A F F I N E  - scale (zoom) image - in/out
 */
-struct Image ScaleImage(struct Image *Img_src, struct Image *Img_dst, double ScalePercentage)
+struct Image ScaleImage(struct Image *Img_src, struct Image *Img_dst, float ScalePercentage)
 {
 	int i, j, z;
 	int NewX = 0;
@@ -1645,7 +1645,7 @@ void Convolution(unsigned char *InputArray, unsigned char *OutputArray, int rows
 {
 	int i, j, n, m;
 	int FinalNum;
-	int DevideNumber = pow((double)KernelSize, 2);
+	int DevideNumber = pow((float)KernelSize, 2);
 
 	for (i = KernelSize / 2; i < cols - KernelSize / 2; i++)
 	{
@@ -1668,7 +1668,7 @@ void Convolution(unsigned char *InputArray, unsigned char *OutputArray, int rows
 			if (DevideNumber <= 0) 
 				FinalNum = 0;
 			else 
-				FinalNum = (double)FinalNum / DevideNumber;
+				FinalNum = (float)FinalNum / DevideNumber;
 
 			if (FinalNum < 0) FinalNum = 0;
 			else if (FinalNum > 255) FinalNum = 255;
@@ -1688,7 +1688,7 @@ void ConvolutionBinary(unsigned char *InputArray, unsigned char *OutputArray, in
 {
 	int i, j, n, m;
 	int FinalNum;
-	int DevideNumber = pow((double)KernelSize, 2);
+	int DevideNumber = pow((float)KernelSize, 2);
 
 	for (i = KernelSize / 2; i < cols - KernelSize / 2; i++)
 	{
@@ -2029,8 +2029,8 @@ struct Image SharpImageBinary(struct Image *Img_src, struct Image *Img_dst, stru
 struct Image ColorFromGray(struct Image *Img_src, struct Image *Img_dst, struct ColorPoint_RGB ColorPoint)
 {
 	int i, j, l;
-	double R_to_G_Ratio = 0;
-	double B_to_G_Ratio = 0;
+	float R_to_G_Ratio = 0;
+	float B_to_G_Ratio = 0;
 
 	// The input should be 1 channel image. The output is 3 channel
 	if (Img_src->Num_channels != 1 || Img_dst->Num_channels != 3)
@@ -2038,8 +2038,8 @@ struct Image ColorFromGray(struct Image *Img_src, struct Image *Img_dst, struct 
 		return *Img_dst;
 	}
 
-	R_to_G_Ratio = ColorPoint.R / (double)ColorPoint.G;
-	B_to_G_Ratio = ColorPoint.B / (double)ColorPoint.G;
+	R_to_G_Ratio = ColorPoint.R / (float)ColorPoint.G;
+	B_to_G_Ratio = ColorPoint.B / (float)ColorPoint.G;
 
 	//step 1: copy the gray information to RGB channels
 	for (i = 0; i < Img_dst->Height; i++)
@@ -2094,7 +2094,7 @@ struct Image ConvertToBinary(struct Image *Img_src, struct Image *Img_dst, int T
 					Sum += Img_src->rgbpix[i * Img_dst->Width + j];
 			}
 		}
-		AverageGray = Sum / (double)(Img_dst->Width * Img_dst->Height);
+		AverageGray = Sum / (float)(Img_dst->Width * Img_dst->Height);
 	}
 	else
 		AverageGray = Threshold;
@@ -2167,7 +2167,6 @@ void ConvertImage_RGB_to_HSL(struct Image *Img_src, struct Image *Img_dst)
 	float C_min;
 	float Delta;
 	float Hue;
-	int TestValue;
 
 	float del_R, del_B, del_G;
 	float Saturation, Luma = 0;
@@ -2216,26 +2215,19 @@ void ConvertImage_RGB_to_HSL(struct Image *Img_src, struct Image *Img_dst)
 			// HUE
 			if (C_max == R_scaled)
 			{
-				Hue = ceil((60 * ( fmod(((G_scaled - B_scaled)/ Delta),6) )));
-				TestValue = (60 * ( fmod(((G_scaled - B_scaled)/ Delta),6) ));
-				if(Hue - TestValue < 0.5) Hue -= 1;
+				Hue = RoundValue_toX_SignificantBits((60 * (fmod(((G_scaled - B_scaled) / Delta), 6))), 2);
 				if (Hue < 0) Hue = 360 + Hue;
 				if (Hue > 360) Hue = fmod(Hue, 360);
 			}
 			else if (C_max == G_scaled)
 			{
-				Hue = ceil((60 * (((B_scaled - R_scaled) / Delta) + 2)));
-				TestValue = (60 * (((B_scaled - R_scaled) / Delta) + 2));
-				if(Hue - TestValue < 0.5) Hue -= 1;
+				Hue = RoundValue_toX_SignificantBits((60 * (((B_scaled - R_scaled) / Delta) + 2)),2);
 				if (Hue < 0) Hue = 360 + Hue;
 				if (Hue > 360) Hue = fmod(Hue, 360);
 			}
 			else if (C_max == B_scaled)
 			{
-				Hue = ceil((60 * (((R_scaled - G_scaled) / Delta) + 4)));
-				TestValue = (60 * (((R_scaled - G_scaled) / Delta) + 4));
-				if(Hue - TestValue < 0.5) Hue -= 1;
-
+				Hue = RoundValue_toX_SignificantBits((60 * (((R_scaled - G_scaled) / Delta) + 4)),2);
 				if (Hue < 0) Hue = 360 + Hue;
 				if (Hue > 360) Hue = fmod(Hue, 360);
 			}
@@ -2255,15 +2247,9 @@ void ConvertImage_RGB_to_HSL(struct Image *Img_src, struct Image *Img_dst)
 				Saturation = Luma > 0.5 ? Delta / (float)(2 - C_max - C_min) : Delta / (float)(C_max + C_min);
 			}
 
-			TestValue = (Hue / (float)360) * 100;
-			Img_dst->rgbpix[3 * (i * Img_src->Width + j) + 0] = ceil((Hue / (float)360) * 100);
-			if(Img_dst->rgbpix[3 * (i * Img_src->Width + j) + 0] - TestValue < 0.5) Img_dst->rgbpix[3 * (i * Img_src->Width + j) + 0] -= 1;
-
-			TestValue = Saturation * 100;
-			Img_dst->rgbpix[3 * (i * Img_src->Width + j) + 1] = ceil(Saturation * 100);
-			if(Img_dst->rgbpix[3 * (i * Img_src->Width + j) + 1] - TestValue < 0.5) Img_dst->rgbpix[3 * (i * Img_src->Width + j) + 1] -= 1;
-
-			Img_dst->rgbpix[3 * (i * Img_src->Width + j) + 2] = Luma * 100;//ceil(Luma * 100);
+			Img_dst->rgbpix[3 * (i * Img_src->Width + j) + 0] = round((Hue / (float)360) * 100);
+			Img_dst->rgbpix[3 * (i * Img_src->Width + j) + 1] = round(Saturation * 100);
+			Img_dst->rgbpix[3 * (i * Img_src->Width + j) + 2] = Luma * 100;//round(Luma * 100);
 
 		}
 	}
@@ -2282,7 +2268,6 @@ void ConvertImage_HSL_to_RGB(struct Image *Img_src, struct Image *Img_dst)
 	float Hue;
 	float Temporary_1, Temporary_2;
 	float Saturation, Luma = 0;
-	int Test_value;
 
 	int i, j;
 
@@ -2377,17 +2362,10 @@ void ConvertImage_HSL_to_RGB(struct Image *Img_src, struct Image *Img_dst)
 				if (B_temp > 255) B_temp = 255;
 			}
 			
-			Test_value = R_temp;
-			Img_dst->rgbpix[3 * (i * Img_src->Width + j) + 0] = ceil(R_temp);
-			if(Img_dst->rgbpix[3 * (i * Img_src->Width + j) + 0] - Test_value > 0.5 ) Img_dst->rgbpix[3 * (i * Img_src->Width + j) + 0] -= 1;
+			Img_dst->rgbpix[3 * (i * Img_src->Width + j) + 0] = round(R_temp);
+			Img_dst->rgbpix[3 * (i * Img_src->Width + j) + 1] = round(G_temp);
+			Img_dst->rgbpix[3 * (i * Img_src->Width + j) + 2] = round(B_temp);
 
-			Test_value = G_temp;
-			Img_dst->rgbpix[3 * (i * Img_src->Width + j) + 1] = ceil(G_temp);
-			if(Img_dst->rgbpix[3 * (i * Img_src->Width + j) + 1] - Test_value > 0.5 ) Img_dst->rgbpix[3 * (i * Img_src->Width + j) + 1] -= 1;
-
-			Test_value = B_temp;
-			Img_dst->rgbpix[3 * (i * Img_src->Width + j) + 2] = ceil(B_temp);
-			if(Img_dst->rgbpix[3 * (i * Img_src->Width + j) + 2] - Test_value > 0.5 ) Img_dst->rgbpix[3 * (i * Img_src->Width + j) + 2] -= 1;
 		}
 	}
 }
@@ -2437,7 +2415,7 @@ struct Image Saturation(struct Image *Img_src, struct Image *Img_dst, int percen
 			else if (WorkCopy.rgbpix[3 * (i * Img_src->Width + j) + 1] * percentage / (float)100 + WorkCopy.rgbpix[3 * (i * Img_src->Width + j) + 1] < 0)
 				WorkCopy.rgbpix[3 * (i * Img_src->Width + j) + 1] = 0;
 			else
-				WorkCopy.rgbpix[3 * (i * Img_src->Width + j) + 1] = ceil((WorkCopy.rgbpix[3 * (i * Img_src->Width + j) + 1] * percentage / (float)100) + WorkCopy.rgbpix[3 * (i * Img_src->Width + j) + 1]);
+				WorkCopy.rgbpix[3 * (i * Img_src->Width + j) + 1] = round((WorkCopy.rgbpix[3 * (i * Img_src->Width + j) + 1] * percentage / (float)100) + WorkCopy.rgbpix[3 * (i * Img_src->Width + j) + 1]);
 		}
 	}
 
@@ -2466,14 +2444,16 @@ void Convert_RGB_to_XYZ(struct Image *Img_src, struct Image *Img_dst)
 	float X, Y, Z;
 	float var_R, var_B, var_G;
 
-	for (i = 0; i < Img_dst->Height; i++)
+	for (i = 0; i < Img_src->Height; i++)
 	{
-		for (j = 0; j < Img_dst->Width; j++)
+		for (j = 0; j < Img_src->Width; j++)
 		{
 			var_R = Img_src->rgbpix[3 * (i * Img_dst->Width + j) + 0];
 			var_G = Img_src->rgbpix[3 * (i * Img_dst->Width + j) + 1];
 			var_B = Img_src->rgbpix[3 * (i * Img_dst->Width + j) + 2];
 
+			//if (i == 638 && j == 2372)
+			//	_getch();
 			var_R /= 255;
 			var_G /= 255;
 			var_B /= 255;
@@ -2498,13 +2478,30 @@ void Convert_RGB_to_XYZ(struct Image *Img_src, struct Image *Img_dst)
 			X = var_R * 0.4124 + var_G * 0.3576 + var_B * 0.1805;
 			Y = var_R * 0.2126 + var_G * 0.7152 + var_B * 0.0722;
 			Z = var_R * 0.0193 + var_G * 0.1192 + var_B * 0.9505;
+			
+			//X = var_R * 0.4887 + var_G * 0.3107 + var_B * 0.2006;
+			//Y = var_R * 0.1762 + var_G * 0.8130 + var_B * 0.0108;
+			//Z = var_R * 0 + var_G * 0.102 + var_B * 0.9898;
+
+			//X = var_R * 0.4124 + var_G * 0.3576 + var_B * 0.1805;
+			//Y = var_R * 0.2126 + var_G * 0.7152 + var_B * 0.0722;
+			//Z = var_R * 0.0193 + var_G * 0.1192 + var_B * 0.9505;
+			/*
+				Calculate color temperature;
+			*/
+
 			if (X < 0) X = 0;
 			if (Y < 0) Y = 0;
 			if (Z < 0) Z = 0;
 
-			Img_dst->rgbpix[3 * (i * Img_dst->Width + j) + 0] = ceil(X);
-			Img_dst->rgbpix[3 * (i * Img_dst->Width + j) + 1] = ceil(Y);
-			Img_dst->rgbpix[3 * (i * Img_dst->Width + j) + 2] = ceil(Z);
+			X = RoundValue_toX_SignificantBits(X, 2);
+			Y = RoundValue_toX_SignificantBits(Y, 2);
+			Z = RoundValue_toX_SignificantBits(Z, 2);
+			
+			Img_dst->rgbpix[3 * (i * Img_dst->Width + j) + 0] = X;
+			Img_dst->rgbpix[3 * (i * Img_dst->Width + j) + 1] = Y;
+			Img_dst->rgbpix[3 * (i * Img_dst->Width + j) + 2] = Z;
+
 		}
 	}
 }
@@ -2520,19 +2517,32 @@ void Convert_XYZ_to_RGB(struct Image *Img_src, struct Image *Img_dst)
 
 	for (i = 0; i < Img_dst->Height; i++)
 	{
-		for (j = 0; j < Img_dst->Width; j++)
+		for (j = 0; j < Img_src->Width; j++)
 		{
-			var_X = Img_src->rgbpix[3 * (i * Img_dst->Width + j) + 0];
-			var_Y = Img_src->rgbpix[3 * (i * Img_dst->Width + j) + 1];
-			var_Z = Img_src->rgbpix[3 * (i * Img_dst->Width + j) + 2];
-
-			var_X /= 100;
-			var_Y /= 100;
-			var_Z /= 100;
+			var_X = Img_src->rgbpix[3 * (i * Img_dst->Width + j) + 0];// +Img_src->rgbpix[6 * (i * Img_dst->Width + j) + 3] / 100.0;
+			var_Y = Img_src->rgbpix[3 * (i * Img_dst->Width + j) + 1];// +Img_src->rgbpix[6 * (i * Img_dst->Width + j) + 4] / 100.0;
+			var_Z = Img_src->rgbpix[3 * (i * Img_dst->Width + j) + 2];// +Img_src->rgbpix[6 * (i * Img_dst->Width + j) + 5] / 100.0;
+			
+			var_X /= 100.0;
+			var_Y /= 100.0;
+			var_Z /= 100.0;
 
 			R = var_X *  3.2406 + var_Y * -1.5372 + var_Z * -0.4986;
 			G = var_X * -0.9689 + var_Y *  1.8758 + var_Z *  0.0415;
 			B = var_X *  0.0557 + var_Y * -0.2040 + var_Z *  1.0570;
+
+			//R = var_X *  2.3707 + var_Y * -0.9001 + var_Z * -0.4706;
+			//G = var_X * -0.5139 + var_Y *  1.4253 + var_Z *  0.0886;
+			//B = var_X *  0.0053 + var_Y * -0.0147 + var_Z *  1.0094;
+
+			//if (i == 638 && j == 2372)
+			//	printf("ds");
+			if (R < 0) 
+				R = 0;
+			if (G < 0) 
+				G = 0;
+			if (B < 0) 
+				B = 0;
 
 			if (R > 0.0031308)
 				R = 1.055 * pow(R, (1 / 2.4)) - 0.055;
@@ -2556,10 +2566,17 @@ void Convert_XYZ_to_RGB(struct Image *Img_src, struct Image *Img_dst)
 			B = B * 255;
 			if (B > 255) B = 255;
 			if (B < 0) B = 0;
+			
+			if (i == 300 && j == 1300)
+				printf("sa");
 
-			Img_dst->rgbpix[3 * (i * Img_dst->Width + j) + 0] = ceil(R);
-			Img_dst->rgbpix[3 * (i * Img_dst->Width + j) + 1] = ceil(G);
-			Img_dst->rgbpix[3 * (i * Img_dst->Width + j) + 2] = ceil(B);
+			R = RoundValue_toX_SignificantBits(R, 2);
+			G = RoundValue_toX_SignificantBits(G, 2);
+			B = RoundValue_toX_SignificantBits(B, 2);
+
+			Img_dst->rgbpix[3 * (i * Img_dst->Width + j) + 0] = R;
+			Img_dst->rgbpix[3 * (i * Img_dst->Width + j) + 1] = G;
+			Img_dst->rgbpix[3 * (i * Img_dst->Width + j) + 2] = B;
 		}
 	}
 }
@@ -2570,15 +2587,17 @@ void Convert_XYZ_to_RGB(struct Image *Img_src, struct Image *Img_dst)
 void ConvertImage_RGB_to_LAB(struct Image *Img_src, struct Image *Img_dst, struct WhitePoint WhitePoint_XYZ)
 {
 	FILE *fdebug = NULL;
-	struct Image Img_XYZ = CreateNewImage_BasedOnPrototype(Img_src, &Img_XYZ);
+	struct Image Img_XYZ = CreateNewImage(&Img_XYZ,Img_src->Width, Img_src->Height, 3, 2);
 
 	int i, j;
 	float L, a, b;
 	float X, Y, Z;
 	float F_x, F_y, F_z;
+	float R_t, G_t, B_t;
 	float RatioY, RatioX, RatioZ;
 	float e = 0.008856;
 	float k = 903.3;
+	float dult;
 	if ((Img_src->Num_channels != 3) || (Img_dst->Num_channels != 3))
 	{
 		#ifdef DEBUG_FILE
@@ -2593,6 +2612,7 @@ void ConvertImage_RGB_to_LAB(struct Image *Img_src, struct Image *Img_dst, struc
 	{
 		SetDestination(Img_src, Img_dst);
 	}
+	Img_dst->rgbpix = (unsigned char *)realloc(Img_dst->rgbpix, Img_dst->Height * Img_dst->Width * Img_dst->Num_channels* sizeof(unsigned char));
 
 	if (Img_src->ColorSpace != 2)
 	{
@@ -2609,58 +2629,25 @@ void ConvertImage_RGB_to_LAB(struct Image *Img_src, struct Image *Img_dst, struc
 	// 1st step: Convert to XYZ color space
 	Convert_RGB_to_XYZ(Img_src, &Img_XYZ);
 
-	for (i = 0; i < Img_dst->Height; i++)
+	for (i = 0; i < Img_src->Height; i++)
 	{
-		for (j = 0; j < Img_dst->Width; j++)
+		for (j = 0; j < Img_src->Width; j++)
 		{
-			X = Img_XYZ.rgbpix[3 * (i * Img_dst->Width + j) + 0];
-			Y = Img_XYZ.rgbpix[3 * (i * Img_dst->Width + j) + 1];
-			Z = Img_XYZ.rgbpix[3 * (i * Img_dst->Width + j) + 2];
+			X = Img_XYZ.rgbpix[3 * (i * Img_dst->Width + j) + 0];// +Img_XYZ.rgbpix[6 * (i * Img_dst->Width + j) + 3] / 100.0;
+			Y = Img_XYZ.rgbpix[3 * (i * Img_dst->Width + j) + 1];// +Img_XYZ.rgbpix[6 * (i * Img_dst->Width + j) + 4] / 100.0;
+			Z = Img_XYZ.rgbpix[3 * (i * Img_dst->Width + j) + 2];// +Img_XYZ.rgbpix[6 * (i * Img_dst->Width + j) + 5] / 100.0;
 
 			X /= 100.0;
 			Y /= 100.0;
 			Z /= 100.0;
 
-			/*
-			RatioY = Y / 0.333;
-			if (RatioY > 0.008856)
-			{
-				L = 116 * pow(RatioY, (0.333)) - 16;
-			}
-			else
-				L = 903.3 *  RatioY;
+			RatioX = X / 1;// (100 * WhitePoint_XYZ.X);
+			RatioY = Y / 1;// (100 * WhitePoint_XYZ.Y);
+			RatioZ = Z / 1;// (100 * WhitePoint_XYZ.Z);
 
-			RatioX = X / 0.333;
-			RatioY = Y / 0.333;
-			RatioZ = Z / 0.333;
-			
-			if (RatioX > 0.008856)
-			{
-				NumX = pow(RatioX, 0333);
-			}
-			else
-				NumX = 7.787 * RatioX + 16 / 116.0;
-
-			if (RatioY > 0.008856)
-			{
-				NumY = pow(RatioY, 0333);
-			}
-			else
-				NumY = 7.787 * RatioY + 16 / 116.0;
-			if (RatioZ > 0.008856)
-			{
-				NumZ = pow(RatioZ, 0333);
-			}
-			else
-				NumZ = 7.787 * RatioZ + 16 / 116.0;
-			// Calculate a
-			a = 500 * (NumX - NumY);
-			// Calculate b
-			b = 200 * (NumY - NumZ);
-			*/
-			RatioX = X / WhitePoint_XYZ.X;
-			RatioY = Y / WhitePoint_XYZ.Y;
-			RatioZ = Z / WhitePoint_XYZ.Z;
+			RatioX = RoundValue_toX_SignificantBits(RatioX, 4);
+			RatioY = RoundValue_toX_SignificantBits(RatioY, 4);
+			RatioZ = RoundValue_toX_SignificantBits(RatioZ, 4);
 
 			if (RatioX > e)
 			{
@@ -2678,6 +2665,7 @@ void ConvertImage_RGB_to_LAB(struct Image *Img_src, struct Image *Img_dst, struc
 			else
 			{
 				F_y = (k * RatioY + 16) / 116;
+
 			}
 
 			if (RatioZ > e)
@@ -2689,19 +2677,47 @@ void ConvertImage_RGB_to_LAB(struct Image *Img_src, struct Image *Img_dst, struc
 				F_z = (k * RatioZ + 16) / 116;
 			}
 
-			L = 116 * F_y - 16;
+			
+			//L = 116 * F_y - 16;
+			R_t = Img_src->rgbpix[3 * (i * Img_dst->Width + j) + 0] / 255.0;
+			G_t = Img_src->rgbpix[3 * (i * Img_dst->Width + j) + 1] / 255.0;
+			B_t = Img_src->rgbpix[3 * (i * Img_dst->Width + j) + 2] / 255.0;
+			
+			F_x = RoundValue_toX_SignificantBits(F_x, 3);
+			F_y = RoundValue_toX_SignificantBits(F_y, 3);
+			F_z = RoundValue_toX_SignificantBits(F_z, 3);
+
+			dult = MIN(R_t, MIN(G_t, B_t)) + MAX(R_t, MAX(G_t, B_t));
+			L = ((float)dult / 2) * 100;
+
 			a = 500 * (F_x - F_y);
 			b = 200 * (F_y - F_z);
 
-			if (a > 255) a = 255;
+			L = RoundValue_toX_SignificantBits(L, 2);
+			a = RoundValue_toX_SignificantBits(a, 2);
+			b = RoundValue_toX_SignificantBits(b, 2);
 			a += 128;
-			if (b > 255) b = 255;
 			b += 128;
+			if (a > 255) 
+				a = 255;
+			if (a < 0) 
+				a = 0;
+
+			if (b > 255) 
+				b = 255;
+			if (b < 0) 
+				b = 0;
+
 			if (L < 0) L = 0;
-			
-			Img_dst->rgbpix[3 * (i * Img_dst->Width + j) + 0] = ceil(L);
-			Img_dst->rgbpix[3 * (i * Img_dst->Width + j) + 1] = ceil(a);
-			Img_dst->rgbpix[3 * (i * Img_dst->Width + j) + 2] = ceil(b);
+			if (L > 255) L = 255;
+
+			Img_dst->rgbpix[3 * (i * Img_dst->Width + j) + 0] = L;
+			if (L - Img_dst->rgbpix[3 * (i * Img_dst->Width + j) + 0] > 0.5) Img_dst->rgbpix[3 * (i * Img_dst->Width + j) + 0] += 1;
+			Img_dst->rgbpix[3 * (i * Img_dst->Width + j) + 1] = a;
+			if (a - Img_dst->rgbpix[3 * (i * Img_dst->Width + j) + 1] > 0.5) Img_dst->rgbpix[3 * (i * Img_dst->Width + j) + 1] += 1;
+			Img_dst->rgbpix[3 * (i * Img_dst->Width + j) + 2] = b;
+			if (b - Img_dst->rgbpix[3 * (i * Img_dst->Width + j) + 2] > 0.5) Img_dst->rgbpix[3 * (i * Img_dst->Width + j) + 2] += 1;
+
 		}
 	}
 
@@ -2714,7 +2730,7 @@ void ConvertImage_RGB_to_LAB(struct Image *Img_src, struct Image *Img_dst, struc
 void ConvertImage_LAB_to_RGB(struct Image *Img_src, struct Image *Img_dst, struct WhitePoint WhitePoint_XYZ)
 {
 	FILE *fdebug = NULL;
-	struct Image Img_XYZ = CreateNewImage_BasedOnPrototype(Img_src, &Img_XYZ);
+	struct Image Img_XYZ = CreateNewImage(&Img_XYZ, Img_src->Width, Img_src->Height, 3, 2);
 
 	int i, j;
 	float L, a, b;
@@ -2762,45 +2778,21 @@ void ConvertImage_LAB_to_RGB(struct Image *Img_src, struct Image *Img_dst, struc
 			a -= 128;
 			b -= 128;
 
-			P = (L + 16) / 116.0;
+			Y = L * (1.0 / 116.0) + 16.0 / 116.0;
+			X = a * (1.0 / 500.0) + Y;
+			Z = b * (-1.0 / 200.0) + Y;
+
+			X = X > 6.0 / 29.0 ? X * X * X : X * (108.0 / 841.0) - 432.0 / 24389.0;
+			Y = L > 8.0 ? Y * Y * Y : L * (27.0 / 24389.0);
+			Z = Z > 6.0 / 29.0 ? Z * Z * Z : Z * (108.0 / 841.0) - 432.0 / 24389.0;
 			
-			Number = P;
-			if (Number > 6 / 29.0)
-			{
-				Number = pow(Number, 3);
-			}
-			else
-			{
-				Number = 3 * pow(6 / 29.0, 2) * (Number - 4 / 29.0);
-			}
-			Y = WhitePoint_XYZ.Y * Number;
-
-			Number = P + a/ 500.0;
-			if (Number > 6 / 29.0)
-			{
-				Number = pow(Number, 3);
-			}
-			else
-			{
-				Number = 3 * pow(6 / 29.0, 2) * (Number - 4 / 29.0);
-			}
-			X = WhitePoint_XYZ.X * Number;
+			X = RoundValue_toX_SignificantBits(X, 2);
+			Y = RoundValue_toX_SignificantBits(Y, 2);
+			Z = RoundValue_toX_SignificantBits(Z, 2);
+			Img_XYZ.rgbpix[3 * (i * Img_dst->Width + j) + 0] = X * 100;
+			Img_XYZ.rgbpix[3 * (i * Img_dst->Width + j) + 1] = Y * 100;
+			Img_XYZ.rgbpix[3 * (i * Img_dst->Width + j) + 2] = Z * 100;
 			
-			Number = P - b / 200;
-			if (Number > 6 / 29.0)
-			{
-				Number = pow(Number, 3);
-			}
-			else
-			{
-				Number = 3 * pow(6 / 29.0, 2) * (Number - 4 / 29.0);
-			}
-			Z = WhitePoint_XYZ.Z * Number;
-
-			Img_XYZ.rgbpix[3 * (i * Img_dst->Width + j) + 0] = ceil(X * 100);
-			Img_XYZ.rgbpix[3 * (i * Img_dst->Width + j) + 1] = ceil(Y * 100);
-			Img_XYZ.rgbpix[3 * (i * Img_dst->Width + j) + 2] = ceil(Z * 100);
-
 		}
 	}
 	Convert_XYZ_to_RGB(&Img_XYZ, Img_dst);
@@ -2814,46 +2806,318 @@ void ConvertImage_LAB_to_RGB(struct Image *Img_src, struct Image *Img_dst, struc
 /* White Balance function and structure*/
 void SetWhiteBalanceValues(struct WhitePoint *WhitePoint_lab, int TYPE)
 {
-	if (TYPE == 0) // D50
+	if (TYPE == 0)			// A         // 2856K  // Halogen
 	{
-		WhitePoint_lab->X = 0.34567;
-		WhitePoint_lab->Y = 0.35850;
-		WhitePoint_lab->Z = 0.29583;
-	}
-	else if (TYPE == 1) // D55
-	{
-		WhitePoint_lab->X = 0.33242;
-		WhitePoint_lab->Y = 0.34743;
-		WhitePoint_lab->Z = 0.32015;
-	}
-	else if (TYPE == 2) // D65
-	{
-		WhitePoint_lab->X = 0.31273;
-		WhitePoint_lab->Y = 0.32902;
-		WhitePoint_lab->Z = 0.35825;
-	}
-	else if (TYPE == 3) // A
-	{
+		WhitePoint_lab->Temperature = 2856;
 		WhitePoint_lab->X = 0.44757;
 		WhitePoint_lab->Y = 0.40744;
 		WhitePoint_lab->Z = 0.14499;
 	}
-	else if (TYPE == 4) // C
+	else if (TYPE == 1)		// F11       // 4000K  // Narrow-band Fluorescent
 	{
-		WhitePoint_lab->X = 0.31006;
-		WhitePoint_lab->Y = 0.31615;
-		WhitePoint_lab->Z = 0.37379;
+		WhitePoint_lab->Temperature = 4000;
+		WhitePoint_lab->X = 0.38054;
+		WhitePoint_lab->Y = 0.37691;
+		WhitePoint_lab->Z = 0.24254;
 	}
-	else if (TYPE == 5) // Daylight
+	else if (TYPE == 2)		// F2        // 4200K   // Cool white Fluorescent
 	{
-		WhitePoint_lab->X = 0.29902;
-		WhitePoint_lab->Y = 0.31485;
-		WhitePoint_lab->Z = 0.38613;
+		WhitePoint_lab->Temperature = 4200;
+		WhitePoint_lab->X = 0.372;
+		WhitePoint_lab->Y = 0.3751;
+		WhitePoint_lab->Z = 0.2528;
 	}
-	else if (TYPE == 6 ) // Unknow - equal
+	else if (TYPE == 3)		// B         // 4874K  // Direct sunlight at noon - obsolete
 	{
+		WhitePoint_lab->Temperature = 4874;
+		WhitePoint_lab->X = 0.44757;
+		WhitePoint_lab->Y = 0.40744;
+		WhitePoint_lab->Z = 0.14499;
+	}
+	else if (TYPE == 4)		// D50       // 5000K  // Daylight - for color rendering
+	{
+		WhitePoint_lab->Temperature = 5000;
+		WhitePoint_lab->X = 0.34567;
+		WhitePoint_lab->Y = 0.35850;
+		WhitePoint_lab->Z = 0.29583;
+	}
+	else if (TYPE == 5)		// E		 // 5400K  // Uniform energy
+	{
+		WhitePoint_lab->Temperature = 5400;
 		WhitePoint_lab->X = 0.333;
 		WhitePoint_lab->Y = 0.333;
 		WhitePoint_lab->Z = 0.333;
 	}
+	else if (TYPE == 6)		// D55       // 5500K  // Daylight - for photography
+	{
+		WhitePoint_lab->Temperature = 5500;
+		WhitePoint_lab->X = 0.33242;
+		WhitePoint_lab->Y = 0.34743;
+		WhitePoint_lab->Z = 0.32015;
+	}
+	else if (TYPE == 7)		// D65       //  6504K  // North Sky - Daylight(NewVersion)
+	{						
+		WhitePoint_lab->Temperature = 6504;
+		WhitePoint_lab->X = 0.3127;		 
+		WhitePoint_lab->Y = 0.329;		 
+		WhitePoint_lab->Z = 0.3583;		 
+	}									 
+	else if (TYPE == 8)		// C         //  6774K  // North Sky - Daylight
+	{
+		WhitePoint_lab->Temperature = 6774;
+		WhitePoint_lab->X = 0.31006;
+		WhitePoint_lab->Y = 0.31615;
+		WhitePoint_lab->Z = 0.37379;
+	}
+	else if (TYPE == 9)		// D75	     //  7500K  // Daylight
+	{					
+		WhitePoint_lab->Temperature = 7500;
+		WhitePoint_lab->X = 0.29902;     
+		WhitePoint_lab->Y = 0.31485;     
+		WhitePoint_lab->Z = 0.38613;     
+	}								     
+	else if (TYPE == 10)	// D93	     //  9300K  // High eff.Blue Phosphor monitors
+	{
+		WhitePoint_lab->Temperature = 9300;
+		WhitePoint_lab->X = 0.2848;
+		WhitePoint_lab->Y = 0.2932;
+		WhitePoint_lab->Z = 0.422;
+	}
+	else 	// NonExisting - Like Uniform
+	{
+		WhitePoint_lab->Temperature = 5400;
+		WhitePoint_lab->X = 0.333;
+		WhitePoint_lab->Y = 0.333;
+		WhitePoint_lab->Z = 0.333;
+		//WhitePoint_lab->X = 1;
+		//WhitePoint_lab->Y = 1;
+		//WhitePoint_lab->Z = 1;
+	}
+}
+
+
+float xyz_to_lab(float c)
+{
+	return c > 216.0 / 24389.0 ? pow(c, 1.0 / 3.0) : c * (841.0 / 108.0) + (4.0 / 29.0);
+}
+
+void WhiteBalanceLab(struct Image *src, struct Image *dst, struct WhitePoint WhitePoint_XYZ, struct WhitePoint WhitePoint_XYZ_2)
+{
+	float RatioX, RatioY, RatioZ;
+	float e = 0.008856;
+	float k = 903.3;
+	float F_x, F_z, F_y;
+	float maxv;
+	float P, Number;
+	int i, j;
+	float R, G, B, dult;
+	float X, Y, Z, L, a, b, bbb, intensity;
+	for (int i = 0; i<src->Height; i++)
+	{
+		for (j = 0; j<src->Width; j++)
+		{
+			maxv = 255;
+
+			R = (float)src->rgbpix[(i*dst->Width + j) * 3 + 0];
+			G = (float)src->rgbpix[(i*dst->Width + j) * 3 + 1];
+			B = (float)src->rgbpix[(i*dst->Width + j) * 3 + 2];
+
+			dult = MIN(R, MIN(G, B)) + MAX(R, MAX(G, B));
+			intensity = (float)dult / 2.0;
+
+			R /= (float)maxv;
+			G /= (float)maxv;
+			B /= (float)maxv;
+
+			//CONVERT RGB - XYZ
+			if (R > 0.04045)
+				R = pow(((R + 0.055) / 1.055), 2.4);
+			else
+				R = R / 12.92;
+			if (G > 0.04045)
+				G = pow(((G + 0.055) / 1.055), 2.4);
+			else
+				G = G / 12.92;
+			if (B > 0.04045)
+				B = pow(((B + 0.055) / 1.055), 2.4);
+			else
+				B = B / 12.92;
+
+			X = R * 0.4124 + G * 0.3576 + B * 0.1805;
+			Y = R * 0.2126 + G * 0.7152 + B * 0.0722;
+			Z = R * 0.0193 + G * 0.1192 + B * 0.9505;
+
+
+			if (X < 0) X = 0;
+			if (Y < 0) Y = 0;
+			if (Z < 0) Z = 0;
+
+			/* XYZ - Lab*/
+			RatioX = X / WhitePoint_XYZ.X;
+			RatioY = Y / WhitePoint_XYZ.Y;
+			RatioZ = Z /  WhitePoint_XYZ.Z;
+
+			RatioX /= 100;
+			RatioY /= 100;
+			RatioZ /= 100;
+			if (RatioX > e)
+			{
+				F_x = pow(RatioX, pow(3, -1));
+			}
+			else
+			{
+				F_x = (k * RatioX + 16) / 116;
+			}
+
+			if (RatioY > e)
+			{
+				F_y = pow(RatioY, pow(3, -1));
+			}
+			else
+			{
+				F_y = (k * RatioY + 16) / 116;
+
+			}
+
+			if (RatioZ > e)
+			{
+				F_z = pow(RatioZ, pow(3, -1));
+			}
+			else
+			{
+				F_z = (k * RatioZ + 16) / 116;
+			}
+
+			if (RatioY > 0.008856)
+			{
+				L = 116 * pow(RatioY, (0.333)) - 16;
+			}
+			else
+				L = 903.3 *  RatioY;
+
+			if (i == 50 && j == 30)
+				printf("ds");
+			//L = L * 100 / 255.0;
+			
+			a = 500 * (F_x - F_y);
+
+			b = 200 * (F_y - F_z);
+
+			/* Lab to XYZ */
+			P = (L + 16) / 116.0;
+
+			Number = P;
+			if (Number > 6 / 29.0)
+			{
+				Number = pow(Number, 3);
+			}
+			else
+			{
+				Number = 3 * pow(6 / 29.0, 2) * (Number - 4 / 29.0);
+			}
+
+			Y = WhitePoint_XYZ_2.Y *
+				Number;
+
+			Number = P + a / 500.0;
+			if (Number > 6 / 29.0)
+			{
+				Number = pow(Number, 3);
+			}
+			else
+			{
+				Number = 3 * pow(6 / 29.0, 2) * (Number - 4 / 29.0);
+			}
+			X = WhitePoint_XYZ_2.X *
+				Number;
+
+			Number = P - b / 200;
+			if (Number > 6 / 29.0)
+			{
+				Number = pow(Number, 3);
+			}
+			else
+			{
+				Number = 3 * pow(6 / 29.0, 2) * (Number - 4 / 29.0);
+			}
+			Z = WhitePoint_XYZ_2.Z *
+				Number;
+			
+			if (Z > 0.35585 && WhitePoint_XYZ.Temperature < 3700) 
+				Z = 0.3585;
+			
+			if (Z > 0.82521 && WhitePoint_XYZ.Temperature < 5400) 
+				Z = 0.82521;
+			/* XYZ to RGB */
+			
+			R = X *  3.2406 + Y * -1.5372 + Z * -0.4986;
+			G = X * -0.9689 + Y *  1.8758 + Z *  0.0415;
+			B = X *  0.0557 + Y * -0.2040 + Z *  1.0570;
+
+			if (R < 0)
+				R = 0;
+			if (G < 0)
+				G = 0;
+			if (B < 0)
+				B = 0;
+
+			if (R > 0.0031308)
+				R = 1.055 * pow(R, (1 / 2.4)) - 0.055;
+			else
+				R = 12.92 * R;
+			if (G > 0.0031308)
+				G = 1.055 * pow(G, (1 / 2.4)) - 0.055;
+			else
+				G = 12.92 * G;
+			if (B > 0.0031308)
+				B = 1.055 * pow(B, (1 / 2.4)) - 0.055;
+			else
+				B = 12.92 * B;
+
+			R = R * 255;
+			if (R > 255) R = 255;
+			if (R < 0) R = 0;
+			G = G * 255;
+			if (G > 255) G = 255;
+			if (G < 0) G = 0;
+			B = B * 255;
+			if (B > 255) B = 255;
+			if (B < 0) B = 0;
+
+			dst->rgbpix[(i*dst->Width + j) * 3 + 0] = R;
+			dst->rgbpix[(i*dst->Width + j) * 3 + 1] = G;
+			dst->rgbpix[(i*dst->Width + j) * 3 + 2] = B;
+
+		}
+	}
+}
+
+/*
+	R O U N D   -  RoundValues to X significant bit
+*/
+float RoundValue_toX_SignificantBits(float Value, int X)
+{
+	int ValueTimesX = 0;
+	float Number = Value;
+
+	ValueTimesX = Value * pow(10, X);
+	Number *= pow(10, X);
+
+	if (Number - ValueTimesX > 0.5) 
+		ValueTimesX += 1;
+
+	Number = ValueTimesX / pow(10, X);
+
+	if (Number * pow(10, X) < ValueTimesX) 
+		Number += (1 / pow(10, X));
+	return Number;
+}
+
+/*
+	C O L O R - Temperature
+*/
+void ColorTemperature(struct Image *Img_src, struct WhitePoint *WhitePoint_lab)
+{
+
+
 }
