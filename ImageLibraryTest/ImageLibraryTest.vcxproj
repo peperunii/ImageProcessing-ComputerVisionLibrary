@@ -149,11 +149,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="CV_enums.h" />
+    <ClInclude Include="CV_FuncPrototypes.h" />
     <ClInclude Include="CV_Library.h" />
+    <ClInclude Include="CV_Structures.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Compute.c" />
+    <ClCompile Include="ComputerVisionAlgos.c" />
+    <ClCompile Include="ImageProcessingAlgos.c" />
     <ClCompile Include="main.c" />
-    <ClCompile Include="ReadWriteImage.c" />
+    <ClCompile Include="ImageIO.c" />
+    <ClCompile Include="SpaceConversions.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

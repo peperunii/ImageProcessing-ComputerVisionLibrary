@@ -1,38 +1,59 @@
-c:\projects\cv_library\imagelibrarytest\debug\main.obj
-c:\projects\cv_library\imagelibrarytest\debug\readwriteimage.obj
-c:\projects\cv_library\imagelibrarytest\debug\vc110.pdb
-c:\projects\cv_library\debug\imagelibrarytest.ilk
-c:\projects\cv_library\debug\imagelibrarytest.exe
-c:\projects\cv_library\debug\imagelibrarytest.pdb
-c:\users\petar.nikolov\documents\visual studio 2013\projects\imagelibrarytest\imagelibrarytest\debug\vc120.pdb
-c:\users\petar.nikolov\documents\visual studio 2013\projects\imagelibrarytest\imagelibrarytest\debug\vc120.idb
-c:\users\petar.nikolov\documents\visual studio 2013\projects\imagelibrarytest\imagelibrarytest\debug\main.obj
-c:\users\petar.nikolov\documents\visual studio 2013\projects\imagelibrarytest\imagelibrarytest\debug\readwriteimage.obj
-d:\projects\imageprocessing - cv library\imagelibrarytest\debug\vc120.pdb
-d:\projects\imageprocessing - cv library\imagelibrarytest\debug\vc120.idb
-d:\projects\imageprocessing - cv library\imagelibrarytest\debug\main.obj
-d:\projects\imageprocessing - cv library\imagelibrarytest\debug\readwriteimage.obj
-c:\users\petar.nikolov\documents\visual studio 2013\projects\imagelibrarytest\debug\imagelibrarytest.ilk
-c:\users\petar.nikolov\documents\visual studio 2013\projects\imagelibrarytest\debug\imagelibrarytest.exe
-c:\users\petar.nikolov\documents\visual studio 2013\projects\imagelibrarytest\debug\imagelibrarytest.pdb
-d:\projects\imageprocessing - cv library\debug\imagelibrarytest.ilk
-d:\projects\imageprocessing - cv library\debug\imagelibrarytest.exe
-d:\projects\imageprocessing - cv library\debug\imagelibrarytest.pdb
-d:\projects\imageprocessing - cv library\imagelibrarytest\debug\cl.command.1.tlog
-d:\projects\imageprocessing - cv library\imagelibrarytest\debug\cl.read.1.tlog
-d:\projects\imageprocessing - cv library\imagelibrarytest\debug\cl.write.1.tlog
-d:\projects\imageprocessing - cv library\imagelibrarytest\debug\link-cvtres.read.1.tlog
-d:\projects\imageprocessing - cv library\imagelibrarytest\debug\link-cvtres.write.1.tlog
-d:\projects\imageprocessing - cv library\imagelibrarytest\debug\link-rc.read.1.tlog
-d:\projects\imageprocessing - cv library\imagelibrarytest\debug\link-rc.write.1.tlog
-d:\projects\imageprocessing - cv library\imagelibrarytest\debug\link.command.1.tlog
-d:\projects\imageprocessing - cv library\imagelibrarytest\debug\link.read.1.tlog
-d:\projects\imageprocessing - cv library\imagelibrarytest\debug\link.write.1.tlog
-d:\projects\imageprocessing - cv library\imagelibrarytest\debug\vc110.idb
-d:\projects\imageprocessing - cv library\imagelibrarytest\debug\vc110.pdb
-d:\projects\imageprocessing - cv library\imagelibrarytest\debug\imagelibrarytest.tlog\cl.command.1.tlog
-d:\projects\imageprocessing - cv library\imagelibrarytest\debug\imagelibrarytest.tlog\cl.read.1.tlog
-d:\projects\imageprocessing - cv library\imagelibrarytest\debug\imagelibrarytest.tlog\cl.write.1.tlog
-d:\projects\imageprocessing - cv library\imagelibrarytest\debug\imagelibrarytest.tlog\link.command.1.tlog
-d:\projects\imageprocessing - cv library\imagelibrarytest\debug\imagelibrarytest.tlog\link.read.1.tlog
-d:\projects\imageprocessing - cv library\imagelibrarytest\debug\imagelibrarytest.tlog\link.write.1.tlog
+C:\PROJECTS\CV_LIBRARY\IMAGELIBRARYTEST\DEBUG\MAIN.OBJ
+C:\PROJECTS\CV_LIBRARY\IMAGELIBRARYTEST\DEBUG\READWRITEIMAGE.OBJ
+C:\PROJECTS\CV_LIBRARY\IMAGELIBRARYTEST\DEBUG\VC110.PDB
+C:\PROJECTS\CV_LIBRARY\IMAGELIBRARYTEST\DEBUG\IMAGEIO.OBJ
+C:\PROJECTS\CV_LIBRARY\IMAGELIBRARYTEST\DEBUG\SPACECONVERSIONS.OBJ
+C:\PROJECTS\CV_LIBRARY\IMAGELIBRARYTEST\DEBUG\COMPUTE.OBJ
+C:\PROJECTS\CV_LIBRARY\IMAGELIBRARYTEST\DEBUG\COMPUTERVISIONALGOS.OBJ
+C:\PROJECTS\CV_LIBRARY\IMAGELIBRARYTEST\DEBUG\IMAGEPROCESSINGALGOS.OBJ
+C:\PROJECTS\CV_LIBRARY\DEBUG\IMAGELIBRARYTEST.ILK
+C:\PROJECTS\CV_LIBRARY\DEBUG\IMAGELIBRARYTEST.EXE
+C:\PROJECTS\CV_LIBRARY\DEBUG\IMAGELIBRARYTEST.PDB
+C:\PROJECTS\CV_Library\ImageLibraryTest\Debug\Compute.obj
+C:\PROJECTS\CV_Library\ImageLibraryTest\Debug\ComputerVisionAlgos.obj
+C:\PROJECTS\CV_Library\ImageLibraryTest\Debug\ImageIO.obj
+C:\PROJECTS\CV_Library\ImageLibraryTest\Debug\ImageProcessingAlgos.obj
+C:\PROJECTS\CV_Library\ImageLibraryTest\Debug\main.obj
+C:\PROJECTS\CV_Library\ImageLibraryTest\Debug\ReadWriteImage.obj
+C:\PROJECTS\CV_Library\ImageLibraryTest\Debug\SpaceConversions.obj
+C:\PROJECTS\CV_Library\ImageLibraryTest\Debug\cl.command.1.tlog
+C:\PROJECTS\CV_Library\ImageLibraryTest\Debug\CL.read.1.tlog
+C:\PROJECTS\CV_Library\ImageLibraryTest\Debug\CL.write.1.tlog
+C:\PROJECTS\CV_Library\ImageLibraryTest\Debug\link-cvtres.read.1.tlog
+C:\PROJECTS\CV_Library\ImageLibraryTest\Debug\link-cvtres.write.1.tlog
+C:\PROJECTS\CV_Library\ImageLibraryTest\Debug\link-rc.read.1.tlog
+C:\PROJECTS\CV_Library\ImageLibraryTest\Debug\link-rc.write.1.tlog
+C:\PROJECTS\CV_Library\ImageLibraryTest\Debug\link.3328-cvtres.read.1.tlog
+C:\PROJECTS\CV_Library\ImageLibraryTest\Debug\link.3328-cvtres.write.1.tlog
+C:\PROJECTS\CV_Library\ImageLibraryTest\Debug\link.3328-rc.read.1.tlog
+C:\PROJECTS\CV_Library\ImageLibraryTest\Debug\link.3328-rc.write.1.tlog
+C:\PROJECTS\CV_Library\ImageLibraryTest\Debug\link.3328.read.1.tlog
+C:\PROJECTS\CV_Library\ImageLibraryTest\Debug\link.3328.write.1.tlog
+C:\PROJECTS\CV_Library\ImageLibraryTest\Debug\link.5184-cvtres.read.1.tlog
+C:\PROJECTS\CV_Library\ImageLibraryTest\Debug\link.5184-cvtres.write.1.tlog
+C:\PROJECTS\CV_Library\ImageLibraryTest\Debug\link.5184-rc.read.1.tlog
+C:\PROJECTS\CV_Library\ImageLibraryTest\Debug\link.5184-rc.write.1.tlog
+C:\PROJECTS\CV_Library\ImageLibraryTest\Debug\link.5184.read.1.tlog
+C:\PROJECTS\CV_Library\ImageLibraryTest\Debug\link.5184.write.1.tlog
+C:\PROJECTS\CV_Library\ImageLibraryTest\Debug\link.7420-cvtres.read.1.tlog
+C:\PROJECTS\CV_Library\ImageLibraryTest\Debug\link.7420-cvtres.write.1.tlog
+C:\PROJECTS\CV_Library\ImageLibraryTest\Debug\link.7420-rc.read.1.tlog
+C:\PROJECTS\CV_Library\ImageLibraryTest\Debug\link.7420-rc.write.1.tlog
+C:\PROJECTS\CV_Library\ImageLibraryTest\Debug\link.7420.read.1.tlog
+C:\PROJECTS\CV_Library\ImageLibraryTest\Debug\link.7420.write.1.tlog
+C:\PROJECTS\CV_Library\ImageLibraryTest\Debug\link.8156-cvtres.read.1.tlog
+C:\PROJECTS\CV_Library\ImageLibraryTest\Debug\link.8156-cvtres.write.1.tlog
+C:\PROJECTS\CV_Library\ImageLibraryTest\Debug\link.8156-rc.read.1.tlog
+C:\PROJECTS\CV_Library\ImageLibraryTest\Debug\link.8156-rc.write.1.tlog
+C:\PROJECTS\CV_Library\ImageLibraryTest\Debug\link.8156.read.1.tlog
+C:\PROJECTS\CV_Library\ImageLibraryTest\Debug\link.8156.write.1.tlog
+C:\PROJECTS\CV_Library\ImageLibraryTest\Debug\link.command.1.tlog
+C:\PROJECTS\CV_Library\ImageLibraryTest\Debug\link.read.1.tlog
+C:\PROJECTS\CV_Library\ImageLibraryTest\Debug\link.write.1.tlog
+C:\PROJECTS\CV_Library\ImageLibraryTest\Debug\vc110.idb
+C:\PROJECTS\CV_Library\ImageLibraryTest\Debug\vc120.idb
+C:\PROJECTS\CV_Library\ImageLibraryTest\Debug\vc110.pdb
+C:\PROJECTS\CV_Library\ImageLibraryTest\Debug\vc120.pdb
+C:\PROJECTS\CV_Library\Debug\ImageLibraryTest.pdb
+C:\PROJECTS\CV_Library\Debug\ImageLibraryTest.exe
+C:\PROJECTS\CV_Library\Debug\ImageLibraryTest.ilk

@@ -18,12 +18,33 @@
     <ClInclude Include="CV_Library.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CV_Structures.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CV_FuncPrototypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CV_enums.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ReadWriteImage.c">
+    <ClCompile Include="SpaceConversions.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageIO.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageProcessingAlgos.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Compute.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ComputerVisionAlgos.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

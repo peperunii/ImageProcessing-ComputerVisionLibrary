@@ -1,15 +1,156 @@
-﻿Build started 3/24/2014 12:39:57 AM.
+﻿Build started 3/31/2014 1:22:40 AM.
      1>Project "C:\PROJECTS\CV_Library\ImageLibraryTest\ImageLibraryTest.vcxproj" on node 2 (Build target(s)).
        Project file contains ToolsVersion="12.0". This toolset is unknown or missing. You may be able to resolve this by installing the appropriate .NET Framework for this toolset. Treating the project as if it had ToolsVersion="4.0".
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /I"C:\Users\Petar\Desktop\jpeg-9a\jpeg-9a\\" /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _LIB /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc110.pdb" /Gd /TC /analyze- /errorReport:prompt main.c
-         main.c
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /I"C:\Users\Petar\Desktop\jpeg-9a\jpeg-9a\\" /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _LIB /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc110.pdb" /Gd /TC /analyze- /errorReport:prompt SpaceConversions.c
+         SpaceConversions.c
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(42): warning C4244: '=' : conversion from 'double' to 'unsigned char', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(64): warning C4244: '=' : conversion from 'double' to 'unsigned char', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(101): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(75): warning C4101: 'l' : unreferenced local variable
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(151): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(222): warning C4244: 'function' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(224): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(230): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(236): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(254): warning C4244: '=' : conversion from 'float' to 'unsigned char', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(255): warning C4244: '=' : conversion from 'float' to 'unsigned char', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(256): warning C4244: '=' : conversion from 'float' to 'unsigned char', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(175): warning C4101: 'del_G' : unreferenced local variable
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(175): warning C4101: 'del_B' : unreferenced local variable
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(175): warning C4101: 'del_R' : unreferenced local variable
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(339): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(347): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(369): warning C4244: '=' : conversion from 'float' to 'unsigned char', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(370): warning C4244: '=' : conversion from 'float' to 'unsigned char', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(371): warning C4244: '=' : conversion from 'float' to 'unsigned char', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(271): warning C4101: 'C' : unreferenced local variable
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(271): warning C4101: 'X' : unreferenced local variable
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(271): warning C4101: 'm' : unreferenced local variable
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(402): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(404): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(406): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(408): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(410): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(412): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(418): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(419): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(420): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(441): warning C4244: '=' : conversion from 'float' to 'unsigned char', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(442): warning C4244: '=' : conversion from 'float' to 'unsigned char', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(443): warning C4244: '=' : conversion from 'float' to 'unsigned char', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(470): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(471): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(472): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(488): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(490): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(492): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(494): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(496): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(498): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(517): warning C4244: '=' : conversion from 'float' to 'unsigned char', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(518): warning C4244: '=' : conversion from 'float' to 'unsigned char', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(519): warning C4244: '=' : conversion from 'float' to 'unsigned char', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(538): warning C4305: 'initializing' : truncation from 'double' to 'float'
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(539): warning C4305: 'initializing' : truncation from 'double' to 'float'
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(594): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(603): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(613): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(622): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(623): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(624): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(654): warning C4244: '=' : conversion from 'float' to 'unsigned char', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(656): warning C4244: '=' : conversion from 'float' to 'unsigned char', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(658): warning C4244: '=' : conversion from 'float' to 'unsigned char', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(721): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(722): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(723): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(725): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(726): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(727): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(732): warning C4244: '=' : conversion from 'float' to 'unsigned char', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(733): warning C4244: '=' : conversion from 'float' to 'unsigned char', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(734): warning C4244: '=' : conversion from 'float' to 'unsigned char', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(679): warning C4101: 'Number' : unreferenced local variable
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(680): warning C4101: 'RatioY' : unreferenced local variable
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(678): warning C4101: 'P' : unreferenced local variable
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(680): warning C4101: 'RatioX' : unreferenced local variable
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(680): warning C4101: 'RatioZ' : unreferenced local variable
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(747): warning C4244: 'return' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(757): warning C4305: 'initializing' : truncation from 'double' to 'float'
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(759): warning C4305: 'initializing' : truncation from 'double' to 'float'
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(794): warning C4244: '=' : conversion from 'long double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(795): warning C4244: '=' : conversion from 'long double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(796): warning C4244: '=' : conversion from 'long double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(797): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(798): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(799): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(834): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(842): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(844): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(846): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(848): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(850): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(852): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(854): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(855): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(856): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(873): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(882): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(892): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(901): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(904): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(915): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(920): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(924): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(930): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(933): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(937): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(945): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(949): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(955): warning C4305: '=' : truncation from 'double' to 'float'
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(958): warning C4305: '=' : truncation from 'double' to 'float'
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(961): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(962): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(963): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(973): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(975): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(977): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(979): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(981): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(983): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(995): warning C4244: '=' : conversion from 'float' to 'unsigned char', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(996): warning C4244: '=' : conversion from 'float' to 'unsigned char', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(997): warning C4244: '=' : conversion from 'float' to 'unsigned char', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(770): warning C4101: 'bbb' : unreferenced local variable
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(758): warning C4101: 'v' : unreferenced local variable
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(758): warning C4101: 'u' : unreferenced local variable
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(1010): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(1011): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(1012): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(1019): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(1021): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(1023): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(1025): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(1027): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(1029): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(1035): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(1036): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(1037): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(1092): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(1093): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(1094): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
+     1>c:\projects\cv_library\imagelibrarytest\spaceconversions.c(67): warning C4715: 'ConvertToGrayscale_1Channel' : not all control paths return a value
        Link:
-         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\PROJECTS\CV_Library\Debug\ImageLibraryTest.exe" /INCREMENTAL /NOLOGO /LIBPATH:"C:\Users\Petar\Desktop\jpeg-9a\jpeg-9a\.libs" "C:\Users\Petar\Desktop\jpeg-9a\jpeg-9a\.libs\*.o" kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\PROJECTS\CV_Library\Debug\ImageLibraryTest.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\PROJECTS\CV_Library\Debug\ImageLibraryTest.lib" /MACHINE:X86 Debug\main.obj
-         Debug\ReadWriteImage.obj
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\PROJECTS\CV_Library\Debug\ImageLibraryTest.exe" /INCREMENTAL /NOLOGO /LIBPATH:"C:\Users\Petar\Desktop\jpeg-9a\jpeg-9a\.libs" "C:\Users\Petar\Desktop\jpeg-9a\jpeg-9a\.libs\*.o" kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\PROJECTS\CV_Library\Debug\ImageLibraryTest.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\PROJECTS\CV_Library\Debug\ImageLibraryTest.lib" /MACHINE:X86 Debug\Compute.obj
+         Debug\ComputerVisionAlgos.obj
+         Debug\ImageProcessingAlgos.obj
+         Debug\main.obj
+         Debug\ImageIO.obj
+         Debug\SpaceConversions.obj
          ImageLibraryTest.vcxproj -> C:\PROJECTS\CV_Library\Debug\ImageLibraryTest.exe
      1>Done Building Project "C:\PROJECTS\CV_Library\ImageLibraryTest\ImageLibraryTest.vcxproj" (Build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:00.25
+Time Elapsed 00:00:00.33

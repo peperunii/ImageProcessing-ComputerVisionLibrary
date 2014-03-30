@@ -1,16 +1,38 @@
+/********************************************************************************
+*																				*
+*	CV Library - Main file														*
+*																				*
+*	Author:  Petar Nikolov														*
+*																				*
+*																				*
+*	This library provide image processing and computer vision algorithms.		*
+*	It can be used in any projects for free.									*
+*   If you find some errors, or if you want to contact me for any reason - 		*
+*	please use my e-mail:														*
+*						p.bijev@gmail.com										*
+*																				*
+*																				*
+*																				*
+*																				*
+*********************************************************************************/
+
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 
 #include <stdio.h>
+#include <string.h>
 #include "jpeglib.h"
 
 #include "CV_Library.h"
 
 int main()
 {
+	int i,j;
+	FILE *LUT = NULL;
+
 	/*OPEN*/
-	Image Img_src = ReadImage("panorama_2800K.jpg");
+	Image Img_src = ReadImage("chai.jpg");
 	
 	/*CREATE*/
 	Image Img_srDst = CreateNewImage_BasedOnPrototype(&Img_src, &Img_srDst);
@@ -30,8 +52,15 @@ int main()
 	ColorPoint.G = 150;
 	ColorPoint.B = 140;
 	
+	fopen_s(&LUT, "Kelvins-x-z.txt","rt");
+	if(LUT == NULL) return 0;
+	for(i = 0; i < 391; i++)
+	{
+		fscanf(LUT,"%d %f %f\n", &Kelvin_LUT[i], &X_LUT[i], &Y_LUT[i]);
+	}
+
 	// The color temperature of the imput image
-	SetWhiteBalanceValues(&WhitePoint_lab1, WHITE_2856K_A_HALOGEN);
+	SetWhiteBalanceValues(&WhitePoint_lab1, WHITE_5000K_D50_DAYLIGHT_RENDER);
 	// The color temperature of the output image
 	SetWhiteBalanceValues(&WhitePoint_lab2, WHITE_5000K_D50_DAYLIGHT_RENDER);
 
@@ -125,5 +154,6 @@ int main()
 	DestroyImage(&Img_srDst);
 	DestroyImage(&Img_srDst2);
 
+	fclose(LUT);
 	return 0;
 }
