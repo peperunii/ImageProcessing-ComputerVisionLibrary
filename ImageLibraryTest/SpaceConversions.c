@@ -749,10 +749,12 @@ float xyz_to_lab(float c)
 
 void WhiteBalanceLab(struct Image *src, struct Image *dst, struct WhitePoint WhitePoint_XYZ)
 {
+	float LuminanceAverage = 0;
 	struct ColorPoint_UV UV;
 	struct WhitePoint WhitePointXYZ_new;
 	struct ColorPoint_RGB RGB;
 	struct ColorPoint_XYZ XYZ;
+	struct ColorPoint_XYZ XYZ_D;
 	float RatioX, RatioY, RatioZ;
 	float e = 0.008856;
 	float u,v;
@@ -762,6 +764,9 @@ void WhiteBalanceLab(struct Image *src, struct Image *dst, struct WhitePoint Whi
 	float matrix_M_min1[9] = { 0.9869929, -0.1470543, 0.1599627, 0.4323053, 0.5183603, 0.0492912, -0.0085287, 0.0400428, 0.9684867 };
 	float S_params[3];
 	float D_params[3];
+	float S_D_ParamsMatrix[9];
+	float MatrixMultiplication_1[9];
+	float matrix_M_final[9];
 	float maxv;
 	float P, Number;
 	int i, j, z;
@@ -789,10 +794,19 @@ void WhiteBalanceLab(struct Image *src, struct Image *dst, struct WhitePoint Whi
 			B_Global += B;
 		}
 	}
+
 	R_Global /= (float)(src->Height * src->Width );
 	G_Global /= (float)(src->Height * src->Width );
 	B_Global /= (float)(src->Height * src->Width );
-	printf("ZoneX:\n%lf \n%lf \n%lf ",R_Global,G_Global,B_Global);
+	
+	LuminanceAverage = R_Global + G_Global + B_Global;
+	/*Luminance between 0 and 1*/
+	LuminanceAverage /=(3.0 * 255.0);
+	/*change Matrix_M_a to match the luminance*/
+	for(i = 0; i < 9; i++)
+	{
+		Matrix_M_a[i] *= (1.2 *LuminanceAverage);
+	}
 
 	R = R_Global;
 	G = G_Global;
@@ -814,16 +828,13 @@ void WhiteBalanceLab(struct Image *src, struct Image *dst, struct WhitePoint Whi
 	//WhitePointXYZ_new.v = 0;
 	ColorTemperature(&WhitePointXYZ_new, 0);// EXP_HIGH_T);
 	
-	/*for (z = 0; z < 350; z++)
-	{
-		if (WhitePointXYZ_new.Temperature >= Kelvin_LUT[i] && WhitePointXYZ_new.Temperature <= Kelvin_LUT[i + 1])
-		{
-
-		}
-	}*/
 	//SetWhiteBalanceValues(&WhitePointXYZ_new, WHITE_2856K_A_HALOGEN);
 	
 	//printf("\nu: %f v: %f, K:%d\n\n",UV.u,UV.v, WhitePointXYZ_new.Temperature);
+
+	WhitePointXYZ_new.X /= 100.0;
+	WhitePointXYZ_new.Y /= 100.0;
+	WhitePointXYZ_new.Z /= 100.0;
 
 	for (i = 0; i<src->Height; i++)
 	{
@@ -840,6 +851,10 @@ void WhiteBalanceLab(struct Image *src, struct Image *dst, struct WhitePoint Whi
 			RGB.B = B;
 			// Convert RGB point to XYZ
 			XYZ = POINT_Convert_RGB_to_XYZ(&RGB);
+			XYZ.X /= 100.0;
+			XYZ.Y /= 100.0;
+			XYZ.Z /= 100.0;
+
 			/*
 			| X_d |           | X_s |
 			| Y_d |   = |M| * | Y_s |
@@ -854,9 +869,49 @@ void WhiteBalanceLab(struct Image *src, struct Image *dst, struct WhitePoint Whi
 			D_params[1] = WhitePoint_XYZ.X * Matrix_M_a[3] + WhitePoint_XYZ.Y * Matrix_M_a[4] + WhitePoint_XYZ.Z * Matrix_M_a[5];
 			D_params[2] = WhitePoint_XYZ.X * Matrix_M_a[6] + WhitePoint_XYZ.Y * Matrix_M_a[7] + WhitePoint_XYZ.Z * Matrix_M_a[8];
 
-			dst->rgbpix[(i*dst->Width + j) * 3 + 0] = R;
-			dst->rgbpix[(i*dst->Width + j) * 3 + 1] = G;
-			dst->rgbpix[(i*dst->Width + j) * 3 + 2] = B;
+			/* Compute M_min1 matrix * S/D */
+			S_D_ParamsMatrix[0] = D_params[0] / S_params[0];
+			S_D_ParamsMatrix[1] = 0;
+			S_D_ParamsMatrix[2] = 0;
+			S_D_ParamsMatrix[3] = 0;
+			S_D_ParamsMatrix[4] = D_params[1] / S_params[1];
+			S_D_ParamsMatrix[5] = 0;
+			S_D_ParamsMatrix[6] = 0;
+			S_D_ParamsMatrix[7] = 0;
+			S_D_ParamsMatrix[8] = D_params[2] / S_params[2];
+
+			MatrixMultiplication_1[0] = matrix_M_min1[0] * S_D_ParamsMatrix[0];
+			MatrixMultiplication_1[1] = matrix_M_min1[1] * S_D_ParamsMatrix[4];
+			MatrixMultiplication_1[2] = matrix_M_min1[2] * S_D_ParamsMatrix[8];
+			MatrixMultiplication_1[3] = matrix_M_min1[3] * S_D_ParamsMatrix[0];
+			MatrixMultiplication_1[4] = matrix_M_min1[4] * S_D_ParamsMatrix[4];
+			MatrixMultiplication_1[5] = matrix_M_min1[5] * S_D_ParamsMatrix[8];
+			MatrixMultiplication_1[6] = matrix_M_min1[6] * S_D_ParamsMatrix[0];
+			MatrixMultiplication_1[7] = matrix_M_min1[7] * S_D_ParamsMatrix[4];
+			MatrixMultiplication_1[8] = matrix_M_min1[8] * S_D_ParamsMatrix[8];
+			
+			/* Compute MatrixMultiplication_1 * matrix_M */
+
+			matrix_M_final[0] = MatrixMultiplication_1[0] * Matrix_M_a[0] + MatrixMultiplication_1[1] * Matrix_M_a[3] + MatrixMultiplication_1[2] * Matrix_M_a[6];
+			matrix_M_final[1] = MatrixMultiplication_1[0] * Matrix_M_a[1] + MatrixMultiplication_1[1] * Matrix_M_a[4] + MatrixMultiplication_1[2] * Matrix_M_a[7];
+			matrix_M_final[2] = MatrixMultiplication_1[0] * Matrix_M_a[2] + MatrixMultiplication_1[1] * Matrix_M_a[5] + MatrixMultiplication_1[2] * Matrix_M_a[8];
+			matrix_M_final[3] = MatrixMultiplication_1[3] * Matrix_M_a[0] + MatrixMultiplication_1[4] * Matrix_M_a[3] + MatrixMultiplication_1[5] * Matrix_M_a[6];
+			matrix_M_final[4] = MatrixMultiplication_1[3] * Matrix_M_a[1] + MatrixMultiplication_1[4] * Matrix_M_a[4] + MatrixMultiplication_1[5] * Matrix_M_a[7];
+			matrix_M_final[5] = MatrixMultiplication_1[3] * Matrix_M_a[2] + MatrixMultiplication_1[4] * Matrix_M_a[5] + MatrixMultiplication_1[5] * Matrix_M_a[8];
+			matrix_M_final[6] = MatrixMultiplication_1[6] * Matrix_M_a[0] + MatrixMultiplication_1[7] * Matrix_M_a[3] + MatrixMultiplication_1[8] * Matrix_M_a[6];
+			matrix_M_final[7] = MatrixMultiplication_1[6] * Matrix_M_a[1] + MatrixMultiplication_1[7] * Matrix_M_a[4] + MatrixMultiplication_1[8] * Matrix_M_a[7];
+			matrix_M_final[8] = MatrixMultiplication_1[6] * Matrix_M_a[2] + MatrixMultiplication_1[7] * Matrix_M_a[5] + MatrixMultiplication_1[8] * Matrix_M_a[8];
+
+			XYZ_D.X = matrix_M_final[0] * XYZ.X + matrix_M_final[1] * XYZ.Y + matrix_M_final[2] * XYZ.Z;
+			XYZ_D.Y = matrix_M_final[3] * XYZ.X + matrix_M_final[4] * XYZ.Y + matrix_M_final[5] * XYZ.Z;
+			XYZ_D.Z = matrix_M_final[6] * XYZ.X + matrix_M_final[7] * XYZ.Y + matrix_M_final[8] * XYZ.Z;
+			//RGB: 150,55,7
+			//XYZ: 0.14, 0.09, 0.01
+			RGB = POINT_Convert_XYZ_to_RGB(&XYZ_D);
+
+			dst->rgbpix[(i*dst->Width + j) * 3 + 0] = RGB.R;
+			dst->rgbpix[(i*dst->Width + j) * 3 + 1] = RGB.G;
+			dst->rgbpix[(i*dst->Width + j) * 3 + 2] = RGB.B;
 		}
 	}
 }
@@ -898,6 +953,60 @@ struct ColorPoint_XYZ POINT_Convert_RGB_to_XYZ(struct ColorPoint_RGB *RGB_Point)
 	XYZ.Z = R * 0.0193 + G * 0.1192 + B * 0.9505;
 
 	return XYZ;
+}
+
+/*
+	P O I N T  - convert XYZ to RGB
+*/
+struct ColorPoint_RGB POINT_Convert_XYZ_to_RGB(struct  ColorPoint_XYZ *XYZ)
+{
+	float R, G, B;
+	struct ColorPoint_RGB RGB;
+	float X, Y, Z;
+
+	X = XYZ->X;
+	Y = XYZ->Y;
+	Z = XYZ->Z;
+	
+	R = X *  3.2406 + Y * -1.5372 + Z * -0.4986;
+	G = X * -0.9689 + Y *  1.8758 + Z *  0.0415;
+	B = X *  0.0557 + Y * -0.2040 + Z *  1.0570;
+	
+	if (R < 0) 
+		R = 0;
+	if (G < 0) 
+		G = 0;
+	if (B < 0) 
+		B = 0;
+	
+	if (R > 0.0031308)
+		R = 1.055 * pow(R, (1 / 2.4)) - 0.055;
+	else
+		R = 12.92 * R;
+	if (G > 0.0031308)
+		G = 1.055 * pow(G, (1 / 2.4)) - 0.055;
+	else
+		G = 12.92 * G;
+	if (B > 0.0031308) 
+		B = 1.055 * pow(B , (1 / 2.4)) - 0.055;
+	else
+		B = 12.92 * B;
+	
+	R = R * 255;
+	if (R > 255) R = 255;
+	if (R < 0) R = 0;
+	G = G * 255;
+	if (G > 255) G = 255;
+	if (G < 0) G = 0;
+	B = B * 255;
+	if (B > 255) B = 255;
+	if (B < 0) B = 0;
+	
+	RGB.R = RoundValue_toX_SignificantBits(R, 0);
+	RGB.G = RoundValue_toX_SignificantBits(G, 0);
+	RGB.B = RoundValue_toX_SignificantBits(B, 0);
+
+	return RGB;
 }
 
 /*
@@ -944,7 +1053,7 @@ void ColorTemperature(struct WhitePoint *WhitePoint_lab, int AlgoType )
 	float CCT;
 	struct point_xy XY;
 	struct ColorPoint_UV UV;
-	if (AlgoType == MCCAMMY_CUBIC)
+	if (AlgoType == 0)
 	{
 		// Calculate color temperature and XYZ coordinates from UV coordinates
 		if (WhitePoint_lab->u != 0)

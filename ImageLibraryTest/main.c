@@ -32,7 +32,7 @@ int main()
 	FILE *LUT = NULL;
 
 	/*OPEN*/
-	Image Img_src = ReadImage("perfe2.jpg");
+	Image Img_src = ReadImage("pc.jpg");
 	
 	/*CREATE*/
 	Image Img_srDst = CreateNewImage_BasedOnPrototype(&Img_src, &Img_srDst);
@@ -60,9 +60,9 @@ int main()
 	}
 
 	// The color temperature of the imput image
-	SetWhiteBalanceValues(&WhitePoint_lab1, WHITE_5500K_D55_DAYLIGHT_PHOTOGRAPHY);
+	SetWhiteBalanceValues(&WhitePoint_lab1, WHITE_6504K_D65_NORTH_SKY2);
 	// The color temperature of the output image
-	SetWhiteBalanceValues(&WhitePoint_lab2, WHITE_5000K_D50_DAYLIGHT_RENDER);
+	//SetWhiteBalanceValues(&WhitePoint_lab2, WHITE_5000K_D50_DAYLIGHT_RENDER);
 
 	/*SET destination*/
 	//SetDestination(&Img_src, &Img_srDst);
@@ -71,13 +71,13 @@ int main()
 	//BlurImageAroundPoint(&Img_src, &Img_dst, CentralPoint, 17, 3, BLUR_AROUND_CENTER, 100 );
 	
 	/*BLUR - gaussian*/
-	//BlurImageGussian(&Img_src, &Img_dst, 15, 0.6);
+	//BlurImageGussian(&Img_srDst, &Img_srDst2, 15, 0.7);
 
 	/*ROTATE*/
 	//RotateImage(&Img_src, &Img_dst, 180, CentralPoint);
 	
 	/*BRIGHTNESS*/
-	//BrightnessCorrection(&Img_src, &Img_srDst, 15, BRIGHTNESS_PERCENTAGE_ALGO);
+	//BrightnessCorrection(&Img_src, &Img_srDst, -60, BRIGHTNESS_PERCENTAGE_ALGO);
 	
 	/*NOISE*/
 	//NoiseCorrection(&Img_src, &Img_srDst, 60, 1);
