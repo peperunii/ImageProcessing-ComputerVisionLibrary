@@ -747,7 +747,7 @@ float xyz_to_lab(float c)
 	return c > 216.0 / 24389.0 ? pow(c, 1.0 / 3.0) : c * (841.0 / 108.0) + (4.0 / 29.0);
 }
 
-void WhiteBalanceLab(struct Image *src, struct Image *dst, struct WhitePoint WhitePoint_XYZ, struct WhitePoint WhitePoint_XYZ_2)
+void WhiteBalanceLab(struct Image *src, struct Image *dst, struct WhitePoint WhitePoint_XYZ)
 {
 	struct ColorPoint_UV UV;
 	struct WhitePoint WhitePointXYZ_new;
@@ -758,10 +758,13 @@ void WhiteBalanceLab(struct Image *src, struct Image *dst, struct WhitePoint Whi
 	float u,v;
 	float k = 903.3;
 	float F_x, F_z, F_y;
-
+	float Matrix_M_a[9] = { 0.8951000, 0.2664000, -0.1614000, -0.7502000, 1.7135000, 0.0367000, 0.0389000, -0.0685000, 1.0296000 };
+	float matrix_M_min1[9] = { 0.9869929, -0.1470543, 0.1599627, 0.4323053, 0.5183603, 0.0492912, -0.0085287, 0.0400428, 0.9684867 };
+	float S_params[3];
+	float D_params[3];
 	float maxv;
 	float P, Number;
-	int i, j;
+	int i, j, z;
 	long double R_Global = 0;
 	long double G_Global = 0;
 	long double B_Global = 0;
@@ -786,17 +789,17 @@ void WhiteBalanceLab(struct Image *src, struct Image *dst, struct WhitePoint Whi
 			B_Global += B;
 		}
 	}
-	R_Global /= (float)(src->Height * src->Width);
-	G_Global /= (float)(src->Height * src->Width);
-	B_Global /= (float)(src->Height * src->Width);
+	R_Global /= (float)(src->Height * src->Width );
+	G_Global /= (float)(src->Height * src->Width );
+	B_Global /= (float)(src->Height * src->Width );
 	printf("ZoneX:\n%lf \n%lf \n%lf ",R_Global,G_Global,B_Global);
 
 	R = R_Global;
 	G = G_Global;
 	B = B_Global;
-	RGB.R = R;
-	RGB.G = G;
-	RGB.B = B;
+	RGB.R = RoundValue_toX_SignificantBits(R, 0);
+	RGB.G = RoundValue_toX_SignificantBits(G, 0);
+	RGB.B = RoundValue_toX_SignificantBits(B, 0);
 
 	XYZ = POINT_Convert_RGB_to_XYZ(&RGB);
 	UV = POINT_Convert_XYZ_to_UV(&XYZ);
@@ -809,11 +812,18 @@ void WhiteBalanceLab(struct Image *src, struct Image *dst, struct WhitePoint Whi
 	WhitePointXYZ_new.Z = XYZ.Z;
 	//WhitePointXYZ_new.u = 0;
 	//WhitePointXYZ_new.v = 0;
-	ColorTemperature(&WhitePointXYZ_new);
+	ColorTemperature(&WhitePointXYZ_new, 0);// EXP_HIGH_T);
+	
+	/*for (z = 0; z < 350; z++)
+	{
+		if (WhitePointXYZ_new.Temperature >= Kelvin_LUT[i] && WhitePointXYZ_new.Temperature <= Kelvin_LUT[i + 1])
+		{
 
-	printf("u: %f v: %f, K:%d\n\n",UV.u,UV.v, WhitePointXYZ_new.Temperature);
-
-	_getch();
+		}
+	}*/
+	//SetWhiteBalanceValues(&WhitePointXYZ_new, WHITE_2856K_A_HALOGEN);
+	
+	//printf("\nu: %f v: %f, K:%d\n\n",UV.u,UV.v, WhitePointXYZ_new.Temperature);
 
 	for (i = 0; i<src->Height; i++)
 	{
@@ -825,177 +835,28 @@ void WhiteBalanceLab(struct Image *src, struct Image *dst, struct WhitePoint Whi
 			G = (float)src->rgbpix[(i*dst->Width + j) * 3 + 1];
 			B = (float)src->rgbpix[(i*dst->Width + j) * 3 + 2];
 
-			R_Global += R;
-			G_Global += G;
-			B_Global += B;
+			RGB.R = R;
+			RGB.G = G;
+			RGB.B = B;
+			// Convert RGB point to XYZ
+			XYZ = POINT_Convert_RGB_to_XYZ(&RGB);
+			/*
+			| X_d |           | X_s |
+			| Y_d |   = |M| * | Y_s |
+			| Z_s |           | Z_s |
+			http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html
+			*/
+			S_params[0] = WhitePointXYZ_new.X * Matrix_M_a[0] + WhitePointXYZ_new.Y * Matrix_M_a[1] + WhitePointXYZ_new.Z * Matrix_M_a[2];
+			S_params[1] = WhitePointXYZ_new.X * Matrix_M_a[3] + WhitePointXYZ_new.Y * Matrix_M_a[4] + WhitePointXYZ_new.Z * Matrix_M_a[5];
+			S_params[2] = WhitePointXYZ_new.X * Matrix_M_a[6] + WhitePointXYZ_new.Y * Matrix_M_a[7] + WhitePointXYZ_new.Z * Matrix_M_a[8];
 
-			continue;
-			dult = MIN(R, MIN(G, B)) + MAX(R, MAX(G, B));
-			intensity = (float)dult / 2.0;
-
-			R /= (float)maxv;
-			G /= (float)maxv;
-			B /= (float)maxv;
-
-			//CONVERT RGB - XYZ
-			if (R > 0.04045)
-				R = pow(((R + 0.055) / 1.055), 2.4);
-			else
-				R = R / 12.92;
-			if (G > 0.04045)
-				G = pow(((G + 0.055) / 1.055), 2.4);
-			else
-				G = G / 12.92;
-			if (B > 0.04045)
-				B = pow(((B + 0.055) / 1.055), 2.4);
-			else
-				B = B / 12.92;
-
-			X = R * 0.4124 + G * 0.3576 + B * 0.1805;
-			Y = R * 0.2126 + G * 0.7152 + B * 0.0722;
-			Z = R * 0.0193 + G * 0.1192 + B * 0.9505;
-
-
-			if (X < 0) X = 0;
-			if (Y < 0) Y = 0;
-			if (Z < 0) Z = 0;
-
-			/* XYZ - Lab*/
-			RatioX = X / WhitePoint_XYZ.X;
-			RatioY = Y / WhitePoint_XYZ.Y;
-			RatioZ = Z /  WhitePoint_XYZ.Z;
-
-			RatioX /= 100;
-			RatioY /= 100;
-			RatioZ /= 100;
-			if (RatioX > e)
-			{
-				F_x = pow(RatioX, pow(3, -1));
-			}
-			else
-			{
-				F_x = (k * RatioX + 16) / 116;
-			}
-
-			if (RatioY > e)
-			{
-				F_y = pow(RatioY, pow(3, -1));
-			}
-			else
-			{
-				F_y = (k * RatioY + 16) / 116;
-
-			}
-
-			if (RatioZ > e)
-			{
-				F_z = pow(RatioZ, pow(3, -1));
-			}
-			else
-			{
-				F_z = (k * RatioZ + 16) / 116;
-			}
-
-			if (RatioY > 0.008856)
-			{
-				L = 116 * pow(RatioY, (0.333)) - 16;
-			}
-			else
-				L = 903.3 *  RatioY;
-
-			if (i == 50 && j == 30)
-				printf("ds");
-			//L = L * 100 / 255.0;
-			
-			a = 500 * (F_x - F_y);
-
-			b = 200 * (F_y - F_z);
-
-			/* Lab to XYZ */
-			P = (L + 16) / 116.0;
-
-			Number = P;
-			if (Number > 6 / 29.0)
-			{
-				Number = pow(Number, 3);
-			}
-			else
-			{
-				Number = 3 * pow(6 / 29.0, 2) * (Number - 4 / 29.0);
-			}
-
-			Y = WhitePoint_XYZ_2.Y *
-				Number;
-
-			Number = P + a / 500.0;
-			if (Number > 6 / 29.0)
-			{
-				Number = pow(Number, 3);
-			}
-			else
-			{
-				Number = 3 * pow(6 / 29.0, 2) * (Number - 4 / 29.0);
-			}
-			X = WhitePoint_XYZ_2.X *
-				Number;
-
-			Number = P - b / 200;
-			if (Number > 6 / 29.0)
-			{
-				Number = pow(Number, 3);
-			}
-			else
-			{
-				Number = 3 * pow(6 / 29.0, 2) * (Number - 4 / 29.0);
-			}
-			Z = WhitePoint_XYZ_2.Z *
-				Number;
-			
-			if (Z > 0.35585 && WhitePoint_XYZ.Temperature < 3700) 
-				Z = 0.3585;
-			
-			if (Z > 0.82521 && WhitePoint_XYZ.Temperature < 5400) 
-				Z = 0.82521;
-			/* XYZ to RGB */
-			
-			R = X *  3.2406 + Y * -1.5372 + Z * -0.4986;
-			G = X * -0.9689 + Y *  1.8758 + Z *  0.0415;
-			B = X *  0.0557 + Y * -0.2040 + Z *  1.0570;
-
-			if (R < 0)
-				R = 0;
-			if (G < 0)
-				G = 0;
-			if (B < 0)
-				B = 0;
-
-			if (R > 0.0031308)
-				R = 1.055 * pow(R, (1 / 2.4)) - 0.055;
-			else
-				R = 12.92 * R;
-			if (G > 0.0031308)
-				G = 1.055 * pow(G, (1 / 2.4)) - 0.055;
-			else
-				G = 12.92 * G;
-			if (B > 0.0031308)
-				B = 1.055 * pow(B, (1 / 2.4)) - 0.055;
-			else
-				B = 12.92 * B;
-
-			R = R * 255;
-			if (R > 255) R = 255;
-			if (R < 0) R = 0;
-			G = G * 255;
-			if (G > 255) G = 255;
-			if (G < 0) G = 0;
-			B = B * 255;
-			if (B > 255) B = 255;
-			if (B < 0) B = 0;
+			D_params[0] = WhitePoint_XYZ.X * Matrix_M_a[0] + WhitePoint_XYZ.Y * Matrix_M_a[1] + WhitePoint_XYZ.Z * Matrix_M_a[2];
+			D_params[1] = WhitePoint_XYZ.X * Matrix_M_a[3] + WhitePoint_XYZ.Y * Matrix_M_a[4] + WhitePoint_XYZ.Z * Matrix_M_a[5];
+			D_params[2] = WhitePoint_XYZ.X * Matrix_M_a[6] + WhitePoint_XYZ.Y * Matrix_M_a[7] + WhitePoint_XYZ.Z * Matrix_M_a[8];
 
 			dst->rgbpix[(i*dst->Width + j) * 3 + 0] = R;
 			dst->rgbpix[(i*dst->Width + j) * 3 + 1] = G;
 			dst->rgbpix[(i*dst->Width + j) * 3 + 2] = B;
-
 		}
 	}
 }
@@ -1067,30 +928,226 @@ struct point_xy POINT_Convert_UV_to_XY(struct ColorPoint_UV *UV)
 /*
 	C O L O R - Temperature
 */
-void ColorTemperature(struct WhitePoint *WhitePoint_lab)
+void ColorTemperature(struct WhitePoint *WhitePoint_lab, int AlgoType )
 {
+	float X_e = 0.3366;
+	float Y_e = 0.1735;
+	float A_0 = -949.86315;
+	float A_1 = 6253.803;
+	float t_1 = 0.92159;
+	float A_2 = 28.706;
+	float t_2 = 0.20039;
+	float A_3 = 0.00004;
+	float t_3 = 0.07125;
+	//
 	float n;
 	float CCT;
 	struct point_xy XY;
 	struct ColorPoint_UV UV;
-	// Calculate color temperature and XYZ coordinates from UV coordinates
-	if(WhitePoint_lab->u != 0)
+	if (AlgoType == MCCAMMY_CUBIC)
 	{
-		UV.u = WhitePoint_lab->u;
-		UV.v = WhitePoint_lab->v;
+		// Calculate color temperature and XYZ coordinates from UV coordinates
+		if (WhitePoint_lab->u != 0)
+		{
+			UV.u = WhitePoint_lab->u;
+			UV.v = WhitePoint_lab->v;
 
-		//Caclulate XY from UV
-		XY =  POINT_Convert_UV_to_XY(&UV);
+			//Caclulate XY from UV
+			XY = POINT_Convert_UV_to_XY(&UV);
+		}
+		else
+		{
+			//Calculate XY from XYZ;
+			XY.X = WhitePoint_lab->X / (WhitePoint_lab->X + WhitePoint_lab->Y + WhitePoint_lab->Z);
+			XY.Y = WhitePoint_lab->Y / (WhitePoint_lab->X + WhitePoint_lab->Y + WhitePoint_lab->Z);
+		}
+
+		n = (XY.X - 0.332) / (0.1858 - XY.Y);
+		CCT = 449 * pow(n, 3) + 3525 * pow(n, 2) + 6823.3 * n + 5520.33;
 	}
 	else
 	{
-		//Calculate XY from XYZ;
+		//EXP_HIGH_T
 		XY.X = WhitePoint_lab->X / (WhitePoint_lab->X + WhitePoint_lab->Y + WhitePoint_lab->Z);
 		XY.Y = WhitePoint_lab->Y / (WhitePoint_lab->X + WhitePoint_lab->Y + WhitePoint_lab->Z);
+		n = (XY.X - X_e) / (XY.Y - Y_e);
+		CCT = A_0 + A_1 * exp(-n / t_1) + A_2 * exp(-n / t_2) + A_3*exp(-n/t_3);
 	}
 
-	n = (XY.X - 0.332) / (0.1858 - XY.Y);
-	CCT = 449 * pow(n,3) + 3525 *  pow(n,2) + 6823.3 * n + 5520.33;
+	//Differences in values for both algorithms
+	// 6347 - pic1     4287 - pic 2; //Algo_type = 0
+	// 6344 - pic1     4293 - pic 2; // Algo_type = 1;
 	WhitePoint_lab->Temperature = CCT;
 }
 
+
+
+
+
+
+//
+/*
+
+//R_Global += R;
+//G_Global += G;
+//B_Global += B;
+
+//dult = MIN(R, MIN(G, B)) + MAX(R, MAX(G, B));
+//intensity = (float)dult / 2.0;
+
+R /= (float)maxv;
+G /= (float)maxv;
+B /= (float)maxv;
+
+//CONVERT RGB - XYZ
+if (R > 0.04045)
+R = pow(((R + 0.055) / 1.055), 2.4);
+else
+R = R / 12.92;
+if (G > 0.04045)
+G = pow(((G + 0.055) / 1.055), 2.4);
+else
+G = G / 12.92;
+if (B > 0.04045)
+B = pow(((B + 0.055) / 1.055), 2.4);
+else
+B = B / 12.92;
+
+
+X = R * 0.4124 + G * 0.3576 + B * 0.1805;
+Y = R * 0.2126 + G * 0.7152 + B * 0.0722;
+Z = R * 0.0193 + G * 0.1192 + B * 0.9505;
+
+
+if (X < 0) X = 0;
+if (Y < 0) Y = 0;
+if (Z < 0) Z = 0;
+
+// XYZ - Lab
+RatioX = X / (WhitePointXYZ_new.X / 100.0);
+RatioY = Y / (WhitePointXYZ_new.Y / 100.0);
+RatioZ = Z / (WhitePointXYZ_new.Z / 100.0);
+
+//RatioX /= 100;
+//RatioY /= 100;
+//RatioZ /= 100;
+if (RatioX > e)
+{
+	F_x = pow(RatioX, pow(3, -1));
+}
+else
+{
+	F_x = (k * RatioX + 16) / 116;
+}
+
+if (RatioY > e)
+{
+	F_y = pow(RatioY, pow(3, -1));
+}
+else
+{
+	F_y = (k * RatioY + 16) / 116;
+}
+
+if (RatioZ > e)
+{
+	F_z = pow(RatioZ, pow(3, -1));
+}
+else
+{
+	F_z = (k * RatioZ + 16) / 116;
+}
+
+if (RatioY > 0.008856)
+{
+	L = 116 * pow(RatioY, (0.333)) - 16;
+}
+else
+L = 903.3 *  RatioY;
+
+a = 500 * (F_x - F_y);
+
+b = 200 * (F_y - F_z);
+
+// Lab to XYZ 
+P = (L + 16) / 116.0;
+
+Number = P;
+if (Number > 6 / 29.0)
+{
+	Number = pow(Number, 3);
+}
+else
+{
+	Number = 3 * pow(6 / 29.0, 2) * (Number - 4 / 29.0);
+}
+
+Y = WhitePoint_XYZ.Y *
+Number;
+
+Number = P + a / 500.0;
+if (Number > 6 / 29.0)
+{
+	Number = pow(Number, 3);
+}
+else
+{
+	Number = 3 * pow(6 / 29.0, 2) * (Number - 4 / 29.0);
+}
+X = WhitePoint_XYZ.X *
+Number;
+
+Number = P - b / 200;
+if (Number > 6 / 29.0)
+{
+	Number = pow(Number, 3);
+}
+else
+{
+	Number = 3 * pow(6 / 29.0, 2) * (Number - 4 / 29.0);
+}
+Z = WhitePoint_XYZ.Z *
+Number;
+
+if (Z > 0.35585 && WhitePoint_XYZ.Temperature < 3700)
+	Z = 0.3585;
+
+if (Z > 0.82521 && WhitePoint_XYZ.Temperature < 5400)
+	Z = 0.82521;
+// XYZ to RGB 
+
+R = X *  3.2406 + Y * -1.5372 + Z * -0.4986;
+G = X * -0.9689 + Y *  1.8758 + Z *  0.0415;
+B = X *  0.0557 + Y * -0.2040 + Z *  1.0570;
+
+if (R < 0)
+	R = 0;
+if (G < 0)
+	G = 0;
+if (B < 0)
+	B = 0;
+
+if (R > 0.0031308)
+R = 1.055 * pow(R, (1 / 2.4)) - 0.055;
+else
+R = 12.92 * R;
+if (G > 0.0031308)
+G = 1.055 * pow(G, (1 / 2.4)) - 0.055;
+else
+G = 12.92 * G;
+if (B > 0.0031308)
+B = 1.055 * pow(B, (1 / 2.4)) - 0.055;
+else
+B = 12.92 * B;
+
+R = R * 255;
+if (R > 255) R = 255;
+if (R < 0) R = 0;
+G = G * 255;
+if (G > 255) G = 255;
+if (G < 0) G = 0;
+B = B * 255;
+if (B > 255) B = 255;
+if (B < 0) B = 0;
+
+*/

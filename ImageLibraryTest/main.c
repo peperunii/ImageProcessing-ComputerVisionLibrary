@@ -32,7 +32,7 @@ int main()
 	FILE *LUT = NULL;
 
 	/*OPEN*/
-	Image Img_src = ReadImage("chai.jpg");
+	Image Img_src = ReadImage("perfe2.jpg");
 	
 	/*CREATE*/
 	Image Img_srDst = CreateNewImage_BasedOnPrototype(&Img_src, &Img_srDst);
@@ -60,7 +60,7 @@ int main()
 	}
 
 	// The color temperature of the imput image
-	SetWhiteBalanceValues(&WhitePoint_lab1, WHITE_5000K_D50_DAYLIGHT_RENDER);
+	SetWhiteBalanceValues(&WhitePoint_lab1, WHITE_5500K_D55_DAYLIGHT_PHOTOGRAPHY);
 	// The color temperature of the output image
 	SetWhiteBalanceValues(&WhitePoint_lab2, WHITE_5000K_D50_DAYLIGHT_RENDER);
 
@@ -95,14 +95,14 @@ int main()
 	//WhiteBalanceCorrectionRGB(&Img_src, &Img_srDst, WB_GREEN_WORLD);
 	
 	/* WHITE BALANCE - convert to XYZ. Set WhitePoints first */
-	WhiteBalanceLab(&Img_src, &Img_srDst, WhitePoint_lab1, WhitePoint_lab2);
+	WhiteBalanceLab(&Img_src, &Img_srDst, WhitePoint_lab1);
 
 	/*GrayScale - result in 3 channels*/
 	//ConvertToGrayscale_3Channels(&Img_src, &Img_dst);
 	//ConvertToGrayscale_1Channel(&Img_src, &Img_dst);
 	
 	/*ZOOM - in_or_out +-Percentage (SCALE)*/
-	//ScaleImage(&Img_src, &Img_srDst, -50);
+	//ScaleImage(&Img_src, &Img_srDst, 100);
 
 	/*TRANSLATION*/
 	//TranslateImage(&Img_src, &Img_dst, CentralPoint);
