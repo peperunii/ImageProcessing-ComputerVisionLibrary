@@ -70,11 +70,13 @@ void			 ConvertImage_RGB_to_LAB(struct Image *Img_src, struct Image *Img_dst, st
 /* Change image color space - L*ab to RGB. Both Src and Dst have to be 3 channeled images.*/
 void			 ConvertImage_LAB_to_RGB(struct Image *Img_src, struct Image *Img_dst, struct WhitePoint WhitePoint_XYZ);
 void			 SetWhiteBalanceValues(struct WhitePoint *WhitePoint_lab, int TYPE);
-void			 WhiteBalanceLab(struct Image *src, struct Image *dst, struct WhitePoint WhitePoint_lab, struct WhitePoint WhitePoint_lab2);
+void			 WhiteBalanceLab(struct Image *src, struct Image *dst, struct WhitePoint WhitePoint_lab);
 float			 RoundValue_toX_SignificantBits(float Value, int X);
 void			 Convert_RGB_to_XYZ(struct Image *Img_src, struct Image *Img_dst);
 void             Convert_XYZ_to_RGB(struct Image *Img_src, struct Image *Img_dst);
-void			 ColorTemperature(struct WhitePoint *WhitePoint_lab);
+void			 ColorTemperature(struct WhitePoint *WhitePoint_lab, int AlgoType);
 struct			 ColorPoint_UV POINT_Convert_XYZ_to_UV(struct ColorPoint_XYZ *XYZ);
 struct			 ColorPoint_XYZ POINT_Convert_RGB_to_XYZ(struct ColorPoint_RGB *RGB_Point);
+struct			 ColorPoint_RGB POINT_Convert_XYZ_to_RGB(struct  ColorPoint_XYZ *XYZ);
 struct			 point_xy POINT_Convert_UV_to_XY(struct ColorPoint_UV *UV);
+float			 pow_func(float Number, float Stepen, int precision);

@@ -29,10 +29,11 @@
 int main()
 {
 	int i,j;
+	float hui;
 	FILE *LUT = NULL;
 
 	/*OPEN*/
-	Image Img_src = ReadImage("pc.jpg");
+	Image Img_src = ReadImage("snow.jpg");
 	
 	/*CREATE*/
 	Image Img_srDst = CreateNewImage_BasedOnPrototype(&Img_src, &Img_srDst);
@@ -92,7 +93,7 @@ int main()
 	//ColorTemperature()
 
 	/*WHITE BALANCE*/
-	//WhiteBalanceCorrectionRGB(&Img_src, &Img_srDst, WB_GREEN_WORLD);
+	//WhiteBalanceCorrectionRGB(&Img_src, &Img_srDst, 4);
 	
 	/* WHITE BALANCE - convert to XYZ. Set WhitePoints first */
 	WhiteBalanceLab(&Img_src, &Img_srDst, WhitePoint_lab1);
@@ -143,7 +144,7 @@ int main()
 	//ConvertImage_RGB_to_LAB(&Img_src, &Img_srDst2, WhitePoint_lab1);
 
 	//ConvertImage_LAB_to_RGB(&Img_srDst2, &Img_srDst, WhitePoint_lab2);
-	
+	//hui = pow_func(2, 2.5, 2);
 	/*WRITE*/
 	WriteImage("Result.jpg", Img_srDst, QUALITY_MAX);
 

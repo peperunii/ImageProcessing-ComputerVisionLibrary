@@ -420,8 +420,8 @@ void SetWhiteBalanceValues(struct WhitePoint *WhitePoint_lab, int TYPE)
 	{						
 		WhitePoint_lab->Temperature = 6504;
 		WhitePoint_lab->X = 0.3127;		 
-		WhitePoint_lab->Y = 0.329;		 
-		WhitePoint_lab->Z = 0.3583;	
+		WhitePoint_lab->Y = 0.329;
+		WhitePoint_lab->Z = 0.3583;
 		WhitePoint_lab->u = 0;
 		WhitePoint_lab->v = 0;
 	}									 

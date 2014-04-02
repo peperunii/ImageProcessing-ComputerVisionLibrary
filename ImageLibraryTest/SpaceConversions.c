@@ -789,6 +789,10 @@ void WhiteBalanceLab(struct Image *src, struct Image *dst, struct WhitePoint Whi
 			G = (float)src->rgbpix[(i*dst->Width + j) * 3 + 1];
 			B = (float)src->rgbpix[(i*dst->Width + j) * 3 + 2];
 
+			/* if there is a perfect white pixel in the image */
+			//if (R > 252 && G > 252 && B > 252)
+			//	return;
+
 			R_Global += R;
 			G_Global += G;
 			B_Global += B;
@@ -801,7 +805,7 @@ void WhiteBalanceLab(struct Image *src, struct Image *dst, struct WhitePoint Whi
 	
 	LuminanceAverage = R_Global + G_Global + B_Global;
 	/*Luminance between 0 and 1*/
-	LuminanceAverage /=(3.0 * 255.0);
+	LuminanceAverage /=(3.0 * 255);
 	/*change Matrix_M_a to match the luminance*/
 	for(i = 0; i < 9; i++)
 	{
@@ -832,10 +836,14 @@ void WhiteBalanceLab(struct Image *src, struct Image *dst, struct WhitePoint Whi
 	
 	//printf("\nu: %f v: %f, K:%d\n\n",UV.u,UV.v, WhitePointXYZ_new.Temperature);
 
+	if (R > 250 || G > 250 || B > 250)
+		return;
+
 	WhitePointXYZ_new.X /= 100.0;
 	WhitePointXYZ_new.Y /= 100.0;
 	WhitePointXYZ_new.Z /= 100.0;
 
+	//#pragma omp parallel for private(j, col, R, G, B, intensity,L,a,bbb,X,Y,Z)
 	for (i = 0; i<src->Height; i++)
 	{
 		for (j = 0; j<src->Width; j++)
@@ -854,7 +862,7 @@ void WhiteBalanceLab(struct Image *src, struct Image *dst, struct WhitePoint Whi
 			XYZ.X /= 100.0;
 			XYZ.Y /= 100.0;
 			XYZ.Z /= 100.0;
-
+			
 			/*
 			| X_d |           | X_s |
 			| Y_d |   = |M| * | Y_s |
@@ -1260,3 +1268,37 @@ if (B > 255) B = 255;
 if (B < 0) B = 0;
 
 */
+
+float pow_func(float Number, float Stepen, int precision)
+{
+	int i = 0;
+	int StepenInteger = 0;
+	float NewNumber = 1;
+	int flag_Reverse = 0;
+	float Chislitel = 1, Dopylnenie = 0;
+
+	if (Stepen > 0 && Stepen < 1)
+	{
+		Stepen = 1 / Stepen;
+		flag_Reverse = 1;
+	}
+
+	StepenInteger = Stepen; // ako sme imali za stepen 2.3 - zapisvame samo 2
+
+	for (i = 0; i < StepenInteger; i++)
+	{
+		NewNumber *= Number;
+	}
+
+	for (i = 0; i < (Stepen - StepenInteger) * precision; i++)
+	{
+		Chislitel *= Number;
+	}
+	Dopylnenie = Chislitel / (precision * precision);
+
+	NewNumber += Dopylnenie;
+
+	if (flag_Reverse == 1) NewNumber = 1 / NewNumber;
+
+	return NewNumber;
+}

@@ -85,3 +85,9 @@ enum Write_Quality
 	QUALITY_MAX
 
 };
+
+enum ColorTemperature
+{
+	MCCAMMY_CUBIC,
+	EXP_HIGH_T
+};
