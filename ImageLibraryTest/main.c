@@ -33,11 +33,12 @@ int main()
 	FILE *LUT = NULL;
 
 	/*OPEN*/
-	Image Img_src = ReadImage("snow.jpg");
+	Image Img_src = ReadImage("perfe2.jpg");
 	
 	/*CREATE*/
 	Image Img_srDst = CreateNewImage_BasedOnPrototype(&Img_src, &Img_srDst);
 	Image Img_srDst2 = CreateNewImage_BasedOnPrototype(&Img_src, &Img_srDst2);
+	Image Img_srDst3 = CreateNewImage_BasedOnPrototype(&Img_src, &Img_srDst3);
 	Image Img_dst = CreateNewImage(&Img_dst, Img_src.Width, Img_src.Height, 1, 1);
 	Image Img_dst2 = CreateNewImage(&Img_dst2, Img_src.Width, Img_src.Height, 1, 1);
 
@@ -61,7 +62,7 @@ int main()
 	}
 
 	// The color temperature of the imput image
-	SetWhiteBalanceValues(&WhitePoint_lab1, WHITE_6504K_D65_NORTH_SKY2);
+	SetWhiteBalanceValues(&WhitePoint_lab1, 7);
 	// The color temperature of the output image
 	//SetWhiteBalanceValues(&WhitePoint_lab2, WHITE_5000K_D50_DAYLIGHT_RENDER);
 
@@ -84,7 +85,7 @@ int main()
 	//NoiseCorrection(&Img_src, &Img_srDst, 60, 1);
 	
 	/*GAMMA*/
-	//GammaCorrection(&Img_src, &Img_srDst, 0.9, 0.9, 0.9);
+	//GammaCorrection(&Img_src, &Img_srDst3, 1.2, 0.6, 1.2);
 	
 	/*CONRAST*/
 	//ContrastCorrection(&Img_srDst, &Img_srDst2, 5);
@@ -96,7 +97,10 @@ int main()
 	//WhiteBalanceCorrectionRGB(&Img_src, &Img_srDst, 4);
 	
 	/* WHITE BALANCE - convert to XYZ. Set WhitePoints first */
-	WhiteBalanceLab(&Img_src, &Img_srDst, WhitePoint_lab1);
+	WhiteBalanceGREENY(&Img_src, &Img_srDst, WhitePoint_lab1);
+
+	/*WHITE BALANCE - using T and RGB*/
+	WhitebalanceCorrectionBLUEorRED(&Img_src, &Img_srDst2, WhitePoint_lab1);
 
 	/*GrayScale - result in 3 channels*/
 	//ConvertToGrayscale_3Channels(&Img_src, &Img_dst);
@@ -147,6 +151,9 @@ int main()
 	//hui = pow_func(2, 2.5, 2);
 	/*WRITE*/
 	WriteImage("Result.jpg", Img_srDst, QUALITY_MAX);
+	WriteImage("Result2.jpg", Img_srDst2, QUALITY_MAX);
+
+	//WriteImage("Result3.jpg", Img_srDst2, QUALITY_MAX);
 
 	/* DESTROY images*/
 	DestroyImage(&Img_src);
@@ -154,6 +161,7 @@ int main()
 	DestroyImage(&Img_dst2);
 	DestroyImage(&Img_srDst);
 	DestroyImage(&Img_srDst2);
+	DestroyImage(&Img_srDst3);
 
 	fclose(LUT);
 	return 0;

@@ -747,7 +747,7 @@ float xyz_to_lab(float c)
 	return c > 216.0 / 24389.0 ? pow(c, 1.0 / 3.0) : c * (841.0 / 108.0) + (4.0 / 29.0);
 }
 
-void WhiteBalanceLab(struct Image *src, struct Image *dst, struct WhitePoint WhitePoint_XYZ)
+void WhiteBalanceGREENY(struct Image *src, struct Image *dst, struct WhitePoint WhitePoint_XYZ)
 {
 	float LuminanceAverage = 0;
 	struct ColorPoint_UV UV;
@@ -760,8 +760,23 @@ void WhiteBalanceLab(struct Image *src, struct Image *dst, struct WhitePoint Whi
 	float u,v;
 	float k = 903.3;
 	float F_x, F_z, F_y;
-	float Matrix_M_a[9] = { 0.8951000, 0.2664000, -0.1614000, -0.7502000, 1.7135000, 0.0367000, 0.0389000, -0.0685000, 1.0296000 };
+	
+	//XYZ
+	//float Matrix_M_a[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
+	//float matrix_M_min1[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
+	//BRADFORD
+	//float Matrix_M_a[9] = { 0.8951000, 0.2664000, -0.1614000, -0.7502000, 1.7135000, 0.0367000, 0.0389000, -0.0685000, 1.0296000 };
+	//float matrix_M_min1[9] = { 0.9869929, -0.1470543, 0.1599627, 0.4323053, 0.5183603, 0.0492912, -0.0085287, 0.0400428, 0.9684867 };
+	//CAT97s
+	//float Matrix_M_a[9] = { 0.08562, 0.3372, -0.1934, -0.836, 1.8327, 0.0033, 0.0357, -0.0469, 1.0112 };
+	//float matrix_M_min1[9] = { 0.9869929, -0.1470543, 0.1599627, 0.4323053, 0.5183603, 0.0492912, -0.0085287, 0.0400428, 0.9684867 };
+	//CAT02s
+	float Matrix_M_a[9] = { 0.7328, 0.4296, -0.1624, -0.7036, 1.6975, 0.0061, 0.0030, 0.0136, 0.9834 };
 	float matrix_M_min1[9] = { 0.9869929, -0.1470543, 0.1599627, 0.4323053, 0.5183603, 0.0492912, -0.0085287, 0.0400428, 0.9684867 };
+	//VON Kries
+	//float Matrix_M_a[9] = { 0.40024, 0.7076, -0.08081, -0.2263, 1.16532, 0.0457, 0, 0, 0.91822 };
+	//float matrix_M_min1[9] = { 1.8599364, -1.1293816, 0.2198974, 0.3611914, 0.6388125, -0.0000064, 0, 0, 1.08906 };
+	
 	float S_params[3];
 	float D_params[3];
 	float S_D_ParamsMatrix[9];
@@ -773,9 +788,16 @@ void WhiteBalanceLab(struct Image *src, struct Image *dst, struct WhitePoint Whi
 	long double R_Global = 0;
 	long double G_Global = 0;
 	long double B_Global = 0;
+	float MAX_VALUE = 0; 
+	int Razlika_R, Razlika_G, Razlika_B;
+	int tmpKelvin = 0;
 
 	float R, G, B, dult;
 	float X, Y, Z, L, a, b, bbb, intensity;
+
+
+
+	// FULL
 
 	R_Global = 0;
 	G_Global = 0;
@@ -799,22 +821,40 @@ void WhiteBalanceLab(struct Image *src, struct Image *dst, struct WhitePoint Whi
 		}
 	}
 
-	R_Global /= (float)(src->Height * src->Width );
-	G_Global /= (float)(src->Height * src->Width );
-	B_Global /= (float)(src->Height * src->Width );
-	
-	LuminanceAverage = R_Global + G_Global + B_Global;
-	/*Luminance between 0 and 1*/
-	LuminanceAverage /=(3.0 * 255);
-	/*change Matrix_M_a to match the luminance*/
-	for(i = 0; i < 9; i++)
-	{
-		Matrix_M_a[i] *= (1.2 *LuminanceAverage);
-	}
+	R_Global /= (float)(src->Height * src->Width);
+	G_Global /= (float)(src->Height * src->Width);
+	B_Global /= (float)(src->Height * src->Width);
 
+	LuminanceAverage = R_Global + G_Global + B_Global;
 	R = R_Global;
 	G = G_Global;
 	B = B_Global;
+	MAX_VALUE = MAX(R, MAX(G, B));
+
+	if (MAX_VALUE != G)
+	{
+		//WhitebalanceCorrectionBLUEorRED(src, dst, WhitePoint_XYZ);
+		//return;
+	}
+
+	Razlika_B = 255 - MAX_VALUE;
+//	if (R == MAX_VALUE)
+//	{
+	//R += Razlika_B;
+	//G += Razlika_B;
+	//B += Razlika_B;
+/*	}
+	else if (G == MAX_VALUE)
+	{
+		R += Razlika;
+		B += Razlika;
+	}
+	else if (B == MAX_VALUE)
+	{
+		G += Razlika;
+		R += Razlika;
+	}
+*/
 	RGB.R = RoundValue_toX_SignificantBits(R, 0);
 	RGB.G = RoundValue_toX_SignificantBits(G, 0);
 	RGB.B = RoundValue_toX_SignificantBits(B, 0);
@@ -828,16 +868,97 @@ void WhiteBalanceLab(struct Image *src, struct Image *dst, struct WhitePoint Whi
 	WhitePointXYZ_new.X = XYZ.X;
 	WhitePointXYZ_new.Y = XYZ.Y;
 	WhitePointXYZ_new.Z = XYZ.Z;
-	//WhitePointXYZ_new.u = 0;
-	//WhitePointXYZ_new.v = 0;
-	ColorTemperature(&WhitePointXYZ_new, 0);// EXP_HIGH_T);
-	
-	//SetWhiteBalanceValues(&WhitePointXYZ_new, WHITE_2856K_A_HALOGEN);
-	
-	//printf("\nu: %f v: %f, K:%d\n\n",UV.u,UV.v, WhitePointXYZ_new.Temperature);
 
-	if (R > 250 || G > 250 || B > 250)
-		return;
+	ColorTemperature(&WhitePointXYZ_new, 0);// EXP_HIGH_T);
+
+	//printf("Zone_ALL\nu: %f v: %f, K:%d\n\n", UV.u, UV.v, WhitePointXYZ_new.Temperature);
+
+
+	tmpKelvin = WhitePoint_XYZ.Temperature / 100;
+
+	if (tmpKelvin <= 66){
+
+		R = 255;
+
+		G = tmpKelvin;
+		G = 99.4708025861 * log(G) - 161.1195681661;
+
+
+		if (tmpKelvin <= 19)
+		{
+			B = 0;
+		}
+		else {
+
+			B = tmpKelvin - 10;
+			B = 138.5177312231 * log(B) - 305.0447927307;
+
+		}
+
+	}
+	else {
+
+		R = tmpKelvin - 60;
+		R = 329.698727446 * pow(R, -0.1332047592);
+
+		G = tmpKelvin - 60;
+		G = 288.1221695283 * pow(G, -0.0755148492);
+
+		B = 255;
+
+	}
+
+	tmpKelvin = WhitePointXYZ_new.Temperature / 100;
+
+	if (tmpKelvin <= 66){
+
+		Razlika_R = 255;
+
+		Razlika_G = tmpKelvin;
+		Razlika_G = 99.4708025861 * log(Razlika_G) - 161.1195681661;
+
+
+		if (tmpKelvin <= 19)
+		{
+			Razlika_B = 0;
+		}
+		else {
+
+			Razlika_B = tmpKelvin - 10;
+			Razlika_B = 138.5177312231 * log(Razlika_B) - 305.0447927307;
+
+		}
+
+	}
+	else {
+
+		Razlika_R = tmpKelvin - 60;
+		Razlika_R = 329.698727446 * pow(Razlika_R, -0.1332047592);
+
+		Razlika_G = tmpKelvin - 60;
+		Razlika_G = 288.1221695283 * pow(Razlika_G, -0.0755148492);
+
+		Razlika_B = 255;
+	}
+
+	//Razlika_R = R - Razlika_R;
+	//Razlika_G = G - Razlika_G;
+	//Razlika_B = B - Razlika_B;
+	/*Luminance between 0 and 1*/
+ 	LuminanceAverage /=(3.0 * 255);
+	/*change Matrix_M_a to match the luminance*/
+	for(i = 0; i < 9; i++)
+	{
+		//if(i == 2)Matrix_M_a[i] *= (0 *LuminanceAverage); // cherveno
+		//if(i == 8)Matrix_M_a[i] *= (0 *LuminanceAverage); // Zeleno
+		//else
+			Matrix_M_a[i] *= (1.4 * LuminanceAverage);
+			//matrix_M_min1[i] *= (0.4 * LuminanceAverage);
+		//Matrix_M_a[i] += LuminanceAverage - 0.8; // Epic fail
+		//Matrix_M_a[i] += LuminanceAverage - 0.9;
+		//if (i == 1)  Matrix_M_a[i] *= (0.1 * LuminanceAverage);
+		//else Matrix_M_a[i] *= (0.7 * LuminanceAverage);
+	}
 
 	WhitePointXYZ_new.X /= 100.0;
 	WhitePointXYZ_new.Y /= 100.0;
@@ -922,6 +1043,7 @@ void WhiteBalanceLab(struct Image *src, struct Image *dst, struct WhitePoint Whi
 			dst->rgbpix[(i*dst->Width + j) * 3 + 2] = RGB.B;
 		}
 	}
+	//WhitebalanceCorrectionBLUEorRED(src, dst, WhitePoint_XYZ);
 }
 
 /*
@@ -1096,11 +1218,6 @@ void ColorTemperature(struct WhitePoint *WhitePoint_lab, int AlgoType )
 	// 6344 - pic1     4293 - pic 2; // Algo_type = 1;
 	WhitePoint_lab->Temperature = CCT;
 }
-
-
-
-
-
 
 //
 /*
@@ -1301,4 +1418,138 @@ float pow_func(float Number, float Stepen, int precision)
 	if (flag_Reverse == 1) NewNumber = 1 / NewNumber;
 
 	return NewNumber;
+}
+
+/*
+	W H I T E   B A L A N C E  algorithm using RGB and Temperature of src and dest
+*/
+void WhitebalanceCorrectionBLUEorRED(struct Image *src, struct Image *dst, struct WhitePoint WhitePoint_lab)
+{
+	float LuminanceAverage = 0;
+	struct ColorPoint_UV UV;
+	struct WhitePoint WhitePointXYZ_new;
+	struct ColorPoint_RGB RGB;
+	struct ColorPoint_XYZ XYZ;
+	struct ColorPoint_XYZ XYZ_D;
+
+	float maxv;
+	float P, Number;
+	int i, j, z;
+	long double R_Global = 0;
+	long double G_Global = 0;
+	long double B_Global = 0;
+	float MAX_VALUE = 0;
+	int Razlika_R, Razlika_G, Razlika_B;
+	int tmpKelvin = 0;
+
+	float R, G, B, dult;
+	float X, Y, Z, L, a, b, bbb, intensity;
+
+	R_Global = 0;
+	G_Global = 0;
+	B_Global = 0;
+
+	for (i = 0; i < src->Height; i++)
+	{
+		for (j = 0; j < src->Width; j++)
+		{
+			R = (float)src->rgbpix[(i*dst->Width + j) * 3 + 0];
+			G = (float)src->rgbpix[(i*dst->Width + j) * 3 + 1];
+			B = (float)src->rgbpix[(i*dst->Width + j) * 3 + 2];
+
+			R_Global += R;
+			G_Global += G;
+			B_Global += B;
+		}
+	}
+
+	R_Global /= (float)(src->Height * src->Width);
+	G_Global /= (float)(src->Height * src->Width);
+	B_Global /= (float)(src->Height * src->Width);
+
+	if (MAX(R_Global, MAX(G_Global, B_Global)) == G_Global)
+	{
+	//	memcpy(src->rgbpix, dst->rgbpix, 3 * src->Height * src->Width * sizeof(unsigned char));
+	//	return;
+	}
+
+	RGB.R = RoundValue_toX_SignificantBits(R_Global, 0);
+	RGB.G = RoundValue_toX_SignificantBits(G_Global, 0);
+	RGB.B = RoundValue_toX_SignificantBits(B_Global, 0);
+
+	XYZ = POINT_Convert_RGB_to_XYZ(&RGB);
+	UV = POINT_Convert_XYZ_to_UV(&XYZ);
+
+	WhitePointXYZ_new.u = UV.u;
+	WhitePointXYZ_new.v = UV.v;
+
+	WhitePointXYZ_new.X = XYZ.X;
+	WhitePointXYZ_new.Y = XYZ.Y;
+	WhitePointXYZ_new.Z = XYZ.Z;
+
+	ColorTemperature(&WhitePointXYZ_new, 0);// EXP_HIGH_T);
+
+	tmpKelvin = WhitePointXYZ_new.Temperature / 100;
+
+	if (tmpKelvin <= 66){
+
+		Razlika_R = 255;
+
+		Razlika_G = tmpKelvin;
+		Razlika_G = 99.4708025861 * log(Razlika_G) - 161.1195681661;
+
+
+		if (tmpKelvin <= 19)
+		{
+			Razlika_B = 0;
+		}
+		else {
+
+			Razlika_B = tmpKelvin - 10;
+			Razlika_B = 138.5177312231 * log(Razlika_B) - 305.0447927307;
+
+		}
+
+	}
+	else 
+	{
+
+		Razlika_R = tmpKelvin - 60;
+		Razlika_R = 329.698727446 * pow(Razlika_R, -0.1332047592);
+
+		Razlika_G = tmpKelvin - 60;
+		Razlika_G = 288.1221695283 * pow(Razlika_G, -0.0755148492);
+
+		Razlika_B = 255;
+
+	}
+	//printf("Zone_ALL\nu: %f v: %f, K:%d\n\n", UV.u, UV.v, WhitePointXYZ_new.Temperature);
+
+
+	for (i = 0; i < src->Height; i++)
+	{
+		for (j = 0; j < src->Width; j++)
+		{
+			maxv = 255;
+
+			R = (float)src->rgbpix[(i*dst->Width + j) * 3 + 0];
+			G = (float)src->rgbpix[(i*dst->Width + j) * 3 + 1];
+			B = (float)src->rgbpix[(i*dst->Width + j) * 3 + 2];
+
+			RGB.R = RoundValue_toX_SignificantBits(R * 255 / (float)Razlika_R, 0);
+			RGB.G = RoundValue_toX_SignificantBits(G * 255 / (float)Razlika_G, 0);
+			RGB.B = RoundValue_toX_SignificantBits(B * 255 / (float)Razlika_B, 0);
+			
+			if (RGB.R > 255) RGB.R = 255;
+			if (RGB.G > 255) RGB.G = 255;
+			if (RGB.B > 255) RGB.B = 255;
+			if (RGB.R < 0) RGB.R = 0;
+			if (RGB.G < 0) RGB.G = 0;
+			if (RGB.B < 0) RGB.B = 0;
+
+			dst->rgbpix[(i*dst->Width + j) * 3 + 0] = RGB.R;
+			dst->rgbpix[(i*dst->Width + j) * 3 + 1] = RGB.G;
+			dst->rgbpix[(i*dst->Width + j) * 3 + 2] = RGB.B;
+		}
+	}
 }

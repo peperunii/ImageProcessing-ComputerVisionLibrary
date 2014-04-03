@@ -30,7 +30,7 @@ struct Image	 BlurImageGussian(struct Image *Img_src, struct Image *Img_dst, int
 struct Image	 BrightnessCorrection(struct Image *Img_src, struct Image *Img_dst, float Algo_paramBrightnessOrEV, int Algotype);
 struct Image	 ContrastCorrection(struct Image *Img_src, struct Image *Img_dst, float percentage);
 struct Image	 WhiteBalanceCorrectionRGB(struct Image *Img_src, struct Image *Img_dst, int Algotype);
-struct Image	 WhiteBalanceCorrectionLAB(struct Image *Img_src, struct Image *Img_dst, struct WhitePoint WhitePointXYZ);
+//struct Image	 WhiteBalanceCorrectionLAB(struct Image *Img_src, struct Image *Img_dst, struct WhitePoint WhitePointXYZ);
 struct Image	 NoiseCorrection(struct Image *Img_src, struct Image *Img_dst, float threshold, int Algotype);
 struct Image	 GammaCorrection(struct Image *Img_src, struct Image *Img_dst, float RedGamma, float GreenGamma, float BlueGamma);
 void			 getPositionFromIndex(struct Image *Img_src, int pixIdx, int *red, int *col);
@@ -70,7 +70,8 @@ void			 ConvertImage_RGB_to_LAB(struct Image *Img_src, struct Image *Img_dst, st
 /* Change image color space - L*ab to RGB. Both Src and Dst have to be 3 channeled images.*/
 void			 ConvertImage_LAB_to_RGB(struct Image *Img_src, struct Image *Img_dst, struct WhitePoint WhitePoint_XYZ);
 void			 SetWhiteBalanceValues(struct WhitePoint *WhitePoint_lab, int TYPE);
-void			 WhiteBalanceLab(struct Image *src, struct Image *dst, struct WhitePoint WhitePoint_lab);
+void			 WhiteBalanceGREENY(struct Image *src, struct Image *dst, struct WhitePoint WhitePoint_lab);
+void			 WhitebalanceCorrectionBLUEorRED(struct Image *src, struct Image *dst, struct WhitePoint WhitePoint_lab);
 float			 RoundValue_toX_SignificantBits(float Value, int X);
 void			 Convert_RGB_to_XYZ(struct Image *Img_src, struct Image *Img_dst);
 void             Convert_XYZ_to_RGB(struct Image *Img_src, struct Image *Img_dst);

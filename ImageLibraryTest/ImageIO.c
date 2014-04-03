@@ -410,9 +410,9 @@ void SetWhiteBalanceValues(struct WhitePoint *WhitePoint_lab, int TYPE)
 	else if (TYPE == 6)		// D55       // 5500K  // Daylight - for photography
 	{
 		WhitePoint_lab->Temperature = 5500;
-		WhitePoint_lab->X = 0.33242;
-		WhitePoint_lab->Y = 0.34743;
-		WhitePoint_lab->Z = 0.32015;
+		WhitePoint_lab->X = 0.9642;//0.33242;
+		WhitePoint_lab->Y = 1;// 0.34743;
+		WhitePoint_lab->Z = 0.8252;// 0.32015;
 		WhitePoint_lab->u = 0;
 		WhitePoint_lab->v = 0;
 	}
