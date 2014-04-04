@@ -524,7 +524,7 @@ struct Image BrightnessCorrection(struct Image *Img_src, struct Image *Img_dst, 
 
 	if (Img_src->Num_channels != Img_dst->Num_channels)
 		return *Img_dst;
-	if (Img_src->ColorSpace != Img_dst->ColorSpace)
+	if (Img_src->ColorSpace != Img_dst->ColorSpace || Img_src->Width != Img_dst->Width)
 		SetDestination(Img_src, Img_dst);
 
 	if (Img_src->ColorSpace == 2) //RGB

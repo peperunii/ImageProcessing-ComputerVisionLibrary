@@ -345,7 +345,92 @@ void DestroyImage(struct Image *Img)
 	free(Img->rgbpix);
 }
 
+/*
+	L A Y E R S - Create number of layers for prototype image
+*/
+struct Image * CreateImageLayersBasedOnPrototype(struct Image *Prototype, int NumberofLayers)
+{
+	int i = 0;
+	struct Image *ArrOfLayers = NULL;
+	struct Image Layer = CreateNewImage_BasedOnPrototype(Prototype, &Layer);
 
+	ArrOfLayers = (struct Image *)calloc(NumberofLayers, sizeof(Layer));
+
+	for (i = 0; i < NumberofLayers; i++)
+	{
+		ArrOfLayers[i] = CreateNewImage_BasedOnPrototype(Prototype, &ArrOfLayers[i]);
+	}
+	return ArrOfLayers;
+}
+
+/*
+	L A Y E R S - Merge
+*/
+struct Image CombineLayers(struct Image *Layers, struct Image *Img_dst, struct Image Mask)
+{
+	
+	int i, j, k;
+	if (Layers[0].Width != Img_dst->Width)
+	{
+		SetDestination(&Layers[0], Img_dst);
+	}
+
+	for (i = 0; i < Img_dst->Height; i++)
+	{
+		for (j = 0; j < Img_dst->Width; j++)
+		{
+			for (k = 0; k < Img_dst->Num_channels; k++)
+			{
+				/* we do not verify binary mask */
+				Img_dst->rgbpix[Img_dst->Num_channels *(i * Img_dst->Width + j) + k] = Layers[Mask.rgbpix[i * Img_dst->Width + j]].rgbpix[Img_dst->Num_channels *(i * Img_dst->Width + j) + k];
+			}
+		}
+	}
+
+	return *Img_dst;
+}
+
+/*
+	M A S K -  for Merging Layers
+*/
+struct Image  CreateMaskForLayers(struct Image *LayerPrototype, int MaskType, int NumberOfLayers, int algoParam1, int algoparam2)
+{
+	int i, j, k;
+	struct Image Mask;
+	int CurWidth, CurHeight = 0;
+	if (MaskType < 1) MaskType = 1;
+
+	Mask = CreateNewImage(&Mask, LayerPrototype->Width, LayerPrototype->Height, 1, 1);
+
+	if (MaskType == 1)
+	{
+		for (k = 0; k < NumberOfLayers; k++)
+		{
+			for (i = k * Mask.Height / NumberOfLayers; i < (k + 1) * Mask.Height / NumberOfLayers; i++)
+			{
+				for (j = 0; j < Mask.Width; j++)
+				{
+					Mask.rgbpix[i * Mask.Width + j] = k;
+				}
+			}
+		}
+	}
+	if (MaskType == 2)
+	{
+		for (k = 0; k < NumberOfLayers; k++)
+		{
+			for (j = k * Mask.Width / NumberOfLayers; j < (k + 1) * Mask.Width / NumberOfLayers; j++)
+			{
+				for (i = 0; i < Mask.Height; i++)
+				{
+					Mask.rgbpix[i * Mask.Width + j] = k;
+				}
+			}
+		}
+	}
+
+	return Mask;
+}
 
 /*
 	 W H I T E   P O I N T - fill structure

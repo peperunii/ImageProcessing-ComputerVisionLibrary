@@ -81,3 +81,6 @@ struct			 ColorPoint_XYZ POINT_Convert_RGB_to_XYZ(struct ColorPoint_RGB *RGB_Poi
 struct			 ColorPoint_RGB POINT_Convert_XYZ_to_RGB(struct  ColorPoint_XYZ *XYZ);
 struct			 point_xy POINT_Convert_UV_to_XY(struct ColorPoint_UV *UV);
 float			 pow_func(float Number, float Stepen, int precision);
+struct Image *	 CreateImageLayersBasedOnPrototype(struct Image *Img_src, int NumberofLayers);
+struct Image	 CombineLayers(struct Image *Layers, struct Image *Img_dst, struct Image Mask);
+struct Image 	 CreateMaskForLayers(struct Image *LayerPrototype, int MaskType, int NumberOfLayers);

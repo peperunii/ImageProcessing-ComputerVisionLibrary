@@ -31,9 +31,10 @@ int main()
 	int i,j;
 	float hui;
 	FILE *LUT = NULL;
-
+	struct Image *Layers = NULL;
+	struct Image *ptrToImage = NULL;
 	/*OPEN*/
-	Image Img_src = ReadImage("perfe2.jpg");
+	Image Img_src = ReadImage("Dimo2.jpg");
 	
 	/*CREATE*/
 	Image Img_srDst = CreateNewImage_BasedOnPrototype(&Img_src, &Img_srDst);
@@ -60,6 +61,8 @@ int main()
 	{
 		fscanf(LUT,"%d %f %f\n", &Kelvin_LUT[i], &X_LUT[i], &Y_LUT[i]);
 	}
+	/*LAYERS*/
+	//Layers = CreateImageLayersBasedOnPrototype(&Img_src, 100);
 
 	// The color temperature of the imput image
 	SetWhiteBalanceValues(&WhitePoint_lab1, 7);
@@ -70,8 +73,8 @@ int main()
 	//SetDestination(&Img_src, &Img_srDst);
 
 	/*BLUR*/
-	//BlurImageAroundPoint(&Img_src, &Img_dst, CentralPoint, 17, 3, BLUR_AROUND_CENTER, 100 );
-	
+	//BlurImageAroundPoint(&Img_src, &Layers[0], CentralPoint, 17, 3, BLUR_AROUND_CENTER, 100 );
+
 	/*BLUR - gaussian*/
 	//BlurImageGussian(&Img_srDst, &Img_srDst2, 15, 0.7);
 
@@ -79,7 +82,7 @@ int main()
 	//RotateImage(&Img_src, &Img_dst, 180, CentralPoint);
 	
 	/*BRIGHTNESS*/
-	//BrightnessCorrection(&Img_src, &Img_srDst, -60, BRIGHTNESS_PERCENTAGE_ALGO);
+	BrightnessCorrection(&Img_srDst, &Img_srDst2, 230, BRIGHTNESS_PERCENTAGE_ALGO);
 	
 	/*NOISE*/
 	//NoiseCorrection(&Img_src, &Img_srDst, 60, 1);
@@ -88,19 +91,31 @@ int main()
 	//GammaCorrection(&Img_src, &Img_srDst3, 1.2, 0.6, 1.2);
 	
 	/*CONRAST*/
-	//ContrastCorrection(&Img_srDst, &Img_srDst2, 5);
+	ContrastCorrection(&Img_srDst2, &Img_srDst, 50);
 
 	/* COLOR TEMPERATURE */
 	//ColorTemperature()
 
 	/*WHITE BALANCE*/
-	//WhiteBalanceCorrectionRGB(&Img_src, &Img_srDst, 4);
+	//WhiteBalanceCorrectionRGB(&Img_src, &Layers[0], 1);
 	
 	/* WHITE BALANCE - convert to XYZ. Set WhitePoints first */
-	WhiteBalanceGREENY(&Img_src, &Img_srDst, WhitePoint_lab1);
+	//WhiteBalanceGREENY(&Img_src, &Layers[1], WhitePoint_lab1);
 
 	/*WHITE BALANCE - using T and RGB*/
-	WhitebalanceCorrectionBLUEorRED(&Img_src, &Img_srDst2, WhitePoint_lab1);
+	//WhitebalanceCorrectionBLUEorRED(&Img_srDst2, &Img_srDst, WhitePoint_lab1);
+
+/*	j = 0;
+	for (i = -50; i < 50; i++)
+	{
+		BrightnessCorrection(&Img_src, &Layers[j++], 2 * (i), BRIGHTNESS_PERCENTAGE_ALGO);
+	}
+*/	
+	/*MASK create*/
+	//Img_dst = CreateMaskForLayers(&Layers[0], 2, 100);
+
+	/*MERGE Layers*/
+	//CombineLayers(Layers, &Img_srDst, Img_dst);
 
 	/*GrayScale - result in 3 channels*/
 	//ConvertToGrayscale_3Channels(&Img_src, &Img_dst);
@@ -142,20 +157,24 @@ int main()
 	//ConvertImage_HSL_to_RGB(&Img_srDst, &Img_srDst2);
 
 	/*SATURATION*/
-	//Saturation(&Img_srDst, &Img_srDst2, 60);
+	Saturation(&Img_srDst, &Img_srDst2, 15);
 
 	/* RGB, XYZ, LAB convert */
 	//ConvertImage_RGB_to_LAB(&Img_src, &Img_srDst2, WhitePoint_lab1);
 
 	//ConvertImage_LAB_to_RGB(&Img_srDst2, &Img_srDst, WhitePoint_lab2);
 	//hui = pow_func(2, 2.5, 2);
+	
 	/*WRITE*/
-	WriteImage("Result.jpg", Img_srDst, QUALITY_MAX);
-	WriteImage("Result2.jpg", Img_srDst2, QUALITY_MAX);
+	WriteImage("Result_Brightness.jpg", Img_srDst2, QUALITY_MAX);
 
-	//WriteImage("Result3.jpg", Img_srDst2, QUALITY_MAX);
+	//WriteImage("minimacbeth\\Result_Greeny.jpg", Layers[1], QUALITY_MAX);
+
+	//WriteImage("minimacbeth\\Result_BlueOrRed.jpg", Layers[2], QUALITY_MAX);
 
 	/* DESTROY images*/
+
+	if(Layers != NULL)DestroyImage(Layers);
 	DestroyImage(&Img_src);
 	DestroyImage(&Img_dst);
 	DestroyImage(&Img_dst2);
