@@ -246,7 +246,7 @@ struct Image MorphClose(struct Image *Img_src, struct Image *Img_dst, int Elemen
 /*
 	S H A R P   image - using EdgeExtraction function
 */
-struct Image SharpImageContours(struct Image *Img_src, struct Image *Img_dst, int Percentage)
+struct Image SharpImageContours(struct Image *Img_src, struct Image *Img_dst, float Percentage)
 {
 	int i, j, l;
 
@@ -300,7 +300,7 @@ struct Image SharpImageContours(struct Image *Img_src, struct Image *Img_dst, in
 /*
 	S H A R P   image - using Binary mask
 */
-struct Image SharpImageBinary(struct Image *Img_src, struct Image *Img_dst, struct Image *Img_Binary, int Percentage)
+struct Image SharpImageBinary(struct Image *Img_src, struct Image *Img_dst, struct Image *Img_Binary, float Percentage)
 {
 	int i, j, l;
 
@@ -1225,7 +1225,7 @@ void FindDerrivative_XY(struct Image *Img_src, struct Image *DerrivativeX_image,
 }
 
 /*
-	Find   M A G N I T U D E  of Gradient
+	Find   M A G N I T U D E  of Gradient - working with images
 */
 void FindMagnitudeOfGradient(struct Image *DerrivativeX_image, struct Image *DerrivativeY_image, struct Image *Magnitude)
 {
@@ -1244,6 +1244,49 @@ void FindMagnitudeOfGradient(struct Image *DerrivativeX_image, struct Image *Der
 	}
 }
 
+/*
+	Find   P H A S E
+*/
+void FindPhase_Arrays(long double *real_arr, long double *imag_arr, long double *Phase, int dimensionX, int dimensionY)
+{
+	int r, c;
+	long int pos;
+	long double sq1, sq2;
+	int rows = dimensionY;
+	int cols = dimensionX;
+
+	for (r = 0, pos = 0; r < rows; r++)
+	{
+		for (c = 0; c < cols; c++, pos++)
+		{
+			Phase[pos] = atan2(imag_arr[pos], real_arr[pos]);
+		}
+	}
+}
+
+/*
+	Find   M A G N I T U D E  of Gradient - working With arrays
+*/
+void FindMagnitudeOfGradient_Arrays(long double *array_1, long double *array_2, long double *Magnitude, int dimensionX, int dimensionY, int *Min, int *Max)
+{
+	int r, c;
+	long int pos;
+	long double sq1, sq2;
+	int rows = dimensionY;
+	int cols = dimensionX;
+
+	for (r = 0, pos = 0; r < rows; r++)
+	{
+		for (c = 0; c < cols; c++, pos++)
+		{
+			sq1 = array_1[pos] * array_1[pos];
+			sq2 = array_2[pos] * array_2[pos];
+			Magnitude[pos] = (int)(0.5 + sqrt((float)sq1 + (float)sq2));
+			if (Magnitude[pos] < *Min) *Min = Magnitude[pos];
+			else if (Magnitude[pos] > *Max) *Max = Magnitude[pos];
+		}
+	}
+}
 /*
 	Find  N O N - M A X - S U P P
 */
@@ -1584,7 +1627,7 @@ void Follow_edges(unsigned char *edgemapptr, unsigned char *edgemagptr, unsigned
 /*
 	S A T U R A T I O N 
 */
-struct Image Saturation(struct Image *Img_src, struct Image *Img_dst, int percentage)
+struct Image Saturation(struct Image *Img_src, struct Image *Img_dst, float percentage)
 {
 	FILE * fdebug = NULL;
 	int i, j;
@@ -1644,4 +1687,615 @@ struct Image Saturation(struct Image *Img_src, struct Image *Img_dst, int percen
 		DestroyImage(&WorkCopy);
 		return *Img_dst;
 	}
+}
+
+/*
+	B L E N D I N G  - similar to image sharpening - but the contours are from another image
+*/
+struct Image BlendImage(struct Image *Img_src, struct Image *Img_BlendedSrc, struct Image *Img_dst, float Percentage, int AlgoParam1, int Algoparam2, int BlacOrWhiteThreshold)
+{
+	int i, j, l;
+
+	Image Img_dst_Grayscale = CreateNewImage(&Img_dst_Grayscale, Img_src->Width, Img_src->Height, 1, COLORSPACE_GRAYSCALE);
+	Image Img_src_Grayscale = CreateNewImage(&Img_src_Grayscale, Img_src->Width, Img_src->Height, 1, COLORSPACE_GRAYSCALE);
+
+	if (abs(Percentage) > 1) Percentage /= 100;
+	//Percentage *= -1;
+	if ((Img_src->Width != Img_dst->Width) || (Img_src->Height != Img_dst->Height)) SetDestination(Img_src, Img_dst);
+
+	if (AlgoParam1 == BLEND_EXTRACT_EDGES)
+	{
+		ConvertToGrayscale_1Channel(Img_BlendedSrc, &Img_src_Grayscale);
+		EdgeExtraction(&Img_src_Grayscale, &Img_dst_Grayscale, EDGES_PREWITT, 1, 0.9);
+	}
+	for (i = 0; i < Img_dst->Height; i++)
+	{
+		for (j = 0; j < Img_dst->Width; j++)
+		{
+			for (l = 0; l < Img_dst->Num_channels; l++)
+			{
+				if (AlgoParam1 == BLEND_EXTRACT_EDGES)
+				{
+					if ((Algoparam2 == BLEND_REMOVE_BLACK && (Img_BlendedSrc->rgbpix[3 * (i*Img_src->Width + j) + 0] <= BlacOrWhiteThreshold) && (Img_BlendedSrc->rgbpix[3 * (i*Img_src->Width + j) + 1] <= BlacOrWhiteThreshold) && (Img_BlendedSrc->rgbpix[3 * (i*Img_src->Width + j) + 2] <= BlacOrWhiteThreshold))
+						||
+						(Algoparam2 == BLEND_REMOVE_WHITE && (Img_BlendedSrc->rgbpix[3 * (i*Img_src->Width + j) + 0] >= 255 - BlacOrWhiteThreshold) && (Img_BlendedSrc->rgbpix[3 * (i*Img_src->Width + j) + 1] >= 255 - BlacOrWhiteThreshold) && (Img_BlendedSrc->rgbpix[3 * (i*Img_src->Width + j) + 2] >= 255 - BlacOrWhiteThreshold)))
+						goto Same;
+
+					if (Img_dst_Grayscale.rgbpix[(i*Img_src->Width + j)] >= 15)
+					{
+						if ((Percentage)* Img_BlendedSrc->rgbpix[3 * (i*Img_src->Width + j) + l] + (1 - Percentage) * Img_src->rgbpix[3 * (i*Img_src->Width + j) + l] > 255)
+						{
+							Img_dst->rgbpix[3 * (i*Img_src->Width + j) + l] = 255;
+						}
+						else if ((Percentage)* Img_BlendedSrc->rgbpix[3 * (i*Img_src->Width + j) + l] + (1 - Percentage)* Img_src->rgbpix[3 * (i*Img_src->Width + j) + l] < 0)
+						{
+							Img_dst->rgbpix[3 * (i*Img_src->Width + j) + l] = 0;
+						}
+						else
+						{
+							Img_dst->rgbpix[3 * (i*Img_src->Width + j) + l] = (Percentage)* Img_BlendedSrc->rgbpix[3 * (i*Img_src->Width + j) + l] + (1 - Percentage) * Img_src->rgbpix[3 * (i*Img_src->Width + j) + l];
+						}
+					}
+					else
+					{
+Same:					Img_dst->rgbpix[3 * (i*Img_src->Width + j) + l] = Img_src->rgbpix[3 * (i*Img_src->Width + j) + l];
+					}
+				}
+				else
+				{
+					if (!((Algoparam2 == BLEND_REMOVE_BLACK && (Img_BlendedSrc->rgbpix[3 * (i*Img_src->Width + j) + 0] <= BlacOrWhiteThreshold) && (Img_BlendedSrc->rgbpix[3 * (i*Img_src->Width + j) + 1] <= BlacOrWhiteThreshold) && (Img_BlendedSrc->rgbpix[3 * (i*Img_src->Width + j) + 2] <= BlacOrWhiteThreshold))
+						||
+						(Algoparam2 == BLEND_REMOVE_WHITE && (Img_BlendedSrc->rgbpix[3 * (i*Img_src->Width + j) + 0] >= 255 - BlacOrWhiteThreshold) && (Img_BlendedSrc->rgbpix[3 * (i*Img_src->Width + j) + 1] >= 255 - BlacOrWhiteThreshold) && (Img_BlendedSrc->rgbpix[3 * (i*Img_src->Width + j) + 2] >= 255 - BlacOrWhiteThreshold))))
+					{
+						if ((Percentage)* Img_BlendedSrc->rgbpix[3 * (i*Img_src->Width + j) + l] + (1 - Percentage) * Img_src->rgbpix[3 * (i*Img_src->Width + j) + l] > 255)
+						{
+							Img_dst->rgbpix[3 * (i*Img_src->Width + j) + l] = 255;
+						}
+						else if ((Percentage)* Img_BlendedSrc->rgbpix[3 * (i*Img_src->Width + j) + l] + (1 - Percentage)* Img_src->rgbpix[3 * (i*Img_src->Width + j) + l] < 0)
+						{
+							Img_dst->rgbpix[3 * (i*Img_src->Width + j) + l] = 0;
+						}
+						else
+						{
+							Img_dst->rgbpix[3 * (i*Img_src->Width + j) + l] = (Percentage)* Img_BlendedSrc->rgbpix[3 * (i*Img_src->Width + j) + l] + (1 - Percentage) * Img_src->rgbpix[3 * (i*Img_src->Width + j) + l];
+						}
+					}
+					else
+						Img_dst->rgbpix[3 * (i*Img_src->Width + j) + l] = Img_src->rgbpix[3 * (i*Img_src->Width + j) + l];
+				}
+			}
+		}
+	}
+
+	DestroyImage(&Img_dst_Grayscale);
+	DestroyImage(&Img_src_Grayscale);
+
+	return Img_dst_Grayscale;
+}
+
+/*
+	I N V E R S E  images
+*/
+struct Image InverseImage0to255(struct Image *Img_src, struct Image *Img_dst)
+{
+	int i, j, z;
+
+	for (i = 0; i < Img_src->Height; i++)
+	{
+		for (j = 0; j < Img_src->Width; j++)
+		{
+			for (z = 0; z < Img_src->Num_channels; z++)
+			{
+				Img_dst->rgbpix[Img_src->Num_channels * (i * Img_src->Width + j) + z] = 255 - Img_src->rgbpix[Img_src->Num_channels * (i * Img_src->Width + j) + z];
+			}
+		}
+	}
+}
+
+
+/*
+	Create   H I S T O G R A M
+*/
+void HistogramForImage(struct Histogram *hist, struct Image *Img_src, short NumberOfLayers)
+{
+	//FILE * fp;
+	int i, j, z;
+	long int maxValue = 0;
+
+	struct Image grayscaledImage = CreateNewImage(&grayscaledImage, Img_src->Width, Img_src->Height, 1, 1);
+	hist->Bins = pow(2, Img_src->imageDepth);
+	
+	hist->NumberOfLayers = NumberOfLayers;
+
+	if (NumberOfLayers == 1)
+	{
+		/*if the image depth is 8bit -> we will have a histogram for 256 values*/
+		hist->values = (long int *)calloc(hist->Bins, sizeof(long int));
+
+		/* check if the input image is RGB or grayscaled. If it is RGB, convert to grayscaled */
+		if (Img_src->Num_channels == 1)
+		{
+			memcpy(grayscaledImage.rgbpix, Img_src->rgbpix, Img_src->Width* Img_src->Height * sizeof(unsigned char));
+		}
+		else
+		{
+			ConvertToGrayscale_1Channel(Img_src, &grayscaledImage);
+		}
+
+		/* Work with grayscaledImage */
+		for (i = 0; i < Img_src->Height; i++)
+		{
+			for (j = 0; j < Img_src->Width; j++)
+			{
+				hist->values[grayscaledImage.rgbpix[i * Img_src->Width + j]]++;
+				if (hist->values[grayscaledImage.rgbpix[i * Img_src->Width + j]] > maxValue)
+					maxValue = hist->values[grayscaledImage.rgbpix[i * Img_src->Width + j]];
+			}
+		}
+	}
+	else
+	{
+		if (Img_src->Num_channels != 3) return -1;
+
+		/*if the image depth is 8bit -> we will have a histogram for 256 * 3 values*/
+		hist->values = (long int *)calloc(3 *hist->Bins, sizeof(long int));
+		
+		/* Work with colored imput image */
+		for (i = 0; i < Img_src->Height; i++)
+		{
+			for (j = 0; j < Img_src->Width; j++)
+			{
+				for (z = 0; z < 3; z++)
+				{
+					hist->values[3 *(Img_src->rgbpix[3* (i * Img_src->Width + j) +z]) + z]++;
+					if (hist->values[3 * (Img_src->rgbpix[3 * (i * Img_src->Width + j) + z]) + z] > maxValue)
+						maxValue = hist->values[3 * (Img_src->rgbpix[3 * (i * Img_src->Width + j) + z]) + z];
+				}
+			}
+		}
+	}
+	/*
+	fopen_s(&fp, "blqk.txt", "wt");
+	for (i = 0; i < 256; i++)
+	{
+		fprintf(fp, "%ld: %ld\n", i, (hist->values[3 * i + 0]));
+	}
+	fprintf(fp, "\n\n");
+	for (i = 0; i < 256; i++)
+	{
+		fprintf(fp, "%ld: %ld\n", i, (hist->values[3 * i + 1]));
+	}
+
+	fprintf(fp, "\n\n");
+	for (i = 0; i < 256; i++)
+	{
+		fprintf(fp, "%ld: %ld\n", i, (hist->values[3 * i + 2]));
+	}
+
+	fclose(fp);
+	*/
+	hist->MaxValue = maxValue;
+}
+
+/*
+	Convert  H I S TO G R A M   to  I M A G E
+*/
+void ConvertHistToImage(struct Histogram *hist, struct Image *Img_src)
+{
+	int i, j, k, z;
+	int write = 1;
+	float ScaleNumber = 0;
+	long int MaxValue = hist->MaxValue;
+	int Char_array[81];
+	int NumberofCalcs = 0;
+	int average;
+
+	/* Set size for the Hist Image */
+	if (hist->Bins == 256)
+	{
+		hist->Size_x = 2 * hist->Bins + 30;
+		if (MaxValue > 600) // we have to scale if it is too big
+		{
+			ScaleNumber = MaxValue / 600;
+			hist->Size_y = (MaxValue / ScaleNumber + 40);
+		}
+		else {
+			hist->Size_y = MaxValue + 40;
+			ScaleNumber = ((MaxValue + 40) / 600.0);
+		}
+	}
+
+	Img_src->Num_channels = hist->NumberOfLayers;
+	if (hist->NumberOfLayers == 3) Img_src->ColorSpace = 2;
+	else Img_src->ColorSpace = 1;
+
+	Img_src->rgbpix = (unsigned char *)realloc(Img_src->rgbpix, hist->NumberOfLayers * hist->Size_y * hist->Size_x * sizeof(unsigned char));
+	Img_src->Width = hist->Size_x;
+	Img_src->Height = hist->Size_y;
+
+	for (j = 0; j < hist->Size_x; j++)
+	{
+		for (i = hist->Size_y - 1;  i >= 0; i--)
+		{
+			for (k = 0; k < hist->NumberOfLayers; k++)
+			{
+				//if (Img_src->rgbpix[hist->NumberOfLayers * (i * hist->Size_x + j) + k] != 255) 
+				Img_src->rgbpix[hist->NumberOfLayers * (i * hist->Size_x + j) + k] = 0;
+
+				if (i == 0 || j == 0 || j == hist->Size_x - 1 || i == hist->Size_y - 1)
+				{
+					Img_src->rgbpix[hist->NumberOfLayers * (i * hist->Size_x + j) + k] = 255;
+					continue;
+				}
+
+				if (j % 2 == 0)
+				{
+					if ((j <= 2 * hist->Bins + 20) && j > 20) // ako e chetno
+					{
+						if (i > (hist->Size_y - 20 - (hist->values[hist->NumberOfLayers * ((j - 20) / 2) + k] / ScaleNumber)) && (i < hist->Size_y - 20))
+						{
+							Img_src->rgbpix[hist->NumberOfLayers * (i * hist->Size_x + j) + k] = 255;
+						}
+					}
+				}
+				else
+				{
+					if ((j < 2 * hist->Bins + 20) && j > 20)
+					{
+						average = ((hist->values[hist->NumberOfLayers *((j - 19) / 2) + k] / ScaleNumber) + (hist->values[hist->NumberOfLayers * ((j - 21) / 2) + k] / ScaleNumber)) / 2;
+						if (i >(hist->Size_y - 20 - (average)) && (i < hist->Size_y - 20))
+						{
+							Img_src->rgbpix[hist->NumberOfLayers * (i * hist->Size_x + j) + k] = 255;
+						}
+					}
+					//Img_src->rgbpix[hist->NumberOfLayers * (i * hist->Size_x + j) + k] = 0;
+				}
+			}
+		}
+	}
+
+	
+	for (k = MaxValue; k > 0; k--)
+	{
+		for (i = 0; i < 81; i++)
+		{
+			Char_array[i] = 0;
+		}
+		NumberofCalcs++;
+		write = k / 10;
+		write = k - (write * 10);
+		k =k /10;
+		if (write == 0)
+		{
+			Char_array[4] = 255;
+			Char_array[5] = 255;
+			Char_array[12] = 255;
+			Char_array[15] = 255;
+			Char_array[20] = 255;
+			Char_array[25] = 255;
+			Char_array[28] = 255;
+			Char_array[35] = 255;
+			Char_array[37] = 255;
+			Char_array[44] = 255;
+			Char_array[46] = 255;
+			Char_array[53] = 255;
+			Char_array[56] = 255;
+			Char_array[61] = 255;
+			Char_array[66] = 255;
+			Char_array[69] = 255;
+			Char_array[76] = 255;
+			Char_array[77] = 255;
+		}
+		else if(write == 1)
+		{
+			Char_array[20] = 255;
+			Char_array[12] = 255;
+			Char_array[4] = 255;
+			Char_array[5] = 255;
+			Char_array[13] = 255;
+			Char_array[14] = 255;
+			Char_array[22] = 255;
+			Char_array[23] = 255;
+			Char_array[31] = 255;
+			Char_array[32] = 255;
+			Char_array[40] = 255;
+			Char_array[41] = 255;
+			Char_array[49] = 255;
+			Char_array[50] = 255;
+			Char_array[58] = 255;
+			Char_array[59] = 255;
+			Char_array[67] = 255;
+			Char_array[68] = 255;
+			Char_array[69] = 255;
+			Char_array[66] = 255;
+		}
+		else if (write == 2)
+		{
+			Char_array[10] = 255;
+			Char_array[2] = 255;
+			Char_array[3] = 255;
+			Char_array[4] = 255;
+			Char_array[5] = 255;
+			Char_array[6] = 255;
+			Char_array[15] = 255;
+			Char_array[24] = 255;
+			Char_array[32] = 255;
+			Char_array[40] = 255;
+			Char_array[48] = 255;
+			Char_array[56] = 255;
+			Char_array[64] = 255;
+			Char_array[65] = 255;
+			Char_array[66] = 255;
+			Char_array[67] = 255;
+			Char_array[68] = 255;
+			Char_array[69] = 255;
+		}
+		else if (write == 3)
+		{
+			Char_array[11] = 255;
+			Char_array[3]  = 255;
+			Char_array[4]  = 255;
+			Char_array[14] = 255;
+			Char_array[24] = 255;
+			Char_array[32] = 255;
+			Char_array[40] = 255;
+			Char_array[50] = 255;
+			Char_array[60] = 255;
+			Char_array[68] = 255;
+			Char_array[76] = 255;
+			Char_array[75] = 255;
+			Char_array[65] = 255;
+		}
+		else if (write == 4)
+		{
+			Char_array[5] = 255;
+			Char_array[13] = 255;
+			Char_array[21] = 255;
+			Char_array[29] = 255;
+			Char_array[37] = 255;
+			Char_array[38] = 255;
+			Char_array[39] = 255;
+			Char_array[40] = 255;
+			Char_array[41] = 255;
+			Char_array[42] = 255;
+			Char_array[43] = 255;
+			Char_array[34] = 255;
+			Char_array[25] = 255;
+			Char_array[16] = 255;
+			Char_array[52] = 255;
+			Char_array[61] = 255;
+			Char_array[70] = 255;
+			Char_array[79] = 255;
+		}
+		else if (write == 5)
+		{
+			Char_array[10] = 255;
+			Char_array[2] = 255;
+			Char_array[3] = 255;
+			Char_array[4] = 255;
+			Char_array[5] = 255;
+			Char_array[6] = 255;
+			Char_array[19] = 255;
+			Char_array[28] = 255;
+			Char_array[37] = 255;
+			Char_array[38] = 255;
+			Char_array[39] = 255;
+			Char_array[40] = 255;
+			Char_array[41] = 255;
+			Char_array[42] = 255;
+			Char_array[43] = 255;
+			Char_array[52] = 255;
+			Char_array[61] = 255;
+			Char_array[70] = 255;
+			Char_array[69] = 255;
+			Char_array[68] = 255;
+			Char_array[67] = 255;
+			Char_array[66] = 255;
+			Char_array[65] = 255;
+			Char_array[64] = 255;
+		}
+		else if (write == 6)
+		{
+			Char_array[4] = 255;
+			Char_array[5] = 255;
+			Char_array[12] = 255;
+			Char_array[15] = 255;
+			Char_array[20] = 255;
+			Char_array[28] = 255;
+			Char_array[37] = 255;
+			Char_array[46] = 255;
+			Char_array[56] = 255;
+			Char_array[66] = 255;
+			Char_array[76] = 255;
+			Char_array[77] = 255;
+			Char_array[69] = 255;
+			Char_array[61] = 255;
+			Char_array[51] = 255;
+			Char_array[41] = 255;
+			Char_array[40] = 255;
+			Char_array[48] = 255;
+		}
+		else if (write == 7)
+		{
+			Char_array[2] = 255;
+			Char_array[3] = 255;
+			Char_array[4] = 255;
+			Char_array[5] = 255;
+			Char_array[6] = 255;
+			Char_array[7] = 255;
+			Char_array[16] = 255;
+			Char_array[24] = 255;
+			Char_array[33] = 255;
+			Char_array[41] = 255;
+			Char_array[50] = 255;
+			Char_array[58] = 255;
+			Char_array[67] = 255;
+			Char_array[75] = 255;
+		}
+		else if (write == 8)
+		{
+			Char_array[3] = 255;
+			Char_array[4] = 255;
+			Char_array[11] = 255;
+			Char_array[14] = 255;
+			Char_array[19] = 255;
+			Char_array[24] = 255;
+			Char_array[29] = 255;
+			Char_array[32] = 255;
+			Char_array[39] = 255;
+			Char_array[40] = 255;
+			Char_array[47] = 255;
+			Char_array[50] = 255;
+			Char_array[55] = 255;
+			Char_array[60] = 255;
+			Char_array[65] = 255;
+			Char_array[68] = 255;
+			Char_array[75] = 255;
+			Char_array[76] = 255;
+		}
+		else if (write == 9)
+		{
+			Char_array[3] = 255;
+			Char_array[4] = 255;
+			Char_array[11] = 255;
+			Char_array[14] = 255;
+			Char_array[19] = 255;
+			Char_array[24] = 255;
+			Char_array[29] = 255;
+			Char_array[32] = 255;
+			Char_array[39] = 255;
+			Char_array[40] = 255;
+			Char_array[33] = 255;
+			Char_array[42] = 255;
+			Char_array[51] = 255;
+			Char_array[60] = 255;
+			Char_array[69] = 255;
+			Char_array[77] = 255;
+			Char_array[76] = 255;
+			Char_array[75] = 255;
+		}
+		for (j = 0; j < 9; j++)
+		{
+			for (i = 0; i < 9; i++)
+			{
+				for (z = 0; z < hist->NumberOfLayers; z++)
+				{
+					Img_src->rgbpix[hist->NumberOfLayers * ((15 + i) * hist->Size_x + (hist->Size_x / 2) - (10 * NumberofCalcs) + j) + z] = Char_array[i * 9 + j];
+				}
+			}
+		}
+	}
+
+	/* write 0*/
+	for (i = 0; i < 81; i++)
+	{
+		Char_array[i] = 0;
+	}
+	Char_array[4] = 255;
+	Char_array[5] = 255;
+	Char_array[12] = 255;
+	Char_array[15] = 255;
+	Char_array[20] = 255;
+	Char_array[25] = 255;
+	Char_array[28] = 255;
+	Char_array[35] = 255;
+	Char_array[37] = 255;
+	Char_array[44] = 255;
+	Char_array[46] = 255;
+	Char_array[53] = 255;
+	Char_array[56] = 255;
+	Char_array[61] = 255;
+	Char_array[66] = 255;
+	Char_array[69] = 255;
+	Char_array[76] = 255;
+	Char_array[77] = 255;
+
+	for (j = 0; j < 9; j++)
+	{
+		for (i = 0; i < 9; i++)
+		{
+			for (k = 0; k < hist->NumberOfLayers; k++)
+			{
+				Img_src->rgbpix[hist->NumberOfLayers * ((hist->Size_y - 15 + i) * hist->Size_x + 10 + j) + k] = Char_array[i * 9 + j];
+			}
+		}
+	}
+
+	/* write 2*/
+	for (i = 0; i < 81; i++)
+	{
+		Char_array[i] = 0;
+	}
+	Char_array[10] = 255;
+	Char_array[2] = 255;
+	Char_array[3] = 255;
+	Char_array[4] = 255;
+	Char_array[5] = 255;
+	Char_array[6] = 255;
+	Char_array[15] = 255;
+	Char_array[24] = 255;
+	Char_array[32] = 255;
+	Char_array[40] = 255;
+	Char_array[48] = 255;
+	Char_array[56] = 255;
+	Char_array[64] = 255;
+	Char_array[65] = 255;
+	Char_array[66] = 255;
+	Char_array[67] = 255;
+	Char_array[68] = 255;
+	Char_array[69] = 255;
+
+	for (j = 0; j < 9; j++)
+	{
+		for (i = 0; i < 9; i++)
+		{
+			for (k = 0; k < hist->NumberOfLayers; k++)
+			{
+				Img_src->rgbpix[hist->NumberOfLayers * ((hist->Size_y - 15 + i) * hist->Size_x + hist->Size_x - 40 + j) + k] = Char_array[i * 9 + j];
+			}
+		}
+	}
+
+	/* write 5*/
+	for (i = 0; i < 81; i++)
+	{
+		Char_array[i] = 0;
+	}
+	Char_array[10] = 255;
+	Char_array[2] = 255;
+	Char_array[3] = 255;
+	Char_array[4] = 255;
+	Char_array[5] = 255;
+	Char_array[6] = 255;
+	Char_array[19] = 255;
+	Char_array[28] = 255;
+	Char_array[37] = 255;
+	Char_array[38] = 255;
+	Char_array[39] = 255;
+	Char_array[40] = 255;
+	Char_array[41] = 255;
+	Char_array[42] = 255;
+	Char_array[43] = 255;
+	Char_array[52] = 255;
+	Char_array[61] = 255;
+	Char_array[70] = 255;
+	Char_array[69] = 255;
+	Char_array[68] = 255;
+	Char_array[67] = 255;
+	Char_array[66] = 255;
+	Char_array[65] = 255;
+	Char_array[64] = 255;
+
+	for (j = 0; j < 9; j++)
+	{
+		for (i = 0; i < 9; i++)
+		{
+			for (k = 0; k < hist->NumberOfLayers; k++)
+			{
+				Img_src->rgbpix[hist->NumberOfLayers * ((hist->Size_y - 15 + i) * hist->Size_x + hist->Size_x - 30 + j) + k] = Char_array[i * 9 + j];
+				Img_src->rgbpix[hist->NumberOfLayers * ((hist->Size_y - 15 + i) * hist->Size_x + hist->Size_x - 20 + j) + k] = Char_array[i * 9 + j];
+			}
+		}
+	}
+
 }

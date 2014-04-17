@@ -27,6 +27,10 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include <complex.h>
+
+//#undef I
+//#define J _Imaginary_I
 
 /* 
 	convert to    G R A Y S C A L E  - 3 channels RGB
@@ -76,7 +80,7 @@ struct Image ConvertToBinary(struct Image *Img_src, struct Image *Img_dst, int T
 	int Sum = 0;
 	int AverageGray = 0;
 
-	struct Image GrayImage = CreateNewImage(&GrayImage, Img_src->Width, Img_src->Height, 1, COLORSPACE_GRAYSCALE);
+	struct Image GrayImage = CreateNewImage(&GrayImage, Img_src->Width, Img_src->Height, 1, COLORSPACE_GRAYSCALE, 8);
 
 	if (Img_src->Width * Img_src->Height != Img_dst->Width * Img_dst->Height)
 	{
@@ -434,9 +438,9 @@ void Convert_RGB_to_XYZ(struct Image *Img_src, struct Image *Img_dst)
 			if (Y < 0) Y = 0;
 			if (Z < 0) Z = 0;
 
-			X = RoundValue_toX_SignificantBits(X, 2);
-			Y = RoundValue_toX_SignificantBits(Y, 2);
-			Z = RoundValue_toX_SignificantBits(Z, 2);
+			X = RoundValue_toX_SignificantBits(X, 0);
+			Y = RoundValue_toX_SignificantBits(Y, 0);
+			Z = RoundValue_toX_SignificantBits(Z, 0);
 			
 			Img_dst->rgbpix[3 * (i * Img_dst->Width + j) + 0] = X;
 			Img_dst->rgbpix[3 * (i * Img_dst->Width + j) + 1] = Y;
@@ -506,13 +510,10 @@ void Convert_XYZ_to_RGB(struct Image *Img_src, struct Image *Img_dst)
 			B = B * 255;
 			if (B > 255) B = 255;
 			if (B < 0) B = 0;
-			
-			if (i == 300 && j == 1300)
-				printf("sa");
 
-			R = RoundValue_toX_SignificantBits(R, 2);
-			G = RoundValue_toX_SignificantBits(G, 2);
-			B = RoundValue_toX_SignificantBits(B, 2);
+			R = RoundValue_toX_SignificantBits(R, 0);
+			G = RoundValue_toX_SignificantBits(G, 0);
+			B = RoundValue_toX_SignificantBits(B, 0);
 
 			Img_dst->rgbpix[3 * (i * Img_dst->Width + j) + 0] = R;
 			Img_dst->rgbpix[3 * (i * Img_dst->Width + j) + 1] = G;
@@ -527,7 +528,7 @@ void Convert_XYZ_to_RGB(struct Image *Img_src, struct Image *Img_dst)
 void ConvertImage_RGB_to_LAB(struct Image *Img_src, struct Image *Img_dst, struct WhitePoint WhitePoint_XYZ)
 {
 	FILE *fdebug = NULL;
-	struct Image Img_XYZ = CreateNewImage(&Img_XYZ,Img_src->Width, Img_src->Height, 3, 2);
+	struct Image Img_XYZ = CreateNewImage(&Img_XYZ, Img_src->Width, Img_src->Height, 3, 2, 8);
 
 	int i, j;
 	float L, a, b;
@@ -633,9 +634,9 @@ void ConvertImage_RGB_to_LAB(struct Image *Img_src, struct Image *Img_dst, struc
 			a = 500 * (F_x - F_y);
 			b = 200 * (F_y - F_z);
 
-			L = RoundValue_toX_SignificantBits(L, 2);
-			a = RoundValue_toX_SignificantBits(a, 2);
-			b = RoundValue_toX_SignificantBits(b, 2);
+			L = RoundValue_toX_SignificantBits(L, 0);
+			a = RoundValue_toX_SignificantBits(a, 0);
+			b = RoundValue_toX_SignificantBits(b, 0);
 			a += 128;
 			b += 128;
 			if (a > 255) 
@@ -670,7 +671,7 @@ void ConvertImage_RGB_to_LAB(struct Image *Img_src, struct Image *Img_dst, struc
 void ConvertImage_LAB_to_RGB(struct Image *Img_src, struct Image *Img_dst, struct WhitePoint WhitePoint_XYZ)
 {
 	FILE *fdebug = NULL;
-	struct Image Img_XYZ = CreateNewImage(&Img_XYZ, Img_src->Width, Img_src->Height, 3, 2);
+	struct Image Img_XYZ = CreateNewImage(&Img_XYZ, Img_src->Width, Img_src->Height, 3, 2, 8);
 
 	int i, j;
 	float L, a, b;
@@ -726,12 +727,16 @@ void ConvertImage_LAB_to_RGB(struct Image *Img_src, struct Image *Img_dst, struc
 			Y = L > 8.0 ? Y * Y * Y : L * (27.0 / 24389.0);
 			Z = Z > 6.0 / 29.0 ? Z * Z * Z : Z * (108.0 / 841.0) - 432.0 / 24389.0;
 			
-			X = RoundValue_toX_SignificantBits(X, 2);
-			Y = RoundValue_toX_SignificantBits(Y, 2);
-			Z = RoundValue_toX_SignificantBits(Z, 2);
-			Img_XYZ.rgbpix[3 * (i * Img_dst->Width + j) + 0] = X * 100;
-			Img_XYZ.rgbpix[3 * (i * Img_dst->Width + j) + 1] = Y * 100;
-			Img_XYZ.rgbpix[3 * (i * Img_dst->Width + j) + 2] = Z * 100;
+			X *= 100;
+			Y *= 100;
+			Z *= 100;
+
+			X = RoundValue_toX_SignificantBits(X, 0);
+			Y = RoundValue_toX_SignificantBits(Y, 0);
+			Z = RoundValue_toX_SignificantBits(Z, 0);
+			Img_XYZ.rgbpix[3 * (i * Img_dst->Width + j) + 0] = X;
+			Img_XYZ.rgbpix[3 * (i * Img_dst->Width + j) + 1] = Y;
+			Img_XYZ.rgbpix[3 * (i * Img_dst->Width + j) + 2] = Z;
 			
 		}
 	}
@@ -1553,3 +1558,187 @@ void WhitebalanceCorrectionBLUEorRED(struct Image *src, struct Image *dst, struc
 		}
 	}
 }
+
+
+int dft(long int length, int length2, long double real_sample[], long double imag_sample[], long double temp_real[], long double temp_imag[])
+{
+	long int i, j, k, l;
+	long double arg;
+	long double CurrentValCalcs;
+	long double cosarg, sinarg;
+	double radius;
+	double Pitagor;
+	//long double *temp_real = NULL, *temp_imag = NULL;
+
+	//temp_real = calloc(length * length2, sizeof(long double));
+	//temp_imag = calloc(length * length2, sizeof(long double));
+	//if (temp_real == NULL || temp_imag == NULL)
+	//{
+	//	return(FALSE);
+	//}
+
+	radius = length2 / 2 - (0.35 * length2 / 2);
+
+	for (k = 0; k < length; k += 1)
+	{
+		for (l = 0; l < length2; l += 1)
+		{
+
+			Pitagor = sqrt(pow((length2 / 2 - l), 2) + pow((length / 2 - k), 2));
+			if (Pitagor > (MIN(length, length2) - 3) )
+			{
+				temp_real[k * length2 + l] = 0;
+				temp_imag[k * length2 + l] = 0;
+				continue;
+			}
+		
+			temp_real[k * length2 + l] = 0;
+			temp_imag[k * length2 + l] = 0;
+			for (i = 0; i < length; i += 1)
+			{
+				for (j = 0; j < length2; j += 1)
+				{
+					arg = -1.0 * 2.0 * 3.141592654 * ((long double)(i * k) / (long double)length + (long double)(j * l) / (long double)length2);
+
+					cosarg = cos(arg);
+					sinarg = sin(arg);
+					temp_real[k * length2 + l] += (real_sample[i * length2 + j] * cosarg - imag_sample[i * length2 + j] * sinarg);
+					temp_imag[k * length2 + l] += (real_sample[i * length2 + j] * sinarg + imag_sample[i * length2 + j] * cosarg);
+				}
+			}
+		}
+	}
+	
+
+	for (i = 0; i<length * length2; i += 1)
+	{
+		real_sample[i] = temp_real[i];
+		imag_sample[i] = temp_imag[i];
+	}
+
+	//free(temp_real);
+	//free(temp_imag);
+	return(TRUE);
+}
+
+
+
+//Inverse Discrete Fourier Transform
+
+
+int inverse_dft(long int length, int length2, long double real_sample[], long double imag_sample[], long double temp_real[], long double temp_imag[])
+{
+	long int i, j, k, l;
+	long double arg;
+	long double cosarg, sinarg;
+	//long double *temp_real = NULL, *temp_imag = NULL;
+
+	//temp_real = calloc(length * length2, sizeof(long double));
+	//temp_imag = calloc(length * length2, sizeof(long double));
+	//if (temp_real == NULL || temp_imag == NULL)
+	//{
+	//	return(FALSE);
+	//}
+
+	for (k = 0; k < length; k += 1)
+	{
+		for (l = 0; l < length2; l += 1)
+		{
+			temp_real[k * length2 + l] = 0;
+			temp_imag[k * length2 + l] = 0;
+			for (i = 0; i < length; i += 1)
+			{
+				//arg = 2.0 * 3.141592654 * (long double)i / (long double)length;
+				for (j = 0; j < length2; j += 1)
+				{
+					arg = 2.0 * 3.141592654 * ((long double)(i * k) / (long double)length + (long double)(j * l) / (long double)length2);
+
+					cosarg = cos(arg);
+					sinarg = sin(arg);
+					temp_real[k * length2 + l] += (real_sample[i * length2 + j] * cosarg - imag_sample[i * length2 + j] * sinarg);
+					temp_imag[k * length2 + l] += (real_sample[i * length2 + j] * sinarg + imag_sample[i * length2 + j] * cosarg);
+				}
+			}
+		}
+	}
+
+
+	for (i = 0; i<length * length2; i += 1)
+	{
+		real_sample[i] = temp_real[i] / (long double)(length * length2);
+		imag_sample[i] = temp_imag[i] / (long double)(length * length2);
+	}
+
+	//free(temp_real);
+	//free(temp_imag);
+	return(TRUE);
+}
+
+
+void SpatialToFrequencyDomain(struct Image *img_src, struct Image *img_dst)
+{
+	// perform DFT
+	// The number of frequencies corresponds to the number of pixels in the spatial domain image, i.e. the image in the spatial and Fourier domain are of the same size.
+	// Formula is published here: http://homepages.inf.ed.ac.uk/rbf/HIPR2/fourier.htm
+
+	long double* dr = NULL;
+	long double* di = NULL;
+	long double* fr = NULL;
+	long double* fi = NULL;
+
+	int i, j, k, l, z;
+	float MATH_PI = 3.14;
+	long double CurrentValCalcs = 0;
+	long double CurrentValCalcs2 = 0;
+	//_Complex double ui = 0;
+	int Min = 655035, Max = 0;
+	int Width = img_src->Width;
+	int Height = img_src->Height;
+	long double *Arr_calc = NULL;
+	long double *Arr_calc2 = NULL;
+	long double *Arr_calc3 = NULL;
+	long double *Arr_calc4 = NULL;
+	int broi = 0;
+	//struct Image Mapping = CreateNewImage(&Mapping, img_src->Width, img_src->Height, 1, 1);
+	struct Image grayscaledImage = CreateNewImage(&grayscaledImage, img_src->Width, img_src->Height, 1, 1, 8);
+
+	Arr_calc = (long double *)malloc(img_src->Width * img_src->Height * sizeof(long double));
+	Arr_calc2 = (long double *)malloc(img_src->Width * img_src->Height * sizeof(long double));
+	Arr_calc3 = (long double *)malloc(img_src->Width * img_src->Height * sizeof(long double));
+	Arr_calc4 = (long double *)malloc(img_src->Width * img_src->Height * sizeof(long double));
+
+	if (img_src->Num_channels != 1) ConvertToGrayscale_1Channel(img_src, &grayscaledImage);
+	else memcpy(grayscaledImage.rgbpix, img_src->rgbpix, img_src->Width * img_src->Height * sizeof(unsigned char));
+
+	if (grayscaledImage.Width * grayscaledImage.Height != img_dst->Width * img_dst->Height)
+	{
+		SetDestination(&grayscaledImage, img_dst);
+	}
+
+	dr = (long double *)malloc(grayscaledImage.Width * grayscaledImage.Height * sizeof(long double));
+	di = (long double *)malloc(grayscaledImage.Width * grayscaledImage.Height * sizeof(long double));
+	fr = (long double *)malloc(grayscaledImage.Width * grayscaledImage.Height * sizeof(long double));
+	fi = (long double *)malloc(grayscaledImage.Width * grayscaledImage.Height * sizeof(long double));
+
+	for (i = 0; i < grayscaledImage.Height * grayscaledImage.Width; i++)
+	{
+		di[i] = 0;
+		dr[i] = grayscaledImage.rgbpix[i];
+	}
+
+	dft(grayscaledImage.Height , grayscaledImage.Width, dr, di, fr, fi);
+	inverse_dft(grayscaledImage.Height , grayscaledImage.Width, dr, di, fr, fi);
+
+	for (i = 0; i < grayscaledImage.Height * grayscaledImage.Width; i++)
+	{
+		if (dr[i] < 0) dr[i] = 0;
+		if (dr[i] > 255) dr[i] = 255;
+		img_dst->rgbpix[i] = RoundValue_toX_SignificantBits(dr[i], 0);
+	}
+
+	free(fr);
+	free(fi);
+	free(dr);
+	free(di);
+}
+

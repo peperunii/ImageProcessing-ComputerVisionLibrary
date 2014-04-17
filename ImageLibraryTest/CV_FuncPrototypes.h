@@ -22,7 +22,7 @@ void			 DestroyImage(struct Image *Img);
 struct Image	 ReadImage(char *filename);
 struct Image	 read_Image_file(FILE *file);
 /* Write Jpeg file. Parameter: quality (0, 100) */
-GLOBAL(void)	 WriteImage(char *filename, struct Image, int quality);
+void			 WriteImage(char *filename, struct Image, int quality);
 /* Blur image - circle around point. Parameter: Point, Radius, BlurOrSharp: 0= Blur */ 
 struct Image	 BlurImageAroundPoint(struct Image *Img_src, struct Image *Img_dst, struct point_xy CentralPoint, int BlurPixelRadius, int SizeOfBlur, int BlurOrSharp, int BlurAgression);
 
@@ -43,6 +43,7 @@ struct Image	 RotateImage(struct Image *Img_src, struct Image *Img_dst, float Ro
 struct ArrPoints EdgeExtraction(struct Image *Img_src, struct Image *Img_dst, int Algotype, float Algo_param1, float Algo_param2);
 void			 FindDerrivative_XY(struct Image *Img_src, struct Image *DerrivativeX_image, struct Image *DerrivativeY_image);
 void			 FindMagnitudeOfGradient(struct Image *DerrivativeX_image, struct Image *DerrivativeY_image, struct Image *Magnitude);
+void			 FindMagnitudeOfGradient_Arrays(long double *array_1, long double *array_2, long double *Magnitude, int dimensionX, int dimensionY, int *Min, int *Max);
 void			 FindNonMaximumSupp(struct Image *Magnitude, struct Image *DerrivativeX, struct Image *DerrivativeY, struct Image *NMS);
 void			 FindHysteresis(struct Image *Magnitude, struct Image *NMS, struct Image *Img_dst, float Algo_param1, float Algo_param2);
 void			 Follow_edges(unsigned char *edgemapptr, unsigned char *edgemagptr, unsigned char lowval, int cols);
@@ -55,8 +56,8 @@ struct Image	 MorphDilate(struct Image *Img_src, struct Image *Img_dst, int Elem
 struct Image	 MorphErode(struct Image *Img_src, struct Image *Img_dst, int ElementSize, int NumberofIterations);
 struct Image	 MorphOpen(struct Image *Img_src, struct Image *Img_dst, int ElementSize, int NumberofIterations);
 struct Image	 MorphClose(struct Image *Img_src, struct Image *Img_dst, int ElementSize, int NumberofIterations);
-struct Image     SharpImageContours(struct Image *Img_src, struct Image *Img_dst , int Percentage);
-struct Image     SharpImageBinary(struct Image *Img_src, struct Image *Img_dst, struct Image *Img_Binary , int Percentage);
+struct Image     SharpImageContours(struct Image *Img_src, struct Image *Img_dst , float Percentage);
+struct Image     SharpImageBinary(struct Image *Img_src, struct Image *Img_dst, struct Image *Img_Binary , float Percentage);
 struct Image     ColorFromGray(struct Image *Img_src, struct Image *Img_dst, struct ColorPoint_RGB ColorPoint);
 struct Image	 ConvertToBinary(struct Image *Img_src, struct Image *Img_dst, /* 0 for automatic */ int Threshold);
 /* Change image color space - RGB to HSL. Both Src and Dst have to be 3 channeled images.*/
@@ -64,7 +65,7 @@ void			 ConvertImage_RGB_to_HSL(struct Image *Img_src, struct Image *Img_dst);
 /* Change image color space - HSL to RGB. Both Src and Dst have to be 3 channeled images.*/
 void			 ConvertImage_HSL_to_RGB(struct Image *Img_src, struct Image *Img_dst);
 /* Change image saturation by percentage. Params: 1: Input Image - HSL or RGB, 2: Output Image - HSL or RGB, Percentage to increase/decrease saturation (-100, 100) */
-struct Image	 Saturation(struct Image *Img_src, struct Image *Img_dst, int percentage);
+struct Image	 Saturation(struct Image *Img_src, struct Image *Img_dst, float percentage);
 /* Change image color space - RGB to L*ab. Both Src and Dst have to be 3 channeled images.*/
 void			 ConvertImage_RGB_to_LAB(struct Image *Img_src, struct Image *Img_dst, struct WhitePoint WhitePoint_XYZ);
 /* Change image color space - L*ab to RGB. Both Src and Dst have to be 3 channeled images.*/
@@ -84,3 +85,11 @@ float			 pow_func(float Number, float Stepen, int precision);
 struct Image *	 CreateImageLayersBasedOnPrototype(struct Image *Img_src, int NumberofLayers);
 struct Image	 CombineLayers(struct Image *Layers, struct Image *Img_dst, struct Image Mask);
 struct Image 	 CreateMaskForLayers(struct Image *LayerPrototype, int MaskType, int NumberOfLayers);
+struct Image	 BlendImage(struct Image *Img_src, struct Image *Img_BlendedSrc, struct Image *Img_dst, float Percentage, int AlgoParam1, int AlgoParam2, int BlacOrWhiteThreshold);
+struct Image	 InverseImage0to255(struct Image *Img_src, struct Image *Img_dst);
+void			 SpatialToFrequencyDomain(struct Image *img_src, struct Image *img_dst);
+void			 FindPhase_Arrays(long double *real_arr, long double *imag_arr, long double *Phase, int dimensionX, int dimensionY);
+void			 HistogramForImage(struct Histogram *hist, struct Image *Img_src, short NumberOfLayers);
+void			 ConvertHistToImage(struct Histogram *hist, struct Image *Img_src);
+int              inverse_dft(long int length, int length2, long double real_sample[], long double imag_sample[], long double temp_real[], long double temp_imag[]);
+int              dft(long int length, int length2, long double real_sample[], long double imag_sample[], long double temp_real[], long double temp_imag[]);

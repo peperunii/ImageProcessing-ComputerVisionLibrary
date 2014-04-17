@@ -17,6 +17,7 @@ typedef struct Image
 	char *Image_FileName;     // Image file name. Currently is not used
 	int ColorSpace;           // Color space: 0 - Binary image, 1 -Grayscale, 2 - RGB, 3 - YCbCr, 4 - Lab, 5 - HSL
 	int isLoaded;			  // This flag is raised if the image is succefully loaded
+	int imageDepth;
 }Image;
 
 /******************************************************************************************************************/
@@ -94,3 +95,13 @@ struct ColorPoint_UV
 	float v;
 
 }ColorPoint_UV;
+
+struct Histogram
+{
+	int Bins;
+	int Size_x;
+	int Size_y;
+	long int *values;  // the hist image is here
+	long int MaxValue;
+	short NumberOfLayers;
+}Histogram;

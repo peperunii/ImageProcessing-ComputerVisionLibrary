@@ -35,6 +35,8 @@ struct Image ReadImage(char *FileName)
 {
 	FILE *f_ptr = NULL;
 	struct Image Img_src;
+
+#ifdef VS_LIBRARIES
 	int isJpeg = 0;
 	int Counter = 0;
 	Img_src.isLoaded = 0;
@@ -70,6 +72,18 @@ struct Image ReadImage(char *FileName)
 
 	Img_src = read_Image_file(f_ptr);
 	Img_src.Image_FileName = FileName;
+#endif
+#ifdef QT_LIBRARIES
+
+	QImage InputImage;
+	InputImage.load(FileName);
+	Img_src.rgbpix = InputImage.scanLine(0);
+	Img_src.Width = InputImage.width();
+	Img_src.Height = InoutImage.height();
+	Img_src.NumChannels = InputImage.depth();
+
+#endif // QT_LIBRARIES
+
 	Img_src.isLoaded = 1;
 	return Img_src;
 }
@@ -78,8 +92,9 @@ struct Image ReadImage(char *FileName)
 /*
 	W R I T E   I M A G E
 */
-GLOBAL(void) WriteImage(char * filename, struct Image Img_src, int quality)//uint16 *image_buffer, int image_width, int image_height)
+void WriteImage(char * filename, struct Image Img_src, int quality)//uint16 *image_buffer, int image_width, int image_height)
 {
+#ifdef VS_LIBRARIES
   struct jpeg_compress_struct cinfo;
 
   struct jpeg_error_mgr jerr;
@@ -136,7 +151,14 @@ GLOBAL(void) WriteImage(char * filename, struct Image Img_src, int quality)//uin
   fclose(outfile);
 
   jpeg_destroy_compress(&cinfo);
+#endif
+#ifdef QT_LIBRARIES
 
+  QImage Image_Output(Img_src->rgbpix,Img_src->Width, Img_src->Height);
+
+  Image_Output.save(filename);
+
+#endif
 }
 
 struct my_error_mgr {
@@ -206,6 +228,7 @@ struct Image read_Image_file(FILE * infile)
   
   /* TO  DELETE */
   Img_src.ColorSpace = 2;
+  Img_src.imageDepth = 8;
   /***************/
   
   
@@ -260,6 +283,7 @@ struct Image CreateNewImage_BasedOnPrototype(struct Image *Prototype, struct Ima
 	Img_dst->Width = Prototype->Width;
 	Img_dst->Num_channels = Prototype->Num_channels;
 	Img_dst->ColorSpace = Prototype->ColorSpace;
+	Img_dst->imageDepth = Prototype->imageDepth;
 
 	Img_dst->rgbpix = (unsigned char *)calloc(Img_dst->Height * Img_dst->Width * Img_dst->Num_channels, sizeof(unsigned char));
 	if (Img_dst->rgbpix == NULL) 
@@ -278,13 +302,14 @@ struct Image CreateNewImage_BasedOnPrototype(struct Image *Prototype, struct Ima
 /*
 	C R E A T E -  New Image
 */
-struct Image CreateNewImage(struct Image *Img_dst, int Width, int Height, int NumChannels, int ColorSpace)
+struct Image CreateNewImage(struct Image *Img_dst, int Width, int Height, int NumChannels, int ColorSpace, int Depth)
 {
 	FILE *fdebug = NULL;
 	Img_dst->ColorSpace = ColorSpace;
 	Img_dst->Height = Height;
 	Img_dst->Width = Width;
 	Img_dst->Num_channels = NumChannels;
+	Img_dst->imageDepth = 8;
 
 	/* If we have Binary or Grayscale image, NumChannels should be == 1*/
 	if (ColorSpace < 2 && NumChannels != 1)
@@ -322,6 +347,7 @@ struct Image SetDestination(struct Image *Prototype, struct Image *Img_dst)
 	Img_dst->ColorSpace = Prototype->ColorSpace;
 	Img_dst->Height = Prototype->Height;
 	Img_dst->Width = Prototype->Width;
+	Img_dst->imageDepth = Prototype->imageDepth;
 
 	Img_dst->rgbpix = (unsigned char *)realloc(Img_dst->rgbpix, Img_dst->Height * Img_dst->Width * Img_dst->Num_channels* sizeof(unsigned char));
 	if (Img_dst->rgbpix == NULL)

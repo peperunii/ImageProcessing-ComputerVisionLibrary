@@ -34,7 +34,8 @@ int main()
 	struct Image *Layers = NULL;
 	struct Image *ptrToImage = NULL;
 	/*OPEN*/
-	Image Img_src = ReadImage("Dimo2.jpg");
+	Image Img_src = ReadImage("otDimo\\jylto.jpg");
+	//Image Img_src2 = ReadImage("minimacbeth\\choveche.jpg");
 	
 	/*CREATE*/
 	Image Img_srDst = CreateNewImage_BasedOnPrototype(&Img_src, &Img_srDst);
@@ -44,12 +45,15 @@ int main()
 	Image Img_dst2 = CreateNewImage(&Img_dst2, Img_src.Width, Img_src.Height, 1, 1);
 
 	struct point_xy CentralPoint;
+	
+	struct Histogram hist;
+
 	struct ColorPoint_RGB ColorPoint;
 	struct WhitePoint WhitePoint_lab1;
 	struct WhitePoint WhitePoint_lab2;
 
-	CentralPoint.X = 2000;// Img_dst.Width / 2 - 200;
-	CentralPoint.Y = 920;// Img_dst.Height / 2 + 200;
+	CentralPoint.X = 150;// Img_dst.Width / 2 - 200;
+	CentralPoint.Y = 300;// Img_dst.Height / 2 + 200;
 	
 	ColorPoint.R = 230;
 	ColorPoint.G = 150;
@@ -65,9 +69,9 @@ int main()
 	//Layers = CreateImageLayersBasedOnPrototype(&Img_src, 100);
 
 	// The color temperature of the imput image
-	SetWhiteBalanceValues(&WhitePoint_lab1, 7);
+	SetWhiteBalanceValues(&WhitePoint_lab1, 2);
 	// The color temperature of the output image
-	//SetWhiteBalanceValues(&WhitePoint_lab2, WHITE_5000K_D50_DAYLIGHT_RENDER);
+	SetWhiteBalanceValues(&WhitePoint_lab2, 7);
 
 	/*SET destination*/
 	//SetDestination(&Img_src, &Img_srDst);
@@ -82,7 +86,7 @@ int main()
 	//RotateImage(&Img_src, &Img_dst, 180, CentralPoint);
 	
 	/*BRIGHTNESS*/
-	BrightnessCorrection(&Img_srDst, &Img_srDst2, 230, BRIGHTNESS_PERCENTAGE_ALGO);
+	//BrightnessCorrection(&Img_src, &Img_srDst, 5, BRIGHTNESS_PERCENTAGE_ALGO);
 	
 	/*NOISE*/
 	//NoiseCorrection(&Img_src, &Img_srDst, 60, 1);
@@ -91,26 +95,26 @@ int main()
 	//GammaCorrection(&Img_src, &Img_srDst3, 1.2, 0.6, 1.2);
 	
 	/*CONRAST*/
-	ContrastCorrection(&Img_srDst2, &Img_srDst, 50);
+	//ContrastCorrection(&Img_src, &Img_srDst2, 10);
 
 	/* COLOR TEMPERATURE */
 	//ColorTemperature()
 
 	/*WHITE BALANCE*/
-	//WhiteBalanceCorrectionRGB(&Img_src, &Layers[0], 1);
+	WhiteBalanceCorrectionRGB(&Img_src, &Img_srDst2, 4);
 	
 	/* WHITE BALANCE - convert to XYZ. Set WhitePoints first */
-	//WhiteBalanceGREENY(&Img_src, &Layers[1], WhitePoint_lab1);
+	//WhiteBalanceGREENY(&Img_src, &Img_srDst2, WhitePoint_lab1);
 
 	/*WHITE BALANCE - using T and RGB*/
-	//WhitebalanceCorrectionBLUEorRED(&Img_srDst2, &Img_srDst, WhitePoint_lab1);
+	//WhitebalanceCorrectionBLUEorRED(&Img_src, &Img_srDst2, WhitePoint_lab1);
 
-/*	j = 0;
-	for (i = -50; i < 50; i++)
-	{
-		BrightnessCorrection(&Img_src, &Layers[j++], 2 * (i), BRIGHTNESS_PERCENTAGE_ALGO);
-	}
-*/	
+	//j = 0;
+	//for (i = -50; i < 50; i++)
+	//{
+	//	BrightnessCorrection(&Img_src, &Layers[j++], 2 * (i), BRIGHTNESS_PERCENTAGE_ALGO);
+	//}
+	
 	/*MASK create*/
 	//Img_dst = CreateMaskForLayers(&Layers[0], 2, 100);
 
@@ -157,18 +161,33 @@ int main()
 	//ConvertImage_HSL_to_RGB(&Img_srDst, &Img_srDst2);
 
 	/*SATURATION*/
-	Saturation(&Img_srDst, &Img_srDst2, 15);
+	//Saturation(&Img_src, &Img_srDst2, 0);
 
+	/*BLEND image with another image */
+	//BlendImage(&Img_src, &Img_src2, &Img_srDst, 50, BLEND_DONT_EXTRACT_EDGES, BLEND_REMOVE_WHITE, 20);
+	
 	/* RGB, XYZ, LAB convert */
 	//ConvertImage_RGB_to_LAB(&Img_src, &Img_srDst2, WhitePoint_lab1);
 
 	//ConvertImage_LAB_to_RGB(&Img_srDst2, &Img_srDst, WhitePoint_lab2);
 	//hui = pow_func(2, 2.5, 2);
 	
-	/*WRITE*/
-	WriteImage("Result_Brightness.jpg", Img_srDst2, QUALITY_MAX);
+	/*INVERT colors*/
+	//InverseImage0to255(&Img_src, &Img_srDst);
 
-	//WriteImage("minimacbeth\\Result_Greeny.jpg", Layers[1], QUALITY_MAX);
+	/*FOURIER transform*/
+    //SpatialToFrequencyDomain(&Img_src, &Img_dst);
+
+	/*Histogram */
+	/* Create new Histpgram for a given Image */
+	HistogramForImage(&hist, &Img_srDst2, 3);
+	ConvertHistToImage(&hist, &Img_dst);
+
+	/*WRITE*/
+	//WriteImage("fourierExample_Result__1.jpg", Img_src, QUALITY_MAX);
+	WriteImage("otDimo\\_Result.jpg", Img_dst, QUALITY_MAX);
+
+	//WriteImage("otDimo\\_Result_AWB_Algo2.jpg", Img_srDst2, QUALITY_MAX);
 
 	//WriteImage("minimacbeth\\Result_BlueOrRed.jpg", Layers[2], QUALITY_MAX);
 
